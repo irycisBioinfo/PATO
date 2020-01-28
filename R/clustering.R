@@ -1,0 +1,89 @@
+#' Clustering genomes
+#'
+#' This function cluster the genomes using \emph{mash} data, \emph{accnet} data
+#'  or \emph{igraph} data. The object produced by \emph{accnet} function,
+#'  \emph{mash} function and/or \emph{knnn} data could be clustered.
+#'  \emph{accnet} objects are clustered using jaccard distance from
+#'  presence/absence gene/proteins data. \emph{mash} object uses the mash distances
+#'  value as similarity. \emph{igraph} objects could be clustered using the methods
+#'  availables in \code{\link{igraph}}
+#'
+#'
+#' @param data An object of class accnet/mash/igraph
+#' @param method Method of clustering\cr
+#' \itemize{
+#' \item for accnet objects: \itemize{
+#'               \item mclust: It perform clustering using Gaussian Finite
+#'               Mixture Models. It could be combine with \emph{d_reduction}.
+#'               This method uses \code{\link{Mclust}} package. It has been
+#'               implemented to find the optimal cluster number
+#'               \item upgma: It perform a Hierarchical Clustering using
+#'               UPGMA algorithm. \emph{n_cluster} must be provided
+#'               \item ward.D2 It perform a Hierarchical Clustering using
+#'               Ward algorithm. \emph{n_cluster} must be provided
+#'               \item hdbscan: It perform a Density-based spatial clustering of
+#'                applications with noise using DBSCAN package. It find the
+#'                optimal number of cluster.
+#'               }
+#' \item for mash objects: \itemize{
+#'               \item mclust: It perform clustering using Gaussian Finite
+#'               Mixture Models. It could be combine with \emph{d_reduction}.
+#'               This method uses \code{\link{Mclust}} package. It has been
+#'               implemented to find the optimal cluster number
+#'               \item upgma: It perform a Hierarchical Clustering using
+#'               UPGMA algorithm. \emph{n_cluster} must be provided
+#'               \item ward.D2: It perform a Hierarchical Clustering using
+#'               Ward algorithm. \emph{n_cluster} must be provided
+#'               \item hdbscan: It perform a Density-based spatial clustering of
+#'                applications with noise using DBSCAN package. It find the
+#'                optimal number of cluster.
+#'               }
+#' \item for igraph objects \itemize{
+#'               \item greedy: Community structure via greedy optimization of
+#'               modularity
+#'               \item louvain: This method implements the multi-level
+#'               modularity optimization algorithm for finding community
+#'               structure
+#'               \item walktrap: Community strucure via short random walks
+#'              }
+#' }
+#' @param n_clust Number of cluster (only for Hierarchical methods)
+#' @param d_reduction \emph{boolean} Perform a dimensional reduction (umap)
+#' previous to clustering procces.
+#'
+#' @note Clustering of \emph{igraph} objects depends of the network building
+#' (see \emph{knnn} function) and the number of cluster may variate between
+#' different setting of the k-nn network. Network based-methods are faster than distance
+#' based methods.\cr Dimensional reduction tries to overcome "the curse of
+#' dimensionality" (more variables than samples:
+#' \link{https://en.wikipedia.org/wiki/Curse_of_dimensionality}). Using
+#' \emph{umap} from \code{\link{uwot}} package we reduce to two the dimensionality of
+#' the dataset. Note that methods based on HDBSCAN allways perform the
+#' dimensional reduction.\cr
+#' There is not a universall criteria to select the number of clusters and the best
+#' configuration for one dataset may be not be the best one for others.\cr\cr
+#' If you desire to know more about clustering we recommend the book "Practical Guide To
+#' Cluster Analysis in R" from Alboukadel Kassambara (STHDA ed.)
+#'
+#' @seealso knnn, accnet, mash, igraph.
+#' @return A membership \emph{data.frame} with the columns "Source" and "Cluster"
+#' @export
+#'
+
+clustering <- function(data, method, n_clust, d_reduction = FALSE)
+{
+  if(is(data,"accnet"))
+  {
+      return(cluster_accnet(data,method,n_clust, d_reduction))
+
+  }else if(is(data,"mash"))
+  {
+    return(cluster_mash(data,method,n_clust, d_reduction))
+  }else if(is(data,"igraph"))
+  {
+    return(cluster_knnn(data,method))
+
+  }else{
+    stop("Uncorrect data type: 'data' object must be accnet/mash/igraph")
+  }
+}
