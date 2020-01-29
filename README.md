@@ -33,7 +33,7 @@ install.packages("devtools")
 Once you have installed *devtools* package, type:
 
 ```
-devtools::install_github("https://github.com/irycisBioinfo/PATO")
+devtools::install_github("https://github.com/irycisBioinfo/PATO", build_vignettes = T)
 ```
 
 Some times some dependencies require system packages as `libcurl`. `libssl` or `libxml2` (this example is for Ubuntu/Debian based systems):
