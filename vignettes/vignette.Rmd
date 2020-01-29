@@ -1,9 +1,6 @@
 ---
 title: "Pangenome Analysis Toolkit"
 output:
-  pdf_document:
-    number_section: yes
-    toc: yes
   html_document:
     number_section: yes
     theme: simplex
@@ -11,9 +8,14 @@ output:
     toc_float:
       collapsed: yes
       smooth_scroll: no
+  pdf_document:
+    number_section: yes
+    toc: yes
   '': default
 vignette: |
-  %\VignetteIndexEntry{vignette} %\VignetteEncoding{UTF-8} %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{vignette} 
+  %\VignetteEncoding{UTF-8} 
+  %\VignetteEngine{knitr::rmarkdown}
 ---
 
 ```{r, include = FALSE}
