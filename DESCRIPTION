@@ -32,7 +32,8 @@ Imports:
  mclust (>= 5.4.5),
  dbscan (>= 1.1-4),
  ape (>= 5.3),
- parallelDist (>= 0.2.4)
+ parallelDist (>= 0.2.4),
+ manipulateWidget (>= 0.10.0)
 Suggests:
     pheatmap (>= 1.0.12),
     knitr,

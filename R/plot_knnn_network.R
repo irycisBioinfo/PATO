@@ -37,6 +37,7 @@
 #' @import dtplyr
 #' @import threejs
 #' @import data.table
+#' @import manipulateWidget
 #' @importFrom randomcoloR distinctColorPalette
 plot_knnn_network <- function(net, layout ="fr", dim = 3, cluster, ...)
 {
@@ -82,21 +83,30 @@ plot_knnn_network <- function(net, layout ="fr", dim = 3, cluster, ...)
     )
     return(list(graph = net, layout = coords))
   } else{
+
     colnames(cluster) <- c("Source", "Cluster")
     cluster = cluster %>% full_join(data.frame(
       Cluster = unique(cluster$Cluster),
       color = distinctColorPalette(length(unique(cluster$Cluster)))
     ))
+
     print(
-      threejs::graphjs(
-        net,
-        coords_plot,
-        vertex.size = 0.2,
-        vertex.color = cluster$color,
-        edge.color = "lightGrey",
-        vertex.label = vertex.attributes(net)$name, ...,
+      combineWidgets(
+        threejs::graphjs(
+            net,
+            coords_plot,
+            vertex.size = 0.2,
+            vertex.color = cluster$color,
+            edge.color = "lightGrey",
+            vertex.label = vertex.attributes(net)$name, ...,
+          ),
+        tags$div(
+          tags$b("CLUSTERS", style= "color:black;font-size:9px"),
+          tags$div("1", style = "color:red;font-size:15px"),
+          tags$div("2", style ="color:blue;font-size:15px"))
       )
     )
+
     return(list(
       graph = net,
       layout = coords,

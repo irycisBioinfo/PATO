@@ -131,5 +131,8 @@ accnet_enrichment_analysis <- function(data,cluster, padj_method = "BY")
     AccnetGenomeSize,
     AccnetProteinSize
   ) %>% full_join(data$annot, by = c("Target"="ID"))
-  return(accnet %>% ungroup())
+
+  result <- accnet %>% ungroup()
+  class(result) <- c("accnet_enr","data.frame")
+  return(result)
 }

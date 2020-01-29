@@ -19,9 +19,9 @@
 #'
 accnet_with_padj <- function(data)
 {
-	if(!is(data,"accnet"))
+	if(!is(data,"accnet_enr"))
   {
-    stop("Data must be an 'accnet' object")
+    stop("Data must be an 'accnet_enr' object")
   }
   list <- data %>%  select(Source,Target,Weight = padj) %>% mutate(Weight = 2-Weight)
   matrix <- data %>%  select(Source,Target,Weight = padj) %>% mutate(Weight = 2-Weight) %>% spread(Target,Weight,fill = 0)
