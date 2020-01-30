@@ -51,9 +51,9 @@ pangenomes_mmseqs <- function(file_list, coverage, identity, evalue, n_cores, co
 
   if(sum(grep("avx2",system("cat /proc/cpuinfo",intern = TRUE),ignore.case = TRUE)))
   {
-    mmseqPah = system.file("mmseqs.avx2", package = "PATO")
+    mmseqPah = system.file("mmseqs.avx2", package = "pato")
   }else{
-    mmseqPah = system.file("mmseqs.sse41", package = "PATO")
+    mmseqPah = system.file("mmseqs.sse41", package = "pato")
   }
 
 

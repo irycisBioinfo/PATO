@@ -19,7 +19,7 @@
 cluster_files_from_distance <- function(files, file_type, distance, n_cores)
 {
 
-  mashPath = system.file("mash",package = "PATO")
+  mashPath = system.file("mash",package = "pato")
   system("rm all.msh input_mash.txt")
 
   write.table(files[,1],"input_mash.txt", quote = F, col.names = FALSE, row.names = FALSE)

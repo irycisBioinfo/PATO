@@ -60,22 +60,22 @@ annotate <- function(files, re_use = TRUE, type = "nucl", database =c("AbR","VF_
 
   if(sum(grep("avx2",system("cat /proc/cpuinfo",intern = TRUE),ignore.case = TRUE)))
   {
-    mmseqPath = system.file("mmseqs.avx2", package = "PATO")
+    mmseqPath = system.file("mmseqs.avx2", package = "pato")
   }else{
-    mmseqPath = system.file("mmseqs.sse41", package = "PATO")
+    mmseqPath = system.file("mmseqs.sse41", package = "pato")
   }
   if(type == "prot")
   {
-    resfinder_path <- system.file("annotation/resfinder_prot", package = "PATO")
-    vf_A_path <- system.file("annotation/VFDB_setA_prot", package = "PATO")
-    vf_B_path <- system.file("annotation/VFDB_setB_prot", package = "PATO")
-    annot <- read.delim(system.file("annotation/annot.data", package = "PATO"), stringsAsFactors = FALSE, header = TRUE, sep = "\t")
+    resfinder_path <- system.file("annotation/resfinder_prot", package = "pato")
+    vf_A_path <- system.file("annotation/VFDB_setA_prot", package = "pato")
+    vf_B_path <- system.file("annotation/VFDB_setB_prot", package = "pato")
+    annot <- read.delim(system.file("annotation/annot.data", package = "pato"), stringsAsFactors = FALSE, header = TRUE, sep = "\t")
   }else if(type =="nucl")
   {
-    resfinder_path <- system.file("annotation/resfinder_nucl", package = "PATO")
-    vf_A_path <- system.file("annotation/VFDB_setA_nucl", package = "PATO")
-    vf_B_path <- system.file("annotation/VFDB_setB_nucl", package = "PATO")
-    annot <- read.delim(system.file("annotation/annot.data", package = "PATO"), stringsAsFactors = FALSE, header = TRUE, sep = "\t")
+    resfinder_path <- system.file("annotation/resfinder_nucl", package = "pato")
+    vf_A_path <- system.file("annotation/VFDB_setA_nucl", package = "pato")
+    vf_B_path <- system.file("annotation/VFDB_setB_nucl", package = "pato")
+    annot <- read.delim(system.file("annotation/annot.data", package = "pato"), stringsAsFactors = FALSE, header = TRUE, sep = "\t")
   }else{
     stop("Error in data type selection: please specify 'nucl' or 'prot'")
   }

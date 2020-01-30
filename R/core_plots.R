@@ -16,7 +16,7 @@
 #' @note It's supossed the a gene/protein of the core-genome must be present in all
 #' the genomes of the dataset. Nevertheless, by random selection and/or errors
 #' in sequencing proccess (sequencing, assembly, ORF finding etc..) some
-#' genes/proteins could be missing. Pato define the genome as, pangeno (the sum of all genomes),
+#' genes/proteins could be missing. pato define the genome as, pangeno (the sum of all genomes),
 #' core-genome.
 #'
 #' @export
