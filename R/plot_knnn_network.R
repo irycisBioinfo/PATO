@@ -38,6 +38,7 @@
 #' @import threejs
 #' @import data.table
 #' @import manipulateWidget
+#' @import htmltools
 #' @importFrom randomcoloR distinctColorPalette
 plot_knnn_network <- function(net, layout ="fr", dim = 3, cluster, ...)
 {
@@ -85,11 +86,19 @@ plot_knnn_network <- function(net, layout ="fr", dim = 3, cluster, ...)
   } else{
 
     colnames(cluster) <- c("Source", "Cluster")
-    cluster = cluster %>% full_join(data.frame(
+    cluster <- cluster %>% full_join(data.frame(
       Cluster = unique(cluster$Cluster),
       color = distinctColorPalette(length(unique(cluster$Cluster)))
     ))
 
+    legend_table <-  cluster %>% select(-Source) %>% distinct() %>% arrange(Cluster)
+
+    legend <- tagList(tags$h3("CLUSTERS", style= "color:black;font-size:9px"))
+
+    for (i in 1:nrow(legend_table))
+    {
+      legend <- tagAppendChildren(legend, h5(legend_table[i,1], style = paste("background:",legend_table[i,2],";text-align:center", sep = "",collapse = "")))
+    }
     print(
       combineWidgets(
         threejs::graphjs(
@@ -100,10 +109,7 @@ plot_knnn_network <- function(net, layout ="fr", dim = 3, cluster, ...)
             edge.color = "lightGrey",
             vertex.label = vertex.attributes(net)$name, ...,
           ),
-        tags$div(
-          tags$b("CLUSTERS", style= "color:black;font-size:9px"),
-          tags$div("1", style = "color:red;font-size:15px"),
-          tags$div("2", style ="color:blue;font-size:15px"))
+        legend, ncol = 2, colsize = c(6,1)
       )
     )
 
