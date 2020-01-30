@@ -39,7 +39,7 @@ mash <- function(file_list, n_cores =4, sketch = 1000, kmer = 21, type = "prot")
 {
 
 
-  mashPath = system.file("mash",package = "PATO")
+  mashPath = system.file("mash",package = "pato")
   system("rm all.msh input_mash.txt")
 
   write.table(files[,1],"input_mash.txt", quote = F, col.names = FALSE, row.names = FALSE)

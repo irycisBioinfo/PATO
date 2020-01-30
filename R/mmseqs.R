@@ -57,9 +57,9 @@ mmseqs <- function(file_list, coverage = 0.8, identity = 0.8, evalue = 1e-6, n_c
   proc_cpu = readLines("/proc/cpuinfo")
   if(sum(grep("avx2",proc_cpu,ignore.case = TRUE)))
   {
-    mmseqPath = system.file("mmseqs.avx2", package = "PATO")
+    mmseqPath = system.file("mmseqs.avx2", package = "pato")
   }else{
-    mmseqPath = system.file("mmseqs.sse41", package = "PATO")
+    mmseqPath = system.file("mmseqs.sse41", package = "pato")
   }
 
 
