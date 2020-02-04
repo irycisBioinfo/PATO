@@ -32,7 +32,7 @@ knnn <- function(data, n_neigh, repeats = TRUE)
   {
 
     matrix <- data$matrix %>%
-      column_to_rownames("Source")%>%
+      column_to_rownames("Source")%>% as.matrix() %>%
       parallelDist(., method = "binary") %>%
       as.matrix() %>%
       as.data.frame()

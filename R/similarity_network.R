@@ -31,7 +31,7 @@ similarity_network <- function(data, threshold)
 
   }else if (class(data) == "accnet")
   {
-    gr <- data$matrix %>% parallelDist(method ="binary") %>% as.matrix()
+    gr <- data$matrix %>% column_to_rownames("Source") %>% as.matrix() %>% parallelDist(method ="binary") %>% as.matrix()
     gr = gr < threshold
     gr = graph_from_adjacency_matrix(gr, mode ="upper")
   }

@@ -35,7 +35,7 @@ similarity_tree <- function(data, method ="NJ")
 
   if(is(data,"accnet"))
   {
-    dist = data$matrix %>% column_to_rownames("Source") %>% parallelDist(., method = "binary")
+    dist = data$matrix %>% column_to_rownames("Source") %>% as.matrix()%>%  parallelDist(., method = "binary")
 
 
   }else if (is(data,"mash"))

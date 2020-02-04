@@ -55,6 +55,7 @@ mmseqs <- function(file_list, coverage = 0.8, identity = 0.8, evalue = 1e-6, n_c
 {
 
   proc_cpu = readLines("/proc/cpuinfo")
+
   if(sum(grep("avx2",proc_cpu,ignore.case = TRUE)))
   {
     mmseqPath = system.file("mmseqs.avx2", package = "pato")
@@ -84,6 +85,7 @@ mmseqs <- function(file_list, coverage = 0.8, identity = 0.8, evalue = 1e-6, n_c
 
 
   cmd1 <- paste(mmseqPath," createdb all.rnm all.mmseq",sep = "",collapse = "")
+  print(cmd1)
   system(cmd1)
 
 
@@ -96,23 +98,25 @@ mmseqs <- function(file_list, coverage = 0.8, identity = 0.8, evalue = 1e-6, n_c
                 "--cov-mode", cov_mode,
                 "--cluster-mode",cluster_mode,
                 sep = "",collapse = "")
+  print(cmd2)
   system(cmd2)
 
 
 
   cmd3 <- paste(mmseqPath," createtsv all.mmseq all.mmseq all.cluster all.cluster.tsv",sep = "",collapse = "")
-
+  print(cmd3)
   system(cmd3)
 
 
 
   cmd4 <- paste(mmseqPath," result2repseq all.mmseq all.cluster all.representatives",sep = "",collapse = "")
-
+  print(cmd4)
   system(cmd4)
 
 
 
   cmd5 <- paste(mmseqPath," result2flat all.mmseq all.mmseq all.representatives all.representatives.fasta --use-fasta-header",sep = "",collapse = "")
+  print(cmd5)
   system(cmd5)
 
 

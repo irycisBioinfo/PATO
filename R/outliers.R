@@ -42,7 +42,7 @@ outliers <- function(data, threshold, n_sd, plot = TRUE)
   } else if (is(data,"accnet"))
   {
     m.list <- data$matrix %>%
-      column_to_rownames("Source") %>%
+      column_to_rownames("Source") %>% as.matrix() %>%
       parallelDist(., method = "binary") %>%
       as.matrix() %>% as.data.frame() %>%
       rownames_to_column("Source") %>%
