@@ -64,10 +64,18 @@ non_redundant_hier <- function(data, number, fraction, distance, tolerance = 0.0
     if(fast ==TRUE) {
       cluster <- components(gr.tmp)
     }else{
-        cluster <- cluster_louvain(gr.tmp)
+      cluster <- cluster_louvain(gr.tmp)
     }
 
     Nc <- as.numeric(max(cluster$membership))
+
+    if(is.infinite(Nc))
+    {
+      cluster <- components(gr.tmp)
+      Nc <- as.numeric(max(cluster$membership))
+    }
+
+
     cent <- centralization.degree(gr.tmp)
     results <- data.frame(Source = as.character(vertex.attributes(gr.tmp)$name),
                           centrality = cent$res,
