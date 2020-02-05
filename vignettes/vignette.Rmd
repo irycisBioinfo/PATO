@@ -165,7 +165,7 @@ The Greedy Set cover (`cluster-mode = 0`) algorithm is an approximation for the 
 Greedy set cover works by iteratively selecting the node with most connections and all its connected nodes to form a cluster and repeating until all nodes are in a cluster.
 The greedy set cover is followed by a reassignment step. A Cluster member is assigned to another cluster centroid if their alignment score was higher. 
 
-Connected component (`cluster_modemn = 1`) uses transitive connection to cover more remote homologs.
+Connected component (`cluster_mode = 1`) uses transitive connection to cover more remote homologs.
 
 ![Connected component clustering](cluster-mode-connectedcomp.png){width=70%}
 

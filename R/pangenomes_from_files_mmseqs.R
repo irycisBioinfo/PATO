@@ -11,7 +11,7 @@
 #' @param cov_mode coverage mode
 #' @param cluster_mode cluster mode
 #'
-#' @return A \emph{list} with two tables, the membership of the pangenome, 
+#' @return A \emph{list} with two tables, the membership of the pangenome,
 #' and the gene/protein frequency.
 #'
 #' @examples
@@ -38,7 +38,7 @@ pangenomes_from_files_mmseqs <- function(files,i, coverage, identity, evalue, n_
   num <- 0
 
 
-  for(f in files$Source)
+  for(f in files[,1])
   {
     num <-  num+1
     members <- bind_rows(members,data.frame(pangenome = i, file = f, number = num))
