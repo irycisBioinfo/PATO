@@ -49,7 +49,7 @@ mash <- function(file_list, n_cores =4, sketch = 1000, kmer = 21, type = "prot")
     cmd1 <- paste(mashPath," sketch -p ",n_cores," -s ",sketch," -k ",kmer," -l input_mash.txt"," -a -o all.msh", sep = "", collapse = "")
   }else if(type =="nucl")
   {
-    cmd1 <- paste(mashPath," sketch -p ",n_cores," -s ",sketch," -k ",kmer," -l input_mash.txt","-o all.msh", sep = "", collapse = "")
+    cmd1 <- paste(mashPath," sketch -p ",n_cores," -s ",sketch," -k ",kmer," -l input_mash.txt"," -o all.msh", sep = "", collapse = "")
   } else{
     stop("Error in type options. Only prot or nucl options are allowed")
   }
