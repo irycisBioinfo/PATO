@@ -70,7 +70,7 @@ plot_knnn_network <- function(net, layout ="fr", dim = 3, cluster, ...)
     coords_plot <- coords
   }
 
-  if (missing(cluster))
+  if(missing(cluster))
   {
     print(
       threejs::graphjs(
@@ -91,7 +91,10 @@ plot_knnn_network <- function(net, layout ="fr", dim = 3, cluster, ...)
       color = distinctColorPalette(length(unique(cluster$Cluster)))
     ))
 
-    legend_table <-  cluster %>% select(-Source) %>% distinct() %>% arrange(Cluster)
+    tmp <-get.data.frame(net,what = "vertices")
+    cluster <- tmp %>% inner_join(cluster, by=c("name" = "Source"))
+
+    legend_table <-  cluster %>% select(-name) %>% distinct() %>% arrange(Cluster)
 
     legend <- tagList(tags$h3("CLUSTERS", style= "color:black;font-size:9px"))
 
@@ -107,7 +110,8 @@ plot_knnn_network <- function(net, layout ="fr", dim = 3, cluster, ...)
             vertex.size = 0.2,
             vertex.color = cluster$color,
             edge.color = "lightGrey",
-            vertex.label = vertex.attributes(net)$name, ...,
+            vertex.label = vertex.attributes(net)$name,
+            ...,
           ),
         legend, ncol = 2, colsize = c(6,1)
       )
