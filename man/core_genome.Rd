@@ -4,10 +4,12 @@
 \alias{core_genome}
 \title{Core-Genome Alignment}
 \usage{
-core_genome(data)
+core_genome(data, type)
 }
 \arguments{
 \item{data}{An \emph{mmseqs} object}
+
+\item{type}{Type of sequence DNA or AA (Aminoacids)}
 }
 \value{
 A core_genome object (a data.frame with two columns: fasta header and sequence)
