@@ -49,11 +49,11 @@ similarity_tree <- function(data, method ="NJ")
   if(method == "fastme")
   {
     tree = ape::fastme.bal(dist)
-    return(phytools::midpoint.root(tree))
+    return(phangorn::midpoint(tree))
   }else if (method == "NJ")
   {
     tree = ape::bionj(dist)
-    return(phytools::midpoint.root(tree))
+    return(phangorn::midpoint(tree))
   }else if (method =="UPGMA")
   {
     tree = hclust(dist, method ="average")

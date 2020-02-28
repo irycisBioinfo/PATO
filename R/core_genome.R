@@ -15,6 +15,7 @@
 #' \emph{core_genome()} can build a core-genome alingment of thusands of genomes in minutes.
 #'
 #' @param data An \emph{mmseqs} object
+#' @param type Type of sequence DNA or AA (Aminoacids)
 #'
 #' @return A core_genome object (a data.frame with two columns: fasta header and sequence)
 #' @export
@@ -26,7 +27,7 @@
 #' @import dtplyr
 #' @import data.table
 #'
-core_genome <- function(data)
+core_genome <- function(data, type)
 {
   if(!is(data,"mmseq"))
   {
@@ -71,11 +72,13 @@ core_genome <- function(data)
     system("mv core* f_core")
 
     seqs <-  data.frame()
+    individual_aln <- list()
     for (i in(dir("./f_core")))
     {
       tmp <- readLines(paste("./f_core/",i,sep = "",collapse = ""))
       tmp2 <- data.frame(Head = tmp[seq(1,length(tmp)-1,2)],Seq = tmp[seq(2,length(tmp),2)])
       seqs <- bind_rows(seqs,tmp2)
+      individual_aln[[i]] <- read.FASTA(paste("./f_core/",i,sep = "",collapse = ""), type = type)
     }
     print(colnames(seqs))
     seqs <- seqs %>%
@@ -86,7 +89,7 @@ core_genome <- function(data)
     print("Number of hard core-genes (100% presence):")
     print(nrow(table))
     class(seqs) <- "core_genome"
-    return(seqs)
+    return(list(core_genome = seqs, individual_aln = individual_aln))
 
 
 
