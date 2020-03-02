@@ -41,44 +41,93 @@ core_genome <- function(data, type)
     mmseqPah = system.file("mmseqs.sse41", package = "pato")
   }
 
+  blastParser = system.file("blast_parser.pl", package = "pato")
+
   if(file.exists("all.mmseq") & file.exists("all.cluster.index"))
   {
 
     nGenomes  <-  data$table %>% distinct(Genome_genome) %>% count()
-    table <-  data$table %>% as_tibble() %>% group_by(Prot_prot) %>% mutate(Nprots = n()) %>%
-      group_by(Prot_prot,Nprots) %>% summarise(Ngenomes = n_distinct(Genome_genome)) %>% ungroup() %>%
-      filter(Nprots == nGenomes$n & Ngenomes == nGenomes$n) %>% ungroup()
+    table <-  data$table %>%
+      distinct() %>%
+      group_by(Prot_prot) %>%
+      mutate(Nprot = n_distinct(Genome_prot), Ngenomes = n_distinct(Genome_genome)) %>% ungroup() %>%
+      filter(Ngenomes ==  nGenomes$n & Nprot == nGenomes$n)
 
-    lookup <- data.table::fread("all.mmseq.lookup") %>% as_tibble()
+
+    lookup <- data.table::fread("all.mmseq.lookup", sep = "\t") %>% as_tibble()
     colnames(lookup) = c("ID","head","value")
 
-    core_table <-  data$table %>%
-      semi_join(table) %>%
+    core_table <-  table %>%
       unite(head, Prot_genome, Prot_prot, sep = "#", remove = FALSE) %>%
       select(head) %>%
-      distinct() %>% inner_join(lookup) %>%
-      select(ID) %>% write.table("IDS.txt", col.names = FALSE, row.names = FALSE, quote = FALSE)
+      distinct() %>% inner_join(lookup)
 
-    system("rm -r f_core core*")
-    system("mkdir f_core")
+    if(nrow(core_table) >0)
+    {
+      core_table %>%
+        select(ID) %>% write.table("IDS.txt", col.names = FALSE, row.names = FALSE, quote = FALSE)
+    }else{
+      stop("No core_genome found")
+    }
 
-    paste(mmseqPah," createsubdb IDS.txt all.cluster all.cluster.subset -v 0", sep = "", collapse = "") %>%
-      system(.,intern = F,ignore.stdout = T, ignore.stderr = T)
-    paste(mmseqPah," result2msa all.mmseq all.mmseq all.cluster.subset all.msa --summarize --max-seq-id 1 --diff ",nGenomes$n+1," --qsc -50 --omit-consensus -v 0", sep = "", collapse = "") %>%
-      system(.,intern = F,ignore.stdout = T, ignore.stderr = T)
-    system("strings all.msa > all.msa.flat")
-    system("csplit -z all.msa.flat /#cl-/ {*} -f core --suppress-matched")
+    if(dir.exists("f_core"))
+    {
+      system("rm -r f_core")
+    }
+    if(length(list.files(".",pattern = "core"))>0)
+    {
+      file.remove(list.files(".",pattern = "core"),recursive = TRUE)
+    }
 
-    system("mv core* f_core")
+    dir.create("f_core")
 
+
+     paste(mmseqPah," createsubdb IDS.txt all.cluster all.cluster.subset -v 0", sep = "", collapse = "") %>%
+       system(.,intern = F,ignore.stdout = T, ignore.stderr = T)
+     paste(mmseqPah," createseqfiledb all.mmseq all.cluster.subset subset  -v 0", sep = "", collapse = "") %>%
+       system(.,intern = F,ignore.stdout = T, ignore.stderr = T)
+     paste(mmseqPah," result2flat all.mmseq all.mmseq subset subset.fasta", sep = "", collapse = "") %>%
+       system(.,intern = F,ignore.stdout = T, ignore.stderr = T)
+
+     paste("split -a 4 --numeric-suffixes=1 -l ",(nGenomes$n*2)+1," subset.fasta core_") %>%
+       system(.,intern = F,ignore.stdout = T, ignore.stderr = T)
+
+
+     system("mv core* f_core")
+     system("sed -i '1d' ./f_core/*",intern = F,ignore.stdout = T, ignore.stderr = T)
     seqs <-  data.frame()
     individual_aln <- list()
     for (i in(dir("./f_core")))
     {
-      tmp <- readLines(paste("./f_core/",i,sep = "",collapse = ""))
-      tmp2 <- data.frame(Head = tmp[seq(1,length(tmp)-1,2)],Seq = tmp[seq(2,length(tmp),2)])
-      seqs <- bind_rows(seqs,tmp2)
-      individual_aln[[i]] <- read.FASTA(paste("./f_core/",i,sep = "",collapse = ""), type = type)
+      cat(i,'\n')
+      system(paste("head -2 ./f_core/",i," > ./f_core/ref.fasta",sep = "",collapse = ""))
+      system(paste("grep '>' ./f_core/",i," > ./f_core/headers",sep = "",collapse = ""))
+      l = system(paste("head -2 ./f_core/",i,"| tail -1 |wc -m ",sep = "",collapse = ""), intern =T)
+
+      l = as.numeric(l)+50
+      if(type =="DNA")
+      {
+        paste("blastn -query ./f_core/ref.fasta -subject ./f_core/",
+              i,
+              " -outfmt 4 -out ./f_core/blast -line_length ",
+              l+50,
+              " -num_alignments ",
+              nGenomes$n+10,
+              sep = "", collapse = "") %>%
+          system()
+      }else{
+        paste("blastp -query ./f_core/ref.fasta -subject ./f_core/",
+              i,
+              " -outfmt 4 -out ./f_core/blast -line_length ",
+              l,
+              " -num_alignments ",
+              nGenomes$n+10,
+              sep = "", collapse = "") %>%
+          system()
+      }
+      paste("perl ",blastParser," ./f_core/blast ./f_core/headers > ./f_core/",i,".aln", sep = "", collapse = "") %>%
+        system()
+
     }
     print(colnames(seqs))
     seqs <- seqs %>%
@@ -86,8 +135,8 @@ core_genome <- function(data, type)
       group_by(Genomes) %>%
       summarise(Seq = paste(Seq,sep = "",collapse = ""))
 
-    print("Number of hard core-genes (100% presence):")
-    print(nrow(table))
+    print("Number of hard core-genes (100% presence split paralogous):")
+    print(table %>% select(Prot_prot) %>% distinct() %>% nrow())
     class(seqs) <- "core_genome"
     return(list(core_genome = seqs, individual_aln = individual_aln))
 
