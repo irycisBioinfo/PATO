@@ -8,15 +8,16 @@
 #' @examples
 export_core_to_fasta <- function(core_data,file)
 {
+
   if(is(core_data,"core_genome"))
   {
-    for(i in 1:length(core_data$Genomes))
+    for(i in 1:length(core_data$core_genome$Genomes))
     {
-      write(core_data$Genomes[i],file,append = TRUE)
-      write(core_data$Seq[i],file, append = TRUE)
+      write(core_data$core_genome$Genomes[i],file,append = TRUE)
+      write(core_data$core_genome$Seq[i],file, append = TRUE)
     }
   }else{
-    stop("core_data")
+    stop("core_data must be a 'core_genome' object")
   }
 }
 
