@@ -46,7 +46,7 @@ core_genome <- function(data, type)
   if(file.exists("all.mmseq") & file.exists("all.cluster.index"))
   {
 
-    nGenomes  <-  data$table %>% distinct(Genome_genome) %>% count()
+    nGenomes  <-  data$table %>% as_tibble() %>% distinct(Genome_genome) %>% count()
     table <-  data$table %>%
       distinct() %>%
       group_by(Prot_prot) %>%
@@ -127,6 +127,13 @@ core_genome <- function(data, type)
       }
       paste("perl ",blastParser," ./f_core/blast ./f_core/headers > ./f_core/",i,".aln", sep = "", collapse = "") %>%
         system()
+
+      tmp <- readLines(paste("./f_core/",i,".aln",sep = "",collapse = ""))
+      tmp2 <- data.frame(Head = tmp[seq(1,length(tmp)-1,2)],Seq = tmp[seq(2,length(tmp),2)])
+      seqs <- bind_rows(seqs,tmp2)
+
+      individual_aln[[i]] <- read.FASTA(paste("./f_core/",i,".aln",sep = "",collapse = ""), type = type)
+
 
     }
     print(colnames(seqs))
