@@ -15,7 +15,7 @@
 #' \emph{core_genome()} can build a core-genome alingment of thusands of genomes in minutes.
 #'
 #' @param data An \emph{mmseqs} object
-#' @param type Type of sequence DNA or AA (Aminoacids)
+#' @param type Type of sequence 'nucl' or 'prot'
 #'
 #' @return A core_genome object (a data.frame with two columns: fasta header and sequence)
 #' @export
@@ -32,6 +32,11 @@ core_genome <- function(data, type)
   if(!is(data,"mmseq"))
   {
     stop("Error, 'data' must be a mmseq object")
+  }
+
+  if(missing(type))
+  {
+    stop("type parameter must be provided (nucl or prot)")
   }
 
   if(sum(grep("avx2",system("cat /proc/cpuinfo",intern = TRUE),ignore.case = TRUE)))
@@ -104,26 +109,29 @@ core_genome <- function(data, type)
       system(paste("grep '>' ./f_core/",i," > ./f_core/headers",sep = "",collapse = ""))
       l = system(paste("head -2 ./f_core/",i,"| tail -1 |wc -m ",sep = "",collapse = ""), intern =T)
 
-      l = as.numeric(l)+50
-      if(type =="DNA")
+      l = as.numeric(l)*4
+      if(type =="nucl")
       {
         paste("blastn -query ./f_core/ref.fasta -subject ./f_core/",
               i,
-              " -outfmt 4 -out ./f_core/blast -line_length ",
+              " -outfmt 4 -max_hsps 1 -out ./f_core/blast -line_length ",
               l+50,
               " -num_alignments ",
               nGenomes$n+10,
               sep = "", collapse = "") %>%
           system()
-      }else{
+      }else if(type=="prot")
+      {
         paste("blastp -query ./f_core/ref.fasta -subject ./f_core/",
               i,
-              " -outfmt 4 -out ./f_core/blast -line_length ",
+              " -outfmt 4 -max_hsps 1 -out ./f_core/blast -line_length ",
               l,
               " -num_alignments ",
               nGenomes$n+10,
               sep = "", collapse = "") %>%
           system()
+      }else{
+        stop("type mus be 'prot' or 'nucl'")
       }
       paste("perl ",blastParser," ./f_core/blast ./f_core/headers > ./f_core/",i,".aln", sep = "", collapse = "") %>%
         system()
@@ -132,7 +140,12 @@ core_genome <- function(data, type)
       tmp2 <- data.frame(Head = tmp[seq(1,length(tmp)-1,2)],Seq = tmp[seq(2,length(tmp),2)])
       seqs <- bind_rows(seqs,tmp2)
 
-      individual_aln[[i]] <- read.FASTA(paste("./f_core/",i,".aln",sep = "",collapse = ""), type = type)
+      if(type=='nucl')
+      {
+        individual_aln[[i]] <- read.FASTA(paste("./f_core/",i,".aln",sep = "",collapse = ""), type = "DNA")
+      }else{
+        individual_aln[[i]] <- read.FASTA(paste("./f_core/",i,".aln",sep = "",collapse = ""), type = "AA")
+      }
 
 
     }
@@ -148,8 +161,6 @@ core_genome <- function(data, type)
     results <- list(core_genome = seqs, individual_aln = individual_aln)
     class(results) <-  append(class(results),"core_genome" )
     return(results)
-
-
 
   } else{
     stop("You must execute mmseqs() before core_genome()")
