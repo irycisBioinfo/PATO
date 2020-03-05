@@ -16,9 +16,9 @@
 #'
 export_accnet_aln <- function(accnet,file, min_freq)
 {
-  if(file.exists(aln))
+  if(file.exists(file))
   {
-    file.remove(aln)
+    file.remove(file)
   }
   if(is(accnet,"accnet"))
   {
