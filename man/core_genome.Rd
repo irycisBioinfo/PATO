@@ -9,7 +9,7 @@ core_genome(data, type)
 \arguments{
 \item{data}{An \emph{mmseqs} object}
 
-\item{type}{Type of sequence DNA or AA (Aminoacids)}
+\item{type}{Type of sequence 'nucl' or 'prot'}
 }
 \value{
 A core_genome object (a data.frame with two columns: fasta header and sequence)
