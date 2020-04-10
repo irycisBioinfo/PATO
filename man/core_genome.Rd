@@ -4,7 +4,7 @@
 \alias{core_genome}
 \title{Core-Genome Alignment}
 \usage{
-core_genome(data, type)
+core_genome(data, type, n_cores)
 }
 \arguments{
 \item{data}{An \emph{mmseqs} object}

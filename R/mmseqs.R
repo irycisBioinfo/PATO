@@ -50,9 +50,16 @@
 #' @import tibble
 #' @import dtplyr
 #' @import data.table
+#' @import foreach
+#' @import doParallel
 #'
-mmseqs <- function(file_list, coverage = 0.8, identity = 0.8, evalue = 1e-6, n_cores = 5, cov_mode = 0, cluster_mode = 0)
+mmseqs <- function(file_list, coverage = 0.8, identity = 0.8, evalue = 1e-6, n_cores, cov_mode = 0, cluster_mode = 0)
 {
+
+  if(missing(n_cores))
+  {
+    n_cores = detectCores()-1
+  }
 
   proc_cpu = readLines("/proc/cpuinfo")
 
@@ -68,9 +75,9 @@ mmseqs <- function(file_list, coverage = 0.8, identity = 0.8, evalue = 1e-6, n_c
   system("rm -r tmpDir")
   system("rm all*")
 
+
   for (i in file_list[,1])
   {
-
     if(grepl("gz",i[1]))
     {
       print(paste("zcat ",i," | perl -pe 's/>/$&.\"",basename(i),"\".\"#\".++$n.\"|\"/e' >> all.rnm", collapse = "",sep = ""), quote = FALSE) %>% system()
@@ -78,8 +85,6 @@ mmseqs <- function(file_list, coverage = 0.8, identity = 0.8, evalue = 1e-6, n_c
       print(paste("perl -pe 's/>/$&.\"",basename(i),"\".\"#\".++$n.\"|\"/e' ",i," >> all.rnm", collapse = "",sep = ""), quote = FALSE) %>% system()
 
     }
-
-
   }
 
 
@@ -87,9 +92,6 @@ mmseqs <- function(file_list, coverage = 0.8, identity = 0.8, evalue = 1e-6, n_c
   cmd1 <- paste(mmseqPath," createdb all.rnm all.mmseq",sep = "",collapse = "")
   print(cmd1)
   system(cmd1)
-
-
-
 
   cmd2 <- paste(mmseqPath," linclust all.mmseq all.cluster tmpDir --threads ",n_cores,
                 " -e ",evalue,
@@ -101,24 +103,17 @@ mmseqs <- function(file_list, coverage = 0.8, identity = 0.8, evalue = 1e-6, n_c
   print(cmd2)
   system(cmd2)
 
-
-
   cmd3 <- paste(mmseqPath," createtsv all.mmseq all.mmseq all.cluster all.cluster.tsv",sep = "",collapse = "")
   print(cmd3)
   system(cmd3)
-
-
 
   cmd4 <- paste(mmseqPath," result2repseq all.mmseq all.cluster all.representatives",sep = "",collapse = "")
   print(cmd4)
   system(cmd4)
 
-
-
   cmd5 <- paste(mmseqPath," result2flat all.mmseq all.mmseq all.representatives all.representatives.fasta --use-fasta-header",sep = "",collapse = "")
   print(cmd5)
   system(cmd5)
-
 
   system("grep '>' all.representatives.fasta | sed 's/>//' | sed 's/ /~~/' | sed 's/\t/ /g' > AnnotFile.tsv");
 

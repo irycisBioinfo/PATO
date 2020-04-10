@@ -57,42 +57,42 @@ core_plots <- function(data, steps = 10, reps = 10, threshold = 0.98, type = "pa
 
     for (i in intervals)
     {
-        for (j in 1:reps) {
-          tmp <-  data_plots %>%
-            inner_join(genomes %>% sample_n(i), by = "Genome_genome") %>%
-            group_by(Prot_prot) %>%
-            summarise(freq = n())
-          core <-  tmp %>%
-            filter(freq >= i * threshold) %>% count()
+      for (j in 1:reps) {
+        tmp <-  data_plots %>%
+          inner_join(genomes %>% sample_n(i), by = "Genome_genome") %>%
+          group_by(Prot_prot) %>%
+          summarise(freq = n())
+        core <-  tmp %>%
+          filter(freq >= i * threshold) %>% count()
 
-          pange <-  tmp %>% filter(freq > 1) %>% count()
+        pange <-  tmp %>% filter(freq > 1) %>% count()
 
-          acc <-  pange$n - core$n
+        acc <-  pange$n - core$n
 
 
-          results <-  bind_rows(results,
+        results <-  bind_rows(results,
                               data.frame(
                                 Data = "Core",
                                 N = i,
                                 Iter = j,
                                 Value = core$n
                               ))
-          results  <-  bind_rows(results,
-                              data.frame(
-                                Data = "Pangenome",
-                                N = i,
-                                Iter = j,
-                                Value = pange$n
-                              ))
-          results <-  bind_rows(results,
+        results  <-  bind_rows(results,
+                               data.frame(
+                                 Data = "Pangenome",
+                                 N = i,
+                                 Iter = j,
+                                 Value = pange$n
+                               ))
+        results <-  bind_rows(results,
                               data.frame(
                                 Data = "Accessory",
                                 N = i,
                                 Iter = j,
                                 Value = acc
                               ))
-        }
       }
+    }
 
   }else if (type =="roary")
   {

@@ -15,7 +15,7 @@
 #' \emph{core_genome()} can build a core-genome alingment of thusands of genomes in minutes.
 #'
 #' @param data An \emph{mmseqs} object
-#' @param type Type of sequence 'nucl' or 'prot'
+  #' @param type Type of sequence 'nucl' or 'prot'
 #'
 #' @return A core_genome object (a data.frame with two columns: fasta header and sequence)
 #' @export
@@ -26,8 +26,11 @@
 #' @import tibble
 #' @import dtplyr
 #' @import data.table
+#' @import foreach
+#' @import doParallel
+#' @import parallel
 #'
-core_genome <- function(data, type)
+core_genome <- function(data, type, n_cores)
 {
   if(!is(data,"mmseq"))
   {
@@ -37,6 +40,11 @@ core_genome <- function(data, type)
   if(missing(type))
   {
     stop("type parameter must be provided (nucl or prot)")
+  }
+
+  if(missing(n_cores))
+  {
+    n_cores = detectCores()-1
   }
 
   if(sum(grep("avx2",system("cat /proc/cpuinfo",intern = TRUE),ignore.case = TRUE)))
@@ -51,7 +59,9 @@ core_genome <- function(data, type)
   if(file.exists("all.mmseq") & file.exists("all.cluster.index"))
   {
 
-    nGenomes  <-  data$table %>% as_tibble() %>% distinct(Genome_genome) %>% count()
+    data$table <- data$table %>% as_tibble()
+    nGenomes  <-  data$table  %>% distinct(Genome_genome) %>% count()
+
     table <-  data$table %>%
       distinct() %>%
       group_by(Prot_prot) %>%
@@ -98,57 +108,64 @@ core_genome <- function(data, type)
        system(.,intern = F,ignore.stdout = T, ignore.stderr = T)
 
 
-     system("mv core* f_core")
-     system("sed -i '1d' ./f_core/*",intern = F,ignore.stdout = T, ignore.stderr = T)
-    seqs <-  data.frame()
-    individual_aln <- list()
-    for (i in(dir("./f_core")))
+    system("mv core* f_core")
+    system("sed -i '1d' ./f_core/*",intern = F,ignore.stdout = T, ignore.stderr = T)
+    # seqs <-  data.frame()
+
+    #for (i in(dir("./f_core")))
+
+    cl <- makeCluster(n_cores)
+    registerDoParallel(cl)
+
+    seqs <- foreach( i = dir("./f_core"), .combine = "rbind") %dopar%
     {
-      cat(i,'\n')
-      system(paste("head -2 ./f_core/",i," > ./f_core/ref.fasta",sep = "",collapse = ""))
-      system(paste("grep '>' ./f_core/",i," > ./f_core/headers",sep = "",collapse = ""))
+      #cat(i,'\n')
+      system(paste("head -2 ./f_core/",i," > ./f_core/",i,".ref.fasta",sep = "",collapse = ""))
+      system(paste("grep '>' ./f_core/",i," > ./f_core/headers_",i,sep = "",collapse = ""))
       l = system(paste("head -2 ./f_core/",i,"| tail -1 |wc -m ",sep = "",collapse = ""), intern =T)
 
-      l = as.numeric(l)*4
+      l = as.numeric(l)*10
       if(type =="nucl")
       {
-        paste("blastn -query ./f_core/ref.fasta -subject ./f_core/",
+        paste("blastn -query ./f_core/",i,".ref.fasta -subject ./f_core/",
               i,
-              " -outfmt 4 -max_hsps 1 -out ./f_core/blast -line_length ",
-              l+50,
+              " -outfmt 4 -max_hsps 1 -out ./f_core/",i,".blast -line_length ",
+              l,
               " -num_alignments ",
               nGenomes$n+10,
               sep = "", collapse = "") %>%
           system()
       }else if(type=="prot")
       {
-        paste("blastp -query ./f_core/ref.fasta -subject ./f_core/",
+        paste("blastp -query ./f_core/",i,".ref.fasta -subject ./f_core/",
               i,
-              " -outfmt 4 -max_hsps 1 -out ./f_core/blast -line_length ",
+              " -outfmt 4 -max_hsps 1 -out ./f_core/",i,".blast -line_length ",
               l,
               " -num_alignments ",
               nGenomes$n+10,
               sep = "", collapse = "") %>%
           system()
       }else{
-        stop("type mus be 'prot' or 'nucl'")
+        stop("type must be 'prot' or 'nucl'")
       }
-      paste("perl ",blastParser," ./f_core/blast ./f_core/headers > ./f_core/",i,".aln", sep = "", collapse = "") %>%
+      paste("perl ",blastParser," ./f_core/",i,".blast ./f_core/headers_",i," > ./f_core/",i,".aln", sep = "", collapse = "") %>%
         system()
 
       tmp <- readLines(paste("./f_core/",i,".aln",sep = "",collapse = ""))
       tmp2 <- data.frame(Head = tmp[seq(1,length(tmp)-1,2)],Seq = tmp[seq(2,length(tmp),2)])
-      seqs <- bind_rows(seqs,tmp2)
 
-      if(type=='nucl')
-      {
-        individual_aln[[i]] <- read.FASTA(paste("./f_core/",i,".aln",sep = "",collapse = ""), type = "DNA")
-      }else{
-        individual_aln[[i]] <- read.FASTA(paste("./f_core/",i,".aln",sep = "",collapse = ""), type = "AA")
-      }
+#
+#       if(type=='nucl')
+#       {
+#         individual_aln[[i]] <- read.FASTA(paste("./f_core/",i,".aln",sep = "",collapse = ""), type = "DNA")
+#       }else{
+#         individual_aln[[i]] <- read.FASTA(paste("./f_core/",i,".aln",sep = "",collapse = ""), type = "AA")
+#       }
 
 
     }
+    stopCluster(cl)
+
     print(colnames(seqs))
     seqs <- seqs %>%
       separate(Head,c("Genomes","Prot"),sep="#") %>%
@@ -158,7 +175,7 @@ core_genome <- function(data, type)
     print("Number of hard core-genes (100% presence split paralogous):")
     print(table %>% select(Prot_prot) %>% distinct() %>% nrow())
 
-    results <- list(core_genome = seqs, individual_aln = individual_aln)
+    results <- list(core_genome = seqs)
     class(results) <-  append(class(results),"core_genome" )
     return(results)
 

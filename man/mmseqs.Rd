@@ -5,7 +5,7 @@
 \title{MMSeqs2 Orthologous clustering.}
 \usage{
 mmseqs(file_list, coverage = 0.8, identity = 0.8, evalue = 1e-06,
-  n_cores = 5, cov_mode = 0, cluster_mode = 0)
+  n_cores, cov_mode = 0, cluster_mode = 0)
 }
 \arguments{
 \item{file_list}{Data frame with the full path to the genome files (gene or protein multi-fasta).}

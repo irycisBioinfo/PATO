@@ -34,6 +34,9 @@ Imports:
  dbscan (>= 1.1-4),
  ape (>= 5.3),
  parallelDist (>= 0.2.4),
+ foreach (>= 1.5.1),
+ doParallel (>= 1.0.15),
+ parallel (>= 3.6.2),
  manipulateWidget (>= 0.10.0)
 Suggests:
     pheatmap (>= 1.0.12),
