@@ -65,8 +65,8 @@
 #' If you desire to know more about clustering we recommend the book "Practical Guide To
 #' Cluster Analysis in R" from Alboukadel Kassambara (STHDA ed.)
 #'
-#' @seealso knnn, accnet, mash, igraph.
 #' @return A membership \emph{data.frame} with the columns "Source" and "Cluster"
+#' @seealso For more information: \code{\link{knnn}}, \code{\link{accnet}}, \code{\link{mash}}, \code{\link[igraph]{igraph}}.
 #' @export
 #'
 

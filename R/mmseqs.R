@@ -121,7 +121,7 @@ mmseqs <- function(file_list, coverage = 0.8, identity = 0.8, evalue = 1e-6, n_c
   separate(V1, c("Genome","kk"), sep = "#") %>%
     separate("kk",c("Prot_prot","Annot"), sep= "~~") %>%
     select(Prot_prot,Annot)
-  mmseqs.raw <- fread("all.cluster.tsv", header = FALSE, sep = "\t")
+  mmseqs.raw <- fread("all.cluster.tsv", header = FALSE, sep = "\t") %>% as_tibble()
   colnames(mmseqs.raw) = c("Prot","Genome")
   mmseqs.raw <- mmseqs.raw %>%
     separate(Prot,c("Prot_genome","Prot_prot"),sep = "#") %>%

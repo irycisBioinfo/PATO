@@ -80,5 +80,5 @@ If you desire to know more about clustering we recommend the book "Practical Gui
 Cluster Analysis in R" from Alboukadel Kassambara (STHDA ed.)
 }
 \seealso{
-knnn, accnet, mash, igraph.
+For more information: \code{\link{knnn}}, \code{\link{accnet}}, \code{\link{mash}}, \code{\link[igraph]{igraph}}.
 }

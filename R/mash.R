@@ -59,7 +59,7 @@ mash <- function(file_list, n_cores =4, sketch = 1000, kmer = 21, type = "prot")
   cmd3 <- paste(mashPath," dist -p ",n_cores," -t all.msh all.msh > Dist.tab", sep = "", collapse = "")
   system(cmd3)
 
-  mash.matrix <- data.table::fread("Dist.tab", header = T)
+  mash.matrix <- data.table::fread("Dist.tab", header = T) %>% as_tibble()
   colnames(mash.matrix) <- gsub("#","",colnames(mash.matrix))
 
   mash.list <- mash.matrix %>%
