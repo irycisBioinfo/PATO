@@ -140,8 +140,11 @@ annotate <- function(files, re_use = TRUE, type = "nucl", database =c("AbR","VF_
     }
 
     paste(mmseqPath," map ",rep," ",resfinder_path," abr.out tmpDir", sep = "", collapse = "") %>% system()
+    Sys.sleep(1)
     paste(mmseqPath," convertalis ",rep," ",resfinder_path," abr.out abr.tsv", sep = "", collapse = "") %>% system()
+    Sys.sleep(1)
     tmp<- read.table("abr.tsv", header = FALSE, stringsAsFactors = FALSE,comment.char = "")
+    Sys.sleep(1)
     colnames(tmp) <- c("query","target","pident","alnlen","mismatch","gapopen","qstart","qend","tstart","tend","evalue","bits")
 
     results <- bind_rows(results,tmp)
@@ -153,9 +156,13 @@ annotate <- function(files, re_use = TRUE, type = "nucl", database =c("AbR","VF_
       system("rm vf_a.out")
     }
     paste(mmseqPath," map ",rep," ",vf_A_path," vf_a.out tmpDir", sep = "", collapse = "") %>% system()
+    Sys.sleep(1)
     paste(mmseqPath," convertalis ",rep," ",vf_A_path," vf_a.out vf_a.tsv", sep = "", collapse = "") %>% system()
+    Sys.sleep(1)
     tmp <- read.table("vf_a.tsv", header = FALSE, stringsAsFactors = FALSE,comment.char = "")
+    Sys.sleep(1)
     colnames(tmp) <- c("query","target","pident","alnlen","mismatch","gapopen","qstart","qend","tstart","tend","evalue","bits")
+    Sys.sleep(1)
     results <- bind_rows(results,tmp)
 
   }
@@ -166,10 +173,13 @@ annotate <- function(files, re_use = TRUE, type = "nucl", database =c("AbR","VF_
       system("rm vf_b.out")
     }
     paste(mmseqPath," map ",rep," ",vf_B_path," vf_b.out tmpDir", sep = "", collapse = "") %>% system()
+    Sys.sleep(1)
     paste(mmseqPath," convertalis ",rep," ",vf_B_path," vf_b.out vf_b.tsv", sep = "", collapse = "") %>% system()
+    Sys.sleep(1)
     tmp <- read.table("vf_b.tsv", header = FALSE, stringsAsFactors = FALSE,comment.char = "")
+    Sys.sleep(1)
     colnames(tmp)<- c("query","target","pident","alnlen","mismatch","gapopen","qstart","qend","tstart","tend","evalue","bits")
-
+    Sys.sleep(1)
     results <- bind_rows(results,tmp)
   }
   results <- inner_join(results,annot, by = c("target" = "ID")) %>% separate(query,c("Genome","Protein"), sep = "#")
