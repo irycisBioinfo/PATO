@@ -560,6 +560,7 @@ network_of_annotation(annotation %>% filter(DataBase =="AbR"), min_identity = 0.
 
 ## Pangenomes Analysis
 
+PATO is designed to analyze large datasets even large pangenomes of different species. In this example we analyze 49.591 firmicutes genomes from NCBI data base. For that kind of large datasets it is recomended to use the specific pipeline for pangenomes. This pipeline first cluster the genomes into pangenomes, for example, cluster of species or intra-specie phylogroups. The diversity of each cluster depends on the parameter *distance*. The pipeline creates homogeneous (in phylogenetic distance) clusters. Then the pipeline produces a `accnet` object so all the above described function can be use with this object as a common `accnet` object.
 
 ```{r eval=FALSE, include=TRUE}
 res <- pangenomes_from_files(files,distance = 0.03,min_pange_size = 10,min_prot_freq = 2)
@@ -567,6 +568,7 @@ res <- pangenomes_from_files(files,distance = 0.03,min_pange_size = 10,min_prot_
 export_to_gephi(res,"/storage/tryPATO/firmicutes/pangenomes_gephi")
 ```
 
+In this case we produce a gephi table to visulize the accnet network of the dataset. To annotate the network we use the NCBI assembly table and takes the species name of each pangenome cluster.
 
 ```{r eval=FALSE, include=TRUE}
 assembly = data.table::fread("ftp://ftp.ncbi.nlm.nih.gov/genomes/refseq/bacteria/assembly_summary.txt",sep = "\t",skip = 1, quote = "")
@@ -587,10 +589,12 @@ annot = res$members %>%
   mutate(ID = paste("pangenome_",pangenome,"_rep_seq.fasta", sep = "",collapse = "")) %>% 
   write_delim("/storage/tryPATO/firmicutes/pangenomes_gephi_extra_annot.tsv",delim = "\t", col_names = TRUE)
 ```
+We chose as species name the specie most frequent in each cluster. Then usin Gephi we visualiza the network.
 
 ![Pangenomes network of firmicutes: Gephi visualization](pangenomes.png){width=100%}
 
-Sharedness heatmap
+Other way to visualize the results is a heatmap of the sharedness among the pangenoms. PATO includes the function sharedness to visualize this result. To visualize the `data.table` result from `sharedness()` function we can use the package `pheatmap`. As the input value of `pheatmap` can be only a matrix we must first transform our result into a matrix:
+
 ```{r eval=FALSE, include=TRUE}
 sh <-  sharedness(res)
 sh  <-  sh %>% as.data.frame() %>% 
@@ -602,6 +606,12 @@ sh  <-  sh %>% as.data.frame() %>%
 
 colnames(sh) = rownames(sh)
 
+
+```
+
+Now we can execute `pheatmap()` with our pangenome dataset.
+
+```{r eval=FALSE, include=TRUE}
 pheatmap::pheatmap(sh,clustering_method = "ward.D2", clustering_distance_cols = "correlation", clustering_distance_rows = "correlation")
 ```
 

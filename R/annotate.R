@@ -93,16 +93,16 @@ annotate <- function(files, re_use = TRUE, type = "nucl", database =c("AbR","VF_
 
         if(grepl("gz",i[1]))
         {
-          print(paste("zcat ",i," | perl -pe 's/>/$&.\"",basename(i),"\".\"#\".++$n.\"|\"/e' >> all.rnm", collapse = "",sep = ""), quote = FALSE) %>% system()
+          print(print(paste("zcat ",i," | perl -pe 's/>/$&.\"",basename(i),"\".\"#\".++$n.\"|\"/e' >> all.rnm", collapse = "",sep = ""), quote = FALSE)) %>% system()
         }else{
-          print(paste("perl -pe 's/>/$&.\"",basename(i),"\".\"#\".++$n.\"|\"/e' ",i," >> all.rnm", collapse = "",sep = ""), quote = FALSE) %>% system()
+          print(print(paste("perl -pe 's/>/$&.\"",basename(i),"\".\"#\".++$n.\"|\"/e' ",i," >> all.rnm", collapse = "",sep = ""), quote = FALSE)) %>% system()
 
         }
 
       }
 
-      paste(mmseqPath," createdb all.rnm all.mmseq",sep = "",collapse = "") %>% system()
-      paste(mmseqPath," createindex all.mmseq tmpDqir",sep = "",collapse = "") %>% system()
+      print(paste(mmseqPath," createdb all.rnm all.mmseq",sep = "",collapse = "")) %>% system()
+      print(paste(mmseqPath," createindex all.mmseq tmpDqir",sep = "",collapse = "")) %>% system()
 
     }
 
@@ -120,8 +120,8 @@ annotate <- function(files, re_use = TRUE, type = "nucl", database =c("AbR","VF_
   {
     if(file.exists("all.representatives.fasta"))
     {
-      paste(mmseqPath," createdb all.representatives.fasta all.representatives.mm",sep = "",collapse = "") %>% system()
-      paste(mmseqPath," createindex all.representatives.mm tmpDqir",sep = "",collapse = "") %>% system()
+      print(paste(mmseqPath," createdb all.representatives.fasta all.representatives.mm",sep = "",collapse = "")) %>% system()
+      print(paste(mmseqPath," createindex all.representatives.mm tmpDqir",sep = "",collapse = "")) %>% system()
 
       rep = "all.representatives.mm"
     }else{
@@ -134,14 +134,14 @@ annotate <- function(files, re_use = TRUE, type = "nucl", database =c("AbR","VF_
 
   if("AbR" %in% database)
   {
-    if(file.exists("abr.out"))
+    if(file.exists("abr.out.1"))
     {
-      system("rm abr.out")
+      system("rm abr.out*")
     }
 
-    paste(mmseqPath," map ",rep," ",resfinder_path," abr.out tmpDir", sep = "", collapse = "") %>% system()
+    print(paste(mmseqPath," map ",rep," ",resfinder_path," abr.out tmpDir", sep = "", collapse = "")) %>% system()
     Sys.sleep(1)
-    paste(mmseqPath," convertalis ",rep," ",resfinder_path," abr.out abr.tsv", sep = "", collapse = "") %>% system()
+    print(paste(mmseqPath," convertalis ",rep," ",resfinder_path," abr.out abr.tsv", sep = "", collapse = "")) %>% system()
     Sys.sleep(1)
     tmp<- read.table("abr.tsv", header = FALSE, stringsAsFactors = FALSE,comment.char = "")
     Sys.sleep(1)
@@ -151,13 +151,13 @@ annotate <- function(files, re_use = TRUE, type = "nucl", database =c("AbR","VF_
   }
   if("VF_A" %in% database)
   {
-    if(file.exists("vf_a.out"))
+    if(file.exists("vf_a.out.1"))
     {
-      system("rm vf_a.out")
+      system("rm vf_a.out*")
     }
-    paste(mmseqPath," map ",rep," ",vf_A_path," vf_a.out tmpDir", sep = "", collapse = "") %>% system()
+    print(paste(mmseqPath," map ",rep," ",vf_A_path," vf_a.out tmpDir", sep = "", collapse = "")) %>% system()
     Sys.sleep(1)
-    paste(mmseqPath," convertalis ",rep," ",vf_A_path," vf_a.out vf_a.tsv", sep = "", collapse = "") %>% system()
+    print(paste(mmseqPath," convertalis ",rep," ",vf_A_path," vf_a.out vf_a.tsv", sep = "", collapse = "")) %>% system()
     Sys.sleep(1)
     tmp <- read.table("vf_a.tsv", header = FALSE, stringsAsFactors = FALSE,comment.char = "")
     Sys.sleep(1)
@@ -168,13 +168,13 @@ annotate <- function(files, re_use = TRUE, type = "nucl", database =c("AbR","VF_
   }
   if("VF_B" %in% database)
   {
-    if(file.exists("vf_b.out"))
+    if(file.exists("vf_b.out.1"))
     {
-      system("rm vf_b.out")
+      system("rm vf_b.out*")
     }
-    paste(mmseqPath," map ",rep," ",vf_B_path," vf_b.out tmpDir", sep = "", collapse = "") %>% system()
+    print(paste(mmseqPath," map ",rep," ",vf_B_path," vf_b.out tmpDir", sep = "", collapse = "")) %>% system()
     Sys.sleep(1)
-    paste(mmseqPath," convertalis ",rep," ",vf_B_path," vf_b.out vf_b.tsv", sep = "", collapse = "") %>% system()
+    print(paste(mmseqPath," convertalis ",rep," ",vf_B_path," vf_b.out vf_b.tsv", sep = "", collapse = "")) %>% system()
     Sys.sleep(1)
     tmp <- read.table("vf_b.tsv", header = FALSE, stringsAsFactors = FALSE,comment.char = "")
     Sys.sleep(1)
