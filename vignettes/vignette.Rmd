@@ -390,7 +390,7 @@ accnet_with_padj(accnet_enr_result) %>% export_to_gephi("accnet800.padj", cluste
 
 ![Accnet network with enrichment analysis add. Edge color are proportional to the p-value (adjusted)](Accnet_800_enr.png){width=100%}
 
-PATO also include some functions to study the genes/proteins distribution: `singles()`, `twins()` and `concidents()`.  
+PATO also include some functions to study the genes/proteins distribution: `singles()`, `twins()` and `conicidents()`.  
 
 * `singles()` finds those genes/proteins that are only present in a sample (genome, pangenome...).
 * `twins()` finds those genes/proteins that have the same connections (i.e. genes/proteins present in the same genomes).
@@ -560,7 +560,7 @@ network_of_annotation(annotation %>% filter(DataBase =="AbR"), min_identity = 0.
 
 ## Pangenomes Analysis
 
-PATO is designed to analyze large datasets even large pangenomes of different species. In this example we analyze 49.591 firmicutes genomes from NCBI data base. For that kind of large datasets it is recomended to use the specific pipeline for pangenomes. This pipeline first cluster the genomes into pangenomes, for example, cluster of species or intra-specie phylogroups. The diversity of each cluster depends on the parameter *distance*. The pipeline creates homogeneous (in phylogenetic distance) clusters. Then the pipeline produces a `accnet` object so all the above described function can be use with this object as a common `accnet` object.
+PATO is designed even to analyze the relationship among pangenomes of different (or not) species. Thats mean to analyze cluster of genomes (pangenomes) among then as individual elements. In this example we analyze 49.591 firmicutes genomes from NCBI data base. For that kind of large datasets it is recomended to use the specific pipeline for pangenomes. This pipeline first cluster the genomes into pangenomes, for example, cluster of species or intra-specie phylogroups or even sequence types (ST). The diversity of each cluster depends on the parameter *distance*. The pipeline creates homogeneous (in phylogenetic distance) clusters. Then the pipeline produces a `accnet` object so all the above described function can be use with this object as a common `accnet` object. The pipeline also include parameters to set the minimun amount of genomes to consider a pangenome and the minimun frequence of a protein/gene family to be included in a pangenome.
 
 ```{r eval=FALSE, include=TRUE}
 res <- pangenomes_from_files(files,distance = 0.03,min_pange_size = 10,min_prot_freq = 2)
