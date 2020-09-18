@@ -4,8 +4,13 @@
 \alias{pangenomes_from_mmseqs}
 \title{Creates Pangenomes from mmseqs object}
 \usage{
-pangenomes_from_mmseqs(data, cluster, min_freq = 0, max_freq = 1,
-  min_pangenome_size = 1)
+pangenomes_from_mmseqs(
+  data,
+  cluster,
+  min_freq = 0,
+  max_freq = 1,
+  min_pangenome_size = 1
+)
 }
 \arguments{
 \item{data}{A mmseq object}

@@ -16,7 +16,7 @@ A core_genome object (a data.frame with two columns: fasta header and sequence)
 }
 \description{
 Find and creates a core-genome alignment. Unlike \emph{core_plots()}
-this function find the hard core-genome (genes presence in 100% of genomes
+this function find the hard core-genome (genes presence in 100\% of genomes
 and without repetitions). The function takes a \emph{mmseqs()} output, so the deffinition of
 the paralogous genes of the core-genome (similarity, coverage and/or e-value)
 depends on the \emph{mmseqs()} parameters.

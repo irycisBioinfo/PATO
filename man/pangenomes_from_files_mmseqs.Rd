@@ -4,8 +4,16 @@
 \alias{pangenomes_from_files_mmseqs}
 \title{Individual pangenome clustering from file-list}
 \usage{
-pangenomes_from_files_mmseqs(files, i, coverage, identity, evalue,
-  n_cores = 5, cov_mode, cluster_mode)
+pangenomes_from_files_mmseqs(
+  files,
+  i,
+  coverage,
+  identity,
+  evalue,
+  n_cores = 5,
+  cov_mode,
+  cluster_mode
+)
 }
 \arguments{
 \item{files}{a list of files (genomes of the pangenome)}

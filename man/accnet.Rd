@@ -30,7 +30,7 @@ This function extract the accessory genome from a \emph{mmseq} object.
 The \emph{mmseq} contains all the relationship among genomes (or other
 genomic unit) and genes/proteins. \emph{accnet} extract the accsessory
 genome removing the sof-coregenome. Hard-coregenome is the set of
-proteins present in the 100\% of the genomes. Soft-coregenome is the set
+proteins present in the 100\\% of the genomes. Soft-coregenome is the set
 of proteins present in the \emph{threshold} of the genomes.
 }
 \references{

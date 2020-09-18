@@ -4,8 +4,15 @@
 \alias{pangenomes_mmseqs}
 \title{Final step of pangenomes homologous cluster}
 \usage{
-pangenomes_mmseqs(file_list, coverage, identity, evalue, n_cores, cov_mode,
-  cluster_mode)
+pangenomes_mmseqs(
+  file_list,
+  coverage,
+  identity,
+  evalue,
+  n_cores,
+  cov_mode,
+  cluster_mode
+)
 }
 \arguments{
 \item{file_list}{Data frame with the full path to the genome files (gene or protein multi-fasta).}
@@ -22,7 +29,7 @@ pangenomes_mmseqs(file_list, coverage, identity, evalue, n_cores, cov_mode,
 \item 0: Coverage of query and target
 \item 1: Coverage of target
 \item 2: coverage of query
-\item 3: target seq.length needs be at least x% of query length
+\item 3: target seq.length needs be at least x\% of query length
 \item 4: query seq.length needs
 }}
 

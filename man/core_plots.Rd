@@ -4,8 +4,7 @@
 \alias{core_plots}
 \title{Plot the size of core-genome, accessory-genome and pan-genome}
 \usage{
-core_plots(data, steps = 10, reps = 10, threshold = 0.98,
-  type = "pato")
+core_plots(data, steps = 10, reps = 10, threshold = 0.98, type = "pato")
 }
 \arguments{
 \item{data}{A \emph{mmseq} object.}

@@ -8,9 +8,6 @@ output:
     toc_float:
       collapsed: yes
       smooth_scroll: no
-  pdf_document:
-    number_section: yes
-    toc: yes
   '': default
 vignette: |
   %\VignetteIndexEntry{vignette} 

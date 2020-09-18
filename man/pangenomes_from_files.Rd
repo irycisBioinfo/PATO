@@ -4,10 +4,20 @@
 \alias{pangenomes_from_files}
 \title{Creates Pangenomes from file list}
 \usage{
-pangenomes_from_files(files, min_pange_size = 10, min_prot_freq = 2,
-  file_type = "prot", distance, cluster, coverage = 0.8,
-  identity = 0.8, evalue = 1e-06, n_cores = 5, cov_mode = 0,
-  cluster_mode = 0)
+pangenomes_from_files(
+  files,
+  min_pange_size = 10,
+  min_prot_freq = 2,
+  file_type = "prot",
+  distance,
+  cluster,
+  coverage = 0.8,
+  identity = 0.8,
+  evalue = 1e-06,
+  n_cores = 5,
+  cov_mode = 0,
+  cluster_mode = 0
+)
 }
 \arguments{
 \item{files}{A data.frame of one column whit the path of the files.}
@@ -34,7 +44,7 @@ pangenomes_from_files(files, min_pange_size = 10, min_prot_freq = 2,
 \item 0: Coverage of query and target
 \item 1: Coverage of target
 \item 2: coverage of query
-\item 3: target seq. length needs be at least x% of query length
+\item 3: target seq. length needs be at least x\% of query length
 \item 4: query seq. length needs
 }}
 

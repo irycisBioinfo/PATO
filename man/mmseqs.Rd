@@ -4,8 +4,15 @@
 \alias{mmseqs}
 \title{MMSeqs2 Orthologous clustering.}
 \usage{
-mmseqs(file_list, coverage = 0.8, identity = 0.8, evalue = 1e-06,
-  n_cores, cov_mode = 0, cluster_mode = 0)
+mmseqs(
+  file_list,
+  coverage = 0.8,
+  identity = 0.8,
+  evalue = 1e-06,
+  n_cores,
+  cov_mode = 0,
+  cluster_mode = 0
+)
 }
 \arguments{
 \item{file_list}{Data frame with the full path to the genome files (gene or protein multi-fasta).}
@@ -22,7 +29,7 @@ mmseqs(file_list, coverage = 0.8, identity = 0.8, evalue = 1e-06,
 \item 0: Coverage of query and target
 \item 1: Coverage of target
 \item 2: coverage of query
-\item 3: target seq. length needs be at least x% of query length
+\item 3: target seq. length needs be at least x\% of query length
 \item 4: query seq. length needs
 }}
 

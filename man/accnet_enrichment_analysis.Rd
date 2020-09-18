@@ -22,10 +22,10 @@ Return a data.frame with the columns:
 \item Target: Protein
 \item Source: Genome
 \item Cluster: Cluster of genome
-\item perClusterFreq: Percentage (\%) of the protein in this cluster
+\item perClusterFreq: Percentage (\\%) of the protein in this cluster
 \item ClusterFreq: Frequency \link{0-1} of the protein in this cluster
 \item ClusterGenomeSize: Number of genomes in the cluster
-\item perTotalFreq: Percentage (\%) of the protein in the population
+\item perTotalFreq: Percentage (\\%) of the protein in the population
 \item TotalFreq: Frequency \link{0-1} of the protein in the population
 \item OdsRatio: Ods ration of the protein
 \item pvalue: p-value of the hypergeometric test (see \code{phyper})

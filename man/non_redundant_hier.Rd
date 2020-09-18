@@ -4,8 +4,16 @@
 \alias{non_redundant_hier}
 \title{Non Redundant set of samples using hierarchical search.}
 \usage{
-non_redundant_hier(data, number, fraction, distance, tolerance = 0.05,
-  partitions = 10, max_iter = 10000, fast = FALSE)
+non_redundant_hier(
+  data,
+  number,
+  fraction,
+  distance,
+  tolerance = 0.05,
+  partitions = 10,
+  max_iter = 10000,
+  fast = FALSE
+)
 }
 \arguments{
 \item{data}{An \emph{accnet} or \emph{mash} object.}

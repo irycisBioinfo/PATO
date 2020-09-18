@@ -4,8 +4,13 @@
 \alias{annotate}
 \title{Annotate Virulence Factors and Antibiotic Resistance Genes}
 \usage{
-annotate(files, re_use = TRUE, type = "nucl", database = c("AbR",
-  "VF_A", "VF_B"), query = "all")
+annotate(
+  files,
+  re_use = TRUE,
+  type = "nucl",
+  database = c("AbR", "VF_A", "VF_B"),
+  query = "all"
+)
 }
 \arguments{
 \item{files}{data.frame with the absolute path to the genome files (protein fasta file).}

@@ -4,8 +4,7 @@
 \alias{mash}
 \title{MASH distance estimation.}
 \usage{
-mash(file_list, n_cores = 4, sketch = 1000, kmer = 21,
-  type = "prot")
+mash(file_list, n_cores = 4, sketch = 1000, kmer = 21, type = "prot")
 }
 \arguments{
 \item{file_list}{Data frame with the full path to the genome files (gene or protein multi-fasta).}

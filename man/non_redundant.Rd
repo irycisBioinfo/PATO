@@ -4,8 +4,15 @@
 \alias{non_redundant}
 \title{Non Redundant set of samples.}
 \usage{
-non_redundant(data, number, fraction, distance, tolerance = 0.05,
-  max_iter = 10000, fast = TRUE)
+non_redundant(
+  data,
+  number,
+  fraction,
+  distance,
+  tolerance = 0.05,
+  max_iter = 10000,
+  fast = TRUE
+)
 }
 \arguments{
 \item{data}{An \emph{accnet} or \emph{mash} object}
