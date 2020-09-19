@@ -39,7 +39,7 @@ devtools::install_github("https://github.com/irycisBioinfo/PATO", build_vignette
 Some times some dependencies require system packages as `libcurl`. `libssl` or `libxml2` (this example is for Ubuntu/Debian based systems):
 
 ```
-sudo apt install libcurl4-openssl-dev libssl-dev libxml2-dev libmagick++-dev
+sudo apt install libcurl4-openssl-dev libssl-dev libxml2-dev libmagick++-dev libv8-dev 
 ```
 
 It could take a while because PATO has the following dependencies:
