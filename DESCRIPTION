@@ -36,7 +36,7 @@ Imports:
  parallelDist (>= 0.2.4),
  foreach (>= 1.5.0),
  doParallel (>= 1.0.15),
- parallel (>= 3.6.2),
+ parallel (>= 3.5.2),
  manipulateWidget (>= 0.10.0)
 Suggests:
     pheatmap (>= 1.0.12),
