@@ -2,16 +2,27 @@
 % Please edit documentation in R/classifier.R
 \name{classifier}
 \alias{classifier}
-\title{Title}
+\title{Classifier}
 \usage{
 classifier(file_list, re_use = TRUE, n_cores, type = "nucl", max_dist = 0.06)
 }
 \arguments{
-\item{type}{}
+\item{file_list}{Data frame with the full path to the genome files (gene or protein multi-fasta).}
+
+\item{re_use}{You can re-use the sketch step if you have executed a previous \emph{mash()} function}
+
+\item{n_cores}{Number of cores to use.}
+
+\item{type}{Type of sequence 'nucl' (nucleotides) or 'prot' (aminoacids)}
+
+\item{max_dist}{Maximun distance to report (1-Average Nucleotide Identity). Usually all species have 0.05 distance among all each memebers}
 }
 \value{
-
+Classifier returns a data.frame with the best hit for each input genome.
 }
 \description{
-Title
+Classifier take a list of genome files (nucleotide o protein) and identify
+the most similar specie to each file.
+Classsifier uses all reference and representative genomes from NCBI Refseq
+database and search, using mash, the best hit for each genome file in the input list.
 }

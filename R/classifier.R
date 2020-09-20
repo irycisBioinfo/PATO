@@ -1,11 +1,17 @@
-#' Title
+#' Classifier
 #'
-#' @param file_list
-#' @param re_use
-#' @param n_cores
-#' @param type
+#' Classifier take a list of genome files (nucleotide o protein) and identify
+#' the most similar specie to each file.
+#' Classsifier uses all reference and representative genomes from NCBI Refseq
+#' database and search, using mash, the best hit for each genome file in the input list.
 #'
-#' @return
+#' @param file_list Data frame with the full path to the genome files (gene or protein multi-fasta).
+#' @param re_use You can re-use the sketch step if you have executed a previous \emph{mash()} function
+#' @param n_cores Number of cores to use.
+#' @param type Type of sequence 'nucl' (nucleotides) or 'prot' (aminoacids)
+#' @param max_dist Maximun distance to report (1-Average Nucleotide Identity). Usually all species have 0.05 distance among all each memebers
+#'
+#' @return Classifier returns a data.frame with the best hit for each input genome.
 #' @export
 #'
 #' @examples
@@ -68,7 +74,7 @@ classifier <- function(file_list, re_use = TRUE, n_cores, type ="nucl", max_dist
     mutate(Source = gsub("_protein.faa","",Source))%>%
     mutate(Source = gsub("_genomic.fna","",Source))%>%
     mutate(Dist = 1-Dist) %>%
-    inner_join(header) %>%
+    left_join(header) %>%
     select(Target,Similarity = Dist,organism_name,species_taxid,Accession = Source,refseq_category) %>%
     group_by(Target) %>% slice_max(order_by = Similarity,n = 1) %>% ungroup() %>%
     return()
