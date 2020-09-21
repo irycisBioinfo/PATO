@@ -71,11 +71,11 @@ classifier <- function(file_list, re_use = TRUE, n_cores, type ="nucl", max_dist
 
   class.table %>%
     mutate(Target = basename(Target)) %>%
-    mutate(Source = gsub("_protein.faa","",Source))%>%
-    mutate(Source = gsub("_genomic.fna","",Source))%>%
+    separate(Source,c("kk","acc1","acc2"), sep = "_") %>%
+    unite(assembly_accession,kk,acc1,sep = "_") %>%
     mutate(Dist = 1-Dist) %>%
     left_join(header) %>%
-    select(Target,Similarity = Dist,organism_name,species_taxid,Accession = Source,refseq_category) %>%
+    select(Target,Similarity = Dist,organism_name,species_taxid,assembly_accession,refseq_category) %>%
     group_by(Target) %>% slice_max(order_by = Similarity,n = 1) %>% ungroup() %>%
     return()
 
