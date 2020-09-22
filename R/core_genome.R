@@ -114,10 +114,12 @@ core_genome <- function(data, type, n_cores)
 
     #for (i in(dir("./f_core")))
 
-    cl <- makeCluster(n_cores)
-    registerDoParallel(cl)
+    #cl <- makeCluster(n_cores)
+    #registerDoParallel(cl)
 
-    seqs <- foreach( i = dir("./f_core"), .combine = "rbind") %dopar%
+    #seqs <- foreach( i = dir("./f_core"), .combine = "rbind") %dopar%
+    seqs = data.frame()
+    for(i in dir("./f_core"))
     {
       #cat(i,'\n')
       system(paste("head -2 ./f_core/",i," > ./f_core/",i,".ref.fasta",sep = "",collapse = ""))
@@ -152,7 +154,7 @@ core_genome <- function(data, type, n_cores)
         system()
 
       tmp <- readLines(paste("./f_core/",i,".aln",sep = "",collapse = ""))
-      tmp2 <- data.frame(Head = tmp[seq(1,length(tmp)-1,2)],Seq = tmp[seq(2,length(tmp),2)])
+      seqs <- bind_rows(seqs,data.frame(Head = tmp[seq(1,length(tmp)-1,2)],Seq = tmp[seq(2,length(tmp),2)]))
 
 #
 #       if(type=='nucl')
@@ -164,7 +166,7 @@ core_genome <- function(data, type, n_cores)
 
 
     }
-    stopCluster(cl)
+    #stopCluster(cl)
 
     print(colnames(seqs))
     seqs <- seqs %>%
