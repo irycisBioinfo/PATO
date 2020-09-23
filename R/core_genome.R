@@ -32,6 +32,10 @@
 #'
 core_genome <- function(data, type, n_cores)
 {
+  if(Sys.which("perl")=="")
+  {
+    stop("This function needs perl to work. Please check that Perl is installed and in the PATH")
+  }
   if(!is(data,"mmseq"))
   {
     stop("Error, 'data' must be a mmseq object")
@@ -148,6 +152,7 @@ core_genome <- function(data, type, n_cores)
       }else{
         stop("type must be 'prot' or 'nucl'")
       }
+
       paste("perl ",blastParser," ./f_core/",i,".blast ./f_core/headers_",i," > ./f_core/",i,".aln", sep = "", collapse = "") %>%
         system()
 
