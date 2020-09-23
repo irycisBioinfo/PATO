@@ -36,6 +36,11 @@ core_genome <- function(data, type, n_cores)
   {
     stop("This function needs perl to work. Please check that Perl is installed and in the PATH")
   }
+  if(Sys.which("blastn")=="")
+  {
+    stop("This function needs NCBI blastn to work. Please check that NCBI blast+ is installed and in the PATH")
+  }
+
   if(!is(data,"mmseq"))
   {
     stop("Error, 'data' must be a mmseq object")
