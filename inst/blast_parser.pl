@@ -20,12 +20,14 @@ foreach $l (@txt)
 	}
 	if($l =~ /Subject_(\d+)\s+/)
 	{
-		print "$header[$1-1]";
+		$tmp = "$header[$1-1]";
+		chomp $tmp;
+		print $tmp;
 	}
 	if($l =~ /Subject.{13}(.*)\s+\d+/)
 	{
 		$aln =$1;
 		$aln =~ s/\s/-/g;
-		print "$aln\n";
+		print "\t$aln\n";
 	}
 }

@@ -114,12 +114,10 @@ core_genome <- function(data, type, n_cores)
 
     #for (i in(dir("./f_core")))
 
-    #cl <- makeCluster(n_cores)
-    #registerDoParallel(cl)
+    cl <- makeCluster(n_cores)
+    registerDoParallel(cl)
 
-    #seqs <- foreach( i = dir("./f_core"), .combine = "rbind") %dopar%
-    seqs = data.frame()
-    for(i in dir("./f_core"))
+    seqs <- foreach( i = dir("./f_core"), .combine = "rbind") %dopar%
     {
       #cat(i,'\n')
       system(paste("head -2 ./f_core/",i," > ./f_core/",i,".ref.fasta",sep = "",collapse = ""))
@@ -129,7 +127,7 @@ core_genome <- function(data, type, n_cores)
       l = as.numeric(l)*10
       if(type =="nucl")
       {
-        paste("blastn -query ./f_core/",i,".ref.fasta -subject ./f_core/",
+        paste("blastn -task blastn -query ./f_core/",i,".ref.fasta -subject ./f_core/",
               i,
               " -outfmt 4 -max_hsps 1 -out ./f_core/",i,".blast -line_length ",
               l,
@@ -153,8 +151,18 @@ core_genome <- function(data, type, n_cores)
       paste("perl ",blastParser," ./f_core/",i,".blast ./f_core/headers_",i," > ./f_core/",i,".aln", sep = "", collapse = "") %>%
         system()
 
-      tmp <- readLines(paste("./f_core/",i,".aln",sep = "",collapse = ""))
-      seqs <- bind_rows(seqs,data.frame(Head = tmp[seq(1,length(tmp)-1,2)],Seq = tmp[seq(2,length(tmp),2)]))
+      #tmp <- readLines(paste("./f_core/",i,".aln",sep = "",collapse = ""))
+      tmp <-
+        data.table::fread(
+          paste("./f_core/", i, ".aln", sep = "", collapse = ""),
+          sep = "\t",
+          stringsAsFactors = F,
+          header = F,
+          colClasses = c("character", "character"),
+          col.names = c("Head", "Seq")
+        ) %>% as_tibble()
+
+
 
 #
 #       if(type=='nucl')
@@ -166,7 +174,7 @@ core_genome <- function(data, type, n_cores)
 
 
     }
-    #stopCluster(cl)
+    stopCluster(cl)
 
     print(colnames(seqs))
     seqs <- seqs %>%
