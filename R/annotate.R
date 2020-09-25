@@ -8,7 +8,7 @@
 #' (\link{https://cge.cbs.dtu.dk/services/ResFinder/}). The function can re-use the
 #' previous computational steps of \code{mmseqs} or create a new index database from
 #' the files. Re-use option shorten the computational time. This method use the algorithm
-#' \strong{map} of \strong{mmseqs2} so it olny return high identity matchs.
+#' \strong{search} of \strong{mmseqs2} so it olny return high identity matchs.
 #'
 #'
 #' @param files data.frame with the absolute path to the genome files (protein fasta file).
@@ -64,6 +64,8 @@ annotate <- function(files, re_use = TRUE, type = "nucl", database =c("AbR","VF_
   }else{
     mmseqPath = system.file("mmseqs.sse41", package = "pato")
   }
+
+
   if(type == "prot")
   {
     resfinder_path <- system.file("annotation/resfinder_prot", package = "pato")
@@ -72,7 +74,7 @@ annotate <- function(files, re_use = TRUE, type = "nucl", database =c("AbR","VF_
     annot <- read.delim(system.file("annotation/annot.data", package = "pato"), stringsAsFactors = FALSE, header = TRUE, sep = "\t")
   }else if(type =="nucl")
   {
-    resfinder_path <- system.file("annotation/resfinder_nucl", package = "pato")
+    resfinder_path <- system.file("annotation/resfinder_nuc", package = "pato")
     vf_A_path <- system.file("annotation/VFDB_setA_nucl", package = "pato")
     vf_B_path <- system.file("annotation/VFDB_setB_nucl", package = "pato")
     annot <- read.delim(system.file("annotation/annot.data", package = "pato"), stringsAsFactors = FALSE, header = TRUE, sep = "\t")
@@ -81,6 +83,9 @@ annotate <- function(files, re_use = TRUE, type = "nucl", database =c("AbR","VF_
   }
 
   results <- data.frame()
+
+
+
 
   if(query =="all")
   {
@@ -115,7 +120,9 @@ annotate <- function(files, re_use = TRUE, type = "nucl", database =c("AbR","VF_
     {
       stop("Error: Only AbR, VF_A and VF_B are available")
     }
+
     rep = "all.mmseq"
+
   }else if (query == "accessory")
   {
     if(file.exists("all.representatives.fasta"))
@@ -138,9 +145,14 @@ annotate <- function(files, re_use = TRUE, type = "nucl", database =c("AbR","VF_
     {
       system("rm abr.out*")
     }
-
-    print(paste(mmseqPath," map ",rep," ",resfinder_path," abr.out tmpDir", sep = "", collapse = "")) %>% system()
-    Sys.sleep(1)
+    if(type =="nucl")
+    {
+      print(paste(mmseqPath," search ",rep," ",resfinder_path," abr.out tmpDir --search-type 3 ", sep = "", collapse = "")) %>% system()
+      Sys.sleep(1)
+    }else{
+      print(paste(mmseqPath," search ",rep," ",resfinder_path," abr.out tmpDir", sep = "", collapse = "")) %>% system()
+      Sys.sleep(1)
+    }
     print(paste(mmseqPath," convertalis ",rep," ",resfinder_path," abr.out abr.tsv", sep = "", collapse = "")) %>% system()
     Sys.sleep(1)
     tmp<- read.table("abr.tsv", header = FALSE, stringsAsFactors = FALSE,comment.char = "")
@@ -155,8 +167,16 @@ annotate <- function(files, re_use = TRUE, type = "nucl", database =c("AbR","VF_
     {
       system("rm vf_a.out*")
     }
-    print(paste(mmseqPath," map ",rep," ",vf_A_path," vf_a.out tmpDir", sep = "", collapse = "")) %>% system()
-    Sys.sleep(1)
+
+    if(type =="nucl")
+    {
+      print(paste(mmseqPath," search ",rep," ",vf_A_path," vf_a.out tmpDir --search-type 3", sep = "", collapse = "")) %>% system()
+      Sys.sleep(1)
+    }else{
+      print(paste(mmseqPath," search ",rep," ",vf_A_path," vf_a.out tmpDir", sep = "", collapse = "")) %>% system()
+      Sys.sleep(1)
+    }
+
     print(paste(mmseqPath," convertalis ",rep," ",vf_A_path," vf_a.out vf_a.tsv", sep = "", collapse = "")) %>% system()
     Sys.sleep(1)
     tmp <- read.table("vf_a.tsv", header = FALSE, stringsAsFactors = FALSE,comment.char = "")
@@ -172,8 +192,16 @@ annotate <- function(files, re_use = TRUE, type = "nucl", database =c("AbR","VF_
     {
       system("rm vf_b.out*")
     }
-    print(paste(mmseqPath," map ",rep," ",vf_B_path," vf_b.out tmpDir", sep = "", collapse = "")) %>% system()
-    Sys.sleep(1)
+    if(type =="nucl")
+    {
+      print(paste(mmseqPath," search ",rep," ",vf_B_path," vf_b.out tmpDir --search-type 3 ", sep = "", collapse = "")) %>% system()
+      Sys.sleep(1)
+    }else{
+      print(paste(mmseqPath," search ",rep," ",vf_B_path," vf_b.out tmpDir", sep = "", collapse = "")) %>% system()
+      Sys.sleep(1)
+    }
+
+
     print(paste(mmseqPath," convertalis ",rep," ",vf_B_path," vf_b.out vf_b.tsv", sep = "", collapse = "")) %>% system()
     Sys.sleep(1)
     tmp <- read.table("vf_b.tsv", header = FALSE, stringsAsFactors = FALSE,comment.char = "")
