@@ -9,14 +9,14 @@
 #' @param reps number of replicates for each point.
 #' @param threshold Minimun frequency (0-1) of the core-genome genes/proteins.
 #' @param type Output in format \emph{pato} or \emph{roary} style.
-#'
+#' @param n_cores Number of cores to use.
 #'
 #' @return A list with a \emph{ggplot2} object and a \emph{data.frame} with the values of the final step.
 #'
 #' @note It's supossed the a gene/protein of the core-genome must be present in all
 #' the genomes of the dataset. Nevertheless, by random selection and/or errors
 #' in sequencing proccess (sequencing, assembly, ORF finding etc..) some
-#' genes/proteins could be missing. pato define the genome as, pangeno (the sum of all genomes),
+#' genes/proteins could be missing. pato define the genome as, pangenome (the sum of all genomes),
 #' core-genome.
 #'
 #' @export
@@ -27,14 +27,25 @@
 #' @import dtplyr
 #' @import ggplot2
 #' @import data.table
+#' @import foreach
+#' @import doParallel
+#' @import parallel
 #'
-core_plots <- function(data, steps = 10, reps = 10, threshold = 0.98, type = "pato")
+core_plots <- function(data, steps = 10, reps = 10, threshold = 0.98, type = "pato", n_cores)
 {
   if (!is(data,"mmseq"))
   {
     stop("datamust be a 'mmseq' object")
   }
 
+  if(missing(n_cores))
+  {
+    n_cores = detectCores()-1
+  }
+
+
+  cl <- makeCluster(n_cores)
+  registerDoParallel(cl)
 
 
   results = data.frame(Data="Core",N=0,Iter=0,Value=0)
@@ -55,9 +66,8 @@ core_plots <- function(data, steps = 10, reps = 10, threshold = 0.98, type = "pa
   if(type == "pato")
   {
 
-    for (i in intervals)
-    {
-      for (j in 1:reps) {
+    results <- foreach(i = intervals, .combine ="rbind", .inorder=F) %:%
+      foreach(j =1:reps, .combine ="rbind", .inorder=F) %dopar% {
         tmp <-  data_plots %>%
           inner_join(genomes %>% sample_n(i), by = "Genome_genome") %>%
           group_by(Prot_prot) %>%
@@ -70,35 +80,16 @@ core_plots <- function(data, steps = 10, reps = 10, threshold = 0.98, type = "pa
         acc <-  pange$n - core$n
 
 
-        results <-  bind_rows(results,
-                              data.frame(
-                                Data = "Core",
-                                N = i,
-                                Iter = j,
-                                Value = core$n
-                              ))
-        results  <-  bind_rows(results,
-                               data.frame(
-                                 Data = "Pangenome",
-                                 N = i,
-                                 Iter = j,
-                                 Value = pange$n
-                               ))
-        results <-  bind_rows(results,
-                              data.frame(
-                                Data = "Accessory",
-                                N = i,
-                                Iter = j,
-                                Value = acc
-                              ))
+        bind_rows(data.frame(Data = "Core",N = i,Iter = j,Value = core$n),
+                  data.frame(Data = "Pangenome",N = i,Iter = j,Value = pange$n),
+                  data.frame(Data = "Accessory",N = i,Iter = j,Value = acc))
       }
-    }
+
 
   }else if (type =="roary")
   {
-    for (i in intervals)
-    {
-      for (j in 1:reps) {
+    results <- foreach(i = intervals, .combine ="rbind", .inorder=F) %:%
+      foreach(j =1:reps, .combine ="rbind",.inorder=F) %dopar% {
         tmp <-  data_plots %>%
           inner_join(genomes %>% sample_n(i), by = "Genome_genome") %>%
           group_by(Prot_prot) %>%
@@ -113,37 +104,13 @@ core_plots <- function(data, steps = 10, reps = 10, threshold = 0.98, type = "pa
 
 
 
-        results <-  bind_rows(results,
-                              data.frame(
-                                Data = "Core",
-                                N = i,
-                                Iter = j,
-                                Value = core$n
-                              ))
-        results  <-  bind_rows(results,
-                               data.frame(
-                                 Data = "SoftCore",
-                                 N = i,
-                                 Iter = j,
-                                 Value = softcore$n
-                               ))
-        results <-  bind_rows(results,
-                              data.frame(
-                                Data = "ShellGenes",
-                                N = i,
-                                Iter = j,
-                                Value = shellgenes$n
-                              ))
-        results <-  bind_rows(results,
-                              data.frame(
-                                Data = "CloudGenes",
-                                N = i,
-                                Iter = j,
-                                Value = cloudgenes$n
-                              ))
+        bind_rows(data.frame(Data = "Core",N = i,Iter = j,Value = core$n),
+                  data.frame(Data = "SoftCore",N = i,Iter = j,Value = softcore$n),
+                  data.frame(Data = "ShellGenes",N = i,Iter = j,Value = shellgenes$n),
+                  data.frame(Data = "CloudGenes",N = i,Iter = j,Value = cloudgenes$n))
 
       }
-    }
+
   }
 
   data = results %>% group_by(N, Data) %>% summarise(n_mean = mean(Value), sd = sd(Value))
@@ -154,6 +121,7 @@ core_plots <- function(data, steps = 10, reps = 10, threshold = 0.98, type = "pa
     xlab("Number of Genomes") +
     ylab("Number of Proteins")
 
+  stopCluster(cl)
   print(p)
   return(list(plot = p, data = data))
 }

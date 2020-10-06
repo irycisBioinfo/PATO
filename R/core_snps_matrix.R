@@ -16,7 +16,13 @@
 #' @import dtplyr
 #' @import data.table
 #' @import stringr
+#' @import foreach
+#' @import doParallel
+#' @import parallel
 #'
+#'
+
+
 core_snps_matrix <- function(data, norm =T){
 
   if(!is(data,"core_genome"))
@@ -24,18 +30,24 @@ core_snps_matrix <- function(data, norm =T){
     stop("data must be a core_genome object")
   }
 
-  res <- matrix(0L, nrow =length(data$core_genome$Genomes) , ncol = length(data$core_genome$Genomes))
-  for(i in 1:length(data$core_genome$Genomes))
-  {
-    tmp1 <- data$core_genome$Seq[i] %>% str_split("") %>% as.matrix()
-    print(i)
-    for(j in i:length(data$core_genome$Genomes)){
-      tmp2 <- data$core_genome$Seq[j] %>% str_split("") %>% as.matrix()
+  # n_cores = detectCores()
+  # cl <- makeCluster(n_cores)
+  # registerDoParallel(cl)
 
-      res[i,j] <- sum(tmp1[[1]] != tmp2[[1]])
-      res[j,i] <- res[i,j]
+  res <- matrix(0L, nrow =length(data$core_genome$Genomes) , ncol = length(data$core_genome$Genomes))
+
+
+  for(i in 1:length(data$core_genome$Genomes)){
+    print(i)
+    tmp1 <- data$core_genome$Seq[i] %>% str_split("") %>% as.matrix()
+    for(j in i:length(data$core_genome$Genomes)){
+
+      tmp2 <- data$core_genome$Seq[j] %>% str_split("") %>% as.matrix()
+      res[i,j] = sum(tmp1[[1]] != tmp2[[1]])
+      res[j,i] = res[i,j]
+      }
     }
-  }
+  # stopCluster(cl)
 
   colnames(res) <- gsub(">","",data$core_genome$Genomes)
   rownames(res) <- gsub(">","",data$core_genome$Genomes)

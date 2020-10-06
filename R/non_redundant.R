@@ -14,7 +14,7 @@
 #' @param distance Minimun distance among samples
 #' @param tolerance Percentage of error between the input number and the final number of samples.
 #' @param max_iter Maximun number of search iterations.
-#' @param fast If fast is TRUE the clustering process uses "components" in other case use "fast_greddy"
+#' @param fast If fast is TRUE the clustering process uses "components" in other case use "louvain"
 #'
 #' @return \emph{nr_list} object
 #' @export
@@ -75,7 +75,7 @@ non_redundant <- function(data, number, fraction, distance, tolerance = 0.05, ma
         cent <- centralization.degree(gr.tmp)
         results = data.frame(Source = as.character(vertex.attributes(gr.tmp)$name),
                              centrality = cent$res,
-                             cluster = cluster$membership)
+                             cluster = cluster$membership, stringsAsFactors = F)
         class(results) <- "nr_list"
         return(results)
       }else if (Nc > number){
@@ -127,7 +127,8 @@ non_redundant <- function(data, number, fraction, distance, tolerance = 0.05, ma
         cent <- centralization.degree(gr.tmp)
         results = data.frame(Source = as.character(vertex.attributes(gr.tmp)$name),
                              centrality = cent$res,
-                             cluster = cluster$membership)
+                             cluster = cluster$membership,
+                             stringsAsFactors = F)
         class(results) <- "nr_list"
         return(results)
       }else if (Nc > number){
@@ -166,7 +167,7 @@ non_redundant <- function(data, number, fraction, distance, tolerance = 0.05, ma
     cent <- centralization.degree(gr.tmp)
     results = data.frame(Source = as.character(vertex.attributes(gr.tmp)$name),
                          centrality = cent$res,
-                         cluster = cluster$membership)
+                         cluster = cluster$membership, stringsAsFactors = F)
     class(results) <- "nr_list"
     return(results)
 

@@ -4,7 +4,14 @@
 \alias{core_plots}
 \title{Plot the size of core-genome, accessory-genome and pan-genome}
 \usage{
-core_plots(data, steps = 10, reps = 10, threshold = 0.98, type = "pato")
+core_plots(
+  data,
+  steps = 10,
+  reps = 10,
+  threshold = 0.98,
+  type = "pato",
+  n_cores
+)
 }
 \arguments{
 \item{data}{A \emph{mmseq} object.}
@@ -16,6 +23,8 @@ core_plots(data, steps = 10, reps = 10, threshold = 0.98, type = "pato")
 \item{threshold}{Minimun frequency (0-1) of the core-genome genes/proteins.}
 
 \item{type}{Output in format \emph{pato} or \emph{roary} style.}
+
+\item{n_cores}{Number of cores to use.}
 }
 \value{
 A list with a \emph{ggplot2} object and a \emph{data.frame} with the values of the final step.
@@ -29,6 +38,6 @@ replicates.
 It's supossed the a gene/protein of the core-genome must be present in all
 the genomes of the dataset. Nevertheless, by random selection and/or errors
 in sequencing proccess (sequencing, assembly, ORF finding etc..) some
-genes/proteins could be missing. pato define the genome as, pangeno (the sum of all genomes),
+genes/proteins could be missing. pato define the genome as, pangenome (the sum of all genomes),
 core-genome.
 }

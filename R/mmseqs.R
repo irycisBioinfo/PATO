@@ -74,18 +74,20 @@ mmseqs <- function(file_list, coverage = 0.8, identity = 0.8, evalue = 1e-6, n_c
   system("rm *.rnm")
   system("rm -r tmpDir")
   system("rm all*")
-
+  system("rm commands.txt")
 
   for (i in file_list[,1])
   {
     if(grepl("gz",i[1]))
     {
-      print(paste("zcat ",i," | perl -pe 's/>/$&.\"",basename(i),"\".\"#\".++$n.\"|\"/e' >> all.rnm", collapse = "",sep = ""), quote = FALSE) %>% system()
+      write(paste("zcat ",i," | perl -pe 's/>/$&.\"",basename(i),"\".\"#\".++$n.\"|\"/e' >> all.rnm \n", collapse = "",sep = ""),file = "commands.txt", append = T)
     }else{
-      print(paste("perl -pe 's/>/$&.\"",basename(i),"\".\"#\".++$n.\"|\"/e' ",i," >> all.rnm", collapse = "",sep = ""), quote = FALSE) %>% system()
+      write(paste("perl -pe 's/>/$&.\"",basename(i),"\".\"#\".++$n.\"|\"/e' ",i," >> all.rnm \n", collapse = "",sep = ""),file = "commands.txt", append = T)
 
     }
   }
+
+  system(paste(Sys.getenv("SHELL")," commands.txt",collapse = "",sep = ""))
 
 
 

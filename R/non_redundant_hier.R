@@ -79,12 +79,12 @@ non_redundant_hier <- function(data, number, fraction, distance, tolerance = 0.0
     cent <- centralization.degree(gr.tmp)
     results <- data.frame(Source = as.character(vertex.attributes(gr.tmp)$name),
                           centrality = cent$res,
-                          cluster = cluster$membership)
+                          cluster = cluster$membership, stringsAsFactors = F)
     class(results) <- "nr_list"
     return(results)
   }
 
-## With numbers
+## With numbers or fraction
 
   if(!missing(number))
   {
@@ -112,11 +112,10 @@ non_redundant_hier <- function(data, number, fraction, distance, tolerance = 0.0
   {
 
     m.tmp <-  m.matrix[steps[i]:steps[i+1],steps[i]:steps[i+1]]
-    if(fast==TRUE){
-      cm <- graph_from_adjacency_matrix(m.tmp < Th, mode = "upper") %>% as.undirected()%>% components()
-    }else{
-      cm <- graph_from_adjacency_matrix(m.tmp < Th, mode = "upper") %>% as.undirected() %>% cluster_louvain()
-    }
+
+    cm <- graph_from_adjacency_matrix(m.tmp < Th, mode = "upper") %>% as.undirected()%>% components()
+
+
     table.tmp <-  cm$membership %>%
       as.data.frame() %>%
       rownames_to_column("Source") %>%
@@ -134,14 +133,10 @@ non_redundant_hier <- function(data, number, fraction, distance, tolerance = 0.0
     filter(Dist <= Th) %>%
     graph_from_data_frame()
 
-  if(fast == TRUE)
-  {
-    cm.all <- gr.tmp %>% as.undirected() %>% components()
-  }else{
-    cm.all <- gr.tmp %>% as.undirected() %>% cluster_louvain()
-  }
 
+  cm.all <- gr.tmp %>% as.undirected() %>% components()
   Nc <- as.numeric(max(cm.all$membership))
+  print(paste("First Iteration"," Nc=",Nc,sep = "",collapse = ""))
 
 ###### END first Iteration
 
@@ -155,10 +150,12 @@ non_redundant_hier <- function(data, number, fraction, distance, tolerance = 0.0
       cluster <- simplify(gr.tmp, remove.multiple = TRUE, remove.loops = TRUE) %>%
         as.undirected() %>%
         cluster_louvain()
+
+      print(paste("Final number of clusters: ",max(cluster$membership)))
       cent <- centralization.degree(gr.tmp)
       results <- data.frame(Source = as.character(vertex.attributes(gr.tmp)$name),
                             centrality = cent$res,
-                            cluster = cluster$membership)
+                            cluster = cluster$membership, stringsAsFactors = F)
       class(results) <- "nr_list"
       return(results)
     }else if (Nc > number){
@@ -173,15 +170,10 @@ non_redundant_hier <- function(data, number, fraction, distance, tolerance = 0.0
     for(i in 1:(partitions-1))
     {
       m.tmp <-  m.matrix[steps[i]:steps[i+1],steps[i]:steps[i+1]]
-      if(fast==TRUE){
-        cm <-  graph_from_adjacency_matrix(m.tmp < Th, mode = "upper") %>%
+      cm <-  graph_from_adjacency_matrix(m.tmp < Th, mode = "upper") %>%
           as.undirected() %>%
           components()
-      }else{
-        cm <- graph_from_adjacency_matrix(m.tmp < Th, mode = "upper") %>%
-          as.undirected() %>%
-          cluster_louvain()
-      }
+
       table.tmp <-  cm$membership %>%
         as.data.frame() %>%
         rownames_to_column("Source") %>%
@@ -197,6 +189,7 @@ non_redundant_hier <- function(data, number, fraction, distance, tolerance = 0.0
                     rename(Target = Source), by = "Target") %>%
                     filter(Dist <= Th) %>%
                     graph_from_data_frame()
+
 
     if(fast == TRUE)
     {

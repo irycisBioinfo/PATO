@@ -60,7 +60,7 @@ databases \strong{Virulence Factor DataBase}
 (\link{https://cge.cbs.dtu.dk/services/ResFinder/}). The function can re-use the
 previous computational steps of \code{mmseqs} or create a new index database from
 the files. Re-use option shorten the computational time. This method use the algorithm
-\strong{map} of \strong{mmseqs2} so it olny return high identity matchs.
+\strong{search} of \strong{mmseqs2} so it olny return high identity matchs.
 }
 \note{
 Keep in mind that the results from \emph{accesory} are based on the

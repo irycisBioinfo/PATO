@@ -27,7 +27,7 @@ non_redundant(
 
 \item{max_iter}{Maximun number of search iterations.}
 
-\item{fast}{If fast is TRUE the clustering process uses "components" in other case use "fast_greddy"}
+\item{fast}{If fast is TRUE the clustering process uses "components" in other case use "louvain"}
 }
 \value{
 \emph{nr_list} object

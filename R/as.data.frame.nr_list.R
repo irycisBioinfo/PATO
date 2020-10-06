@@ -11,7 +11,7 @@ as.data.frame.nr_list <- function(data)
   return(data.frame(
       Source = as.character(data$Source),
     centrality = data$centrality,
-    cluster = data$cluster))
+    cluster = data$cluster, stringsAsFactors = F))
   UseMethod("as.data.frame")
   }
 

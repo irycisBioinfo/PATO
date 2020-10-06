@@ -29,13 +29,13 @@ knitr::opts_chunk$set(
 
 ## Linux/Unix
 
-PATO uses external binaries so it can not be included in CRAN repositorie. To install PATO use \emph{devtools} package
+PATO uses external binaries so it can not be included in CRAN repository. To install PATO use \emph{devtools} package
 
 ```{r eval=FALSE, include=TRUE}
 install.packages("devtools")
 ```
  
-Once you have installed \emph{devtools} intall PATO from GitHub.
+Once you have installed \emph{devtools} install PATO from GitHub.
 
 ```{r eval=FALSE, include=TRUE}
 devtools::install_github("https://github.com/irycisBioinfo/PATO.git", build_vignettes = TRUE)
@@ -55,7 +55,7 @@ knitr::opts_chunk$set(
 # Introduction
 PATO is a R package designed to analyze pangenomes (set of genomes) intra or inter species. It allows to analyze the core-genome, accessory genome and whole genome, the population structure, and the horizontal gene transfer dynamics. PATO uses, as core software, [MASH](https://mash.readthedocs.io/en/latest/), [MMSeq2](https://github.com/soedinglab/MMseqs2) and R.
 
-These software can handle thousands of genomes using conventional computers without the necessity to use on a HPC facilities. PATO can analyze data in mash distance format (whole genome) or accnet format (accessory genome) Most of the functions can handle both objets. Some functions are specific for some kind of data. The primitive objet *mmseq* is a orthologous clustering that is used to build accnet object, annotate the genomes and characterize the core-, accessory- and pan-genome size (and dynamic). ![PATO diagram](../man/figures/diagram.png){width=100%}
+These software can handle thousands of genomes using conventional computers without the necessity to use on a HPC facilities. PATO can analyze data in mash distance format (whole genome) or accnet format (accessory genome) Most of the functions can handle both objects. Some functions are specific for some kind of data. The primitive object *mmseq* is a orthologous clustering that is used to build accnet object, annotate the genomes and characterize the core-, accessory- and pan-genome size (and dynamic). ![PATO diagram](../man/figures/diagram.png){width=100%}
 
 
 # Usage
@@ -63,7 +63,7 @@ These software can handle thousands of genomes using conventional computers with
 ## Classes
 PATO has been designed as a toolkit. Most of the functions use as input other outputs functions, creating a complete workflow to analysis large genome datasets. As R package, PATO can interact with other packages as `ape`, `vegan`, `igraph` or `pheatmap`. We have tried to developed PATO compatible with `tidyverse` packages in order to use `%>%` pipe command and to be compatible with `ggplot2` and extensions (as `ggtree`).
 
-In order to create a robust enviriment PATO uses specific data classes (S3 objects) to assure the compatibility among functions. PATO has 4 object classes:
+In order to create a robust environment PATO uses specific data classes (S3 objects) to assure the compatibility among functions. PATO has 4 object classes:
 
   * `mash` object
   * `mmseq` object
@@ -78,34 +78,34 @@ The idea to have these object is to share a structured data among functions. The
 
 A `mash` is a list of two element: `table`, `matrix`.
 
-The first one, `my_mash$table`, is a square and simetric `matrix` with the distances among genomes. As a matrix has genomes as rownames and colnames 
+The first one, `my_mash$table`, is a square and symmetric `matrix` with the distances among genomes. As a matrix has genomes as rownames and colnames 
 
-The second one, `my_mash$matrix` is a `data.table/data.frame` with all the distancies as list. The table has the columns `c("Source","Target","Dist")`
+The second one, `my_mash$matrix` is a `data.table/data.frame` with all the distances as list. The table has the columns `c("Source","Target","Dist")`
 
 ### `mmseq` class
 A `mmseq` object is a list of two elements: `table` and `annot`. 
 
-First element, `my_mmseq$table`, includes a `data.table/data.frame` with four columns `c("Prot_genome", "Prot_Prot", "Genome_genome", "Genome_Prot")`. This is the output of MMSeqs2 and described the clustering of the input genes/proteins. First column referes to the genome that contain the representative gene/protein of the cluster. Second one, is the representative protein of the cluster (i.e. the cluster name). Third colum is the genome that includes the gene/protein of the fourth column.
+First element, `my_mmseq$table`, includes a `data.table/data.frame` with four columns `c("Prot_genome", "Prot_Prot", "Genome_genome", "Genome_Prot")`. This is the output of MMSeqs2 and described the clustering of the input genes/proteins. First column referees to the genome that contain the representative gene/protein of the cluster. Second one, is the representative protein of the cluster (i.e. the cluster name). Third column is the genome that includes the gene/protein of the fourth column.
 
 In the second element, `my_mmseq$annot`, we can find a `data.frame/data.table` with the original annotation of all representative gene/protein of each cluster in two columns. The first one `Prot_prot` is the same that the second one of the first element.
 
 ### `accnet` class
 An `accnet` object is a list of three elements: `list`, `matrix`, `annot`.
 
-First element, `my_accnet$list`, includes a `data.frame/data.table` with the columns `c("Source","Target","degree")` the correspondences among proteins/genes and genomes and the degree of the corresponding protein/gene. In some cases, for example, when the `accnet` object cames from `accnet_with_padj` function or `pangenomes` the third column can be different and includes information such us the frequency of the protein/gene in the pangenome (in the case of `pangenomes`), or the p-value of the assotiation between the genome and the protein/gene (in the case of `accnet_with_padj`)
+First element, `my_accnet$list`, includes a `data.frame/data.table` with the columns `c("Source","Target","degree")` the correspondences among proteins/genes and genomes and the degree of the corresponding protein/gene. In some cases, for example, when the `accnet` object cames from `accnet_with_padj` function or `pangenomes` the third column can be different and includes information such us the frequency of the protein/gene in the pangenome (in the case of `pangenomes`), or the p-value of the association between the genome and the protein/gene (in the case of `accnet_with_padj`)
 
-Second element, `my_accnet$matrix`, is a presence/absence matrix. It is very important to know that it has a column `Source`, so in the case of use the `matrix` out of PATO you shoul convert this column in rownames (` my_matrix <- my_accnet$matrix %>% column_to_rownames("Source")`)
+Second element, `my_accnet$matrix`, is a presence/absence matrix. It is very important to know that it has a column `Source`, so in the case of use the `matrix` out of PATO you should convert this column in rownames (` my_matrix <- my_accnet$matrix %>% column_to_rownames("Source")`)
 
 ### `nr_list` class
 
 A `nr_list` is a S3 object of three elements: `Source`,`centrality` and `cluster`.
-`nr_list` can be coherced to a `data.frame` of three columns using `as.data.frame` function. Element `Source` has the accesion/name of the genomes, `centrality` has the centrality value of the genome, according to the degrees of vertices, for its cluster. Finally, `cluster` has the memebership of the `Source` genome.
+`nr_list` can be coerced to a `data.frame` of three columns using `as.data.frame` function. Element `Source` has the accession/name of the genomes, `centrality` has the centrality value of the genome, according to the degrees of vertices, for its cluster. Finally, `cluster` has the membership of the `Source` genome.
 
 
 
 ## Main Functions
 
-PATO has two main data classes, `mash` and `mmseq`. MASH is a whole-genome comparisson tool that can compare 
+PATO has two main data classes, `mash` and `mmseq`. MASH is a whole-genome comparison tool that can compare 
 thousands of genomes in a few minutes (even seconds).
 
 On other hand, MMSeq2 is a ultra fast software for sensitive search and clustering genes or proteins. Since last versions of MMSeq2 it include *lin-clust* method that allow to cluster huge data sets in linear time (most of the method are quadratic time or log(n)²) but with high identities.
@@ -159,10 +159,10 @@ The Greedy Set cover (`cluster-mode = 0`) algorithm is an approximation for the 
 
 ![Set Cover clustering](cluster-mode-setcover.png){width=70%}
 
-Greedy set cover works by iteratively selecting the node with most connections and all its connected nodes to form a cluster and repeating until all nodes are in a cluster.
+Greedy set cover works by interactively selecting the node with most connections and all its connected nodes to form a cluster and repeating until all nodes are in a cluster.
 The greedy set cover is followed by a reassignment step. A Cluster member is assigned to another cluster centroid if their alignment score was higher. 
 
-Connected component (`cluster_mode = 1`) uses transitive connection to cover more remote homologs.
+Connected component (`cluster_mode = 1`) uses transitive connection to cover more remote homologous.
 
 ![Connected component clustering](cluster-mode-connectedcomp.png){width=70%}
 
@@ -178,7 +178,7 @@ Greedy incremental clustering takes the longest sequence (indicated by the size 
 ### AccNET
 
 
-Accnet is a representation of the "accessory genome" using a bipartite network. (see more in *Lanza, V. F., Baquero, F., de la Cruz, F. & Coque, T. M. AcCNET (Accessory Genome Constellation Network): comparative genomics software for accessory genome analysis using bipartite networks. Bioinformatics 33, 283–285 (2017)*). Accnet creates a graph using two kind of nodes: genomes and proteins/gene. One genome is connected to one proteins if the genome has this protein (i.e. a protein that belong to this protein familiy/cluster). The `accnet` object is other of the main data type in PATO. PATO can create some representations of the accessory genome (dendrograms, networks, plots....) and has some functions to analyse the accessory genome propertly. The function `accnet()` builds an `accnet` object taking into account the maximun frequency of each protein/gene to be cosidered as part of accessory genome. Moreover, the user can decide to include single protein/genes or not (those which are only present in one sample).
+Accnet is a representation of the "accessory genome" using a bipartite network. (see more in *Lanza, V. F., Baquero, F., de la Cruz, F. & Coque, T. M. AcCNET (Accessory Genome Constellation Network): comparative genomics software for accessory genome analysis using bipartite networks. Bioinformatics 33, 283–285 (2017)*). Accnet creates a graph using two kind of nodes: genomes and proteins/gene. One genome is connected to one proteins if the genome has this protein (i.e. a protein that belong to this protein family/cluster). The `accnet` object is other of the main data type in PATO. PATO can create some representations of the accessory genome (dendrograms, networks, plots....) and has some functions to analyze the accessory genome properly. The function `accnet()` builds an `accnet` object taking into account the maximun frequency of each protein/gene to be considered as part of accessory genome. Moreover, the user can decide to include single protein/genes or not (those which are only present in one sample).
 
 Accnet depends of the definition of protein families so the input of the `accnet()` function is a `mmseqs` object. The definition of the homologous cluster is critical to define the accessory genome.  
 `accnet()` can be called as:
@@ -195,14 +195,14 @@ my_accnet <- mmseqs(my_files) %>% accnet(threshold = 0.8)
 
 # Workflow
 
-This is an example analysing 1.673 *Enterococcus faecium* downloaded from NCBI Assembly database. In this case we'll work with protein multi-fasta files (i.e. *.faa).
+This is an example analyzing 2.941 high quality *Escherichia coli and Shigella* downloaded from NCBI Assembly database (you can download a copy from https://doi.org/10.6084/m9.figshare.13049654). In this case we'll work with protein multi-fasta files (i.e. *.faa).
 
-PATO can handle both nucleotide or aminoacid multi-fasta files. PATO does not use contigs fasta file. We recomend to use PROKKA output files `.faa` or `.ffn`. If you are using NCBI, EBI or other public database note that there are especific files for multi-fasta genes file or multi-fasta protein files. It is important to know that PATO take as annotation the headers of the fasta sequence, and usually, protein annotation is better than gen (CDS) annotation. Thus, we recomend to use protein fasta files.
+PATO can handle both nucleotide or aminoacid multi-fasta files. PATO does not use contigs fasta file. We recomend to use PROKKA output files `.faa` or `.ffn`. If you are using NCBI, EBI or other public database note that there are especific files for multi-fasta genes file or multi-fasta protein files. It is important to know that PATO take as annotation the headers of the fasta sequence, and usually, protein annotation is better than gen (CDS) annotation. Thus, we recommend to use protein fasta files.
 
-It is very important to stablish the working directory. We recommend to set the workking directory in the folder where the multi-fasta files are. Make sure that you have enought free disk space.
+It is very important to establish the working directory. We recommend to set the working directory in the folder where the multi-fasta files are. Make sure that you have enough free disk space.
 
 ```{r eval=FALSE, include=TRUE}
-library(PATO)
+library(pato)
 # We strongly recommend to load tidyverse meta-package
 library(tidyverse)
 setwd("/myFolder/")
@@ -219,25 +219,56 @@ ls *.faa > my_list.txt
 files <- read.table("my_list.txt",header = FALSE)
 ```
 
+## Quality Control
+
+PATO has implemented a classification function to identify the most probable species
+determination for each input file. The method is based in the minimun mash distance of each
+file against a homemade reference database. Thr reference database comprises all _reference_ and _representative_ genomes of Refseq. Input files can be fasta nucleotides or aminoacids.
+
+```{r eval=FALSE, include=TRUE}
+species <- classifier(files,re_use = F,n_cores = 20,type = 'prot')
+
+species %>% group_by(organism_name) %>% summarise(Number = n())
+
+# A tibble: 8 x 2
+  organism_name                             Number
+  <chr>                                      <int>
+1 Citrobacter gillenii                           1
+2 Escherichia coli O157:H7 str. Sakai          323
+3 Escherichia coli str. K-12 substr. MG1655   2520
+4 Escherichia marmotae                           4
+5 Shigella boydii                               18
+6 Shigella dysenteriae                           7
+7 Shigella flexneri 2a str. 301                 45
+8 Shigella sonnei                               40
+```
+
+In this example we found 5 foreign genomes (1 Citrobacter and 4 E. marmotae). Now we can create a new list of files with the output of classifier. Using the tidyverse style we filter the unwanted sequences
+
+```{r}
+files = species %>% filter(!grepl("Citrobacter",organism_name)) %>% filter(!grepl("marmotae",organism_name)) 
+```
+
+
 Now we create the main objects `mash`and `mmseqs`. We go to create a protein families with 80% of identity, 80% of coverage and a maximun of 1e-6 of Evalue.
 
 ```{r eval=FALSE, include=TRUE}
-efaecium_mash_all <- mash(files, n_cores = 20, type = 'prot')
-efaecium_mm<- mmseqs(files, coverage = 0.8, identity = 0.8, evalue = 1e-6, n_cores = 20)
+ecoli_mash_all <- mash(files, n_cores = 20, type = 'prot')
+ecoli_mm<- mmseqs(files, coverage = 0.8, identity = 0.8, evalue = 1e-6, n_cores = 20)
 ```
 In my case, I have 20 cores in my computer.
 Finally we can create an `accnet` object:
 ```{r eval=FALSE, include=FALSE}
-efaecium_accnet_all <- accnet(efaecium_mm,threshold = 0.8, singles = FALSE)
+ecoli_accnet_all <- accnet(ecoli_mm,threshold = 0.8, singles = FALSE)
 ```
 
 
 ## Pre-processing
 
 ### Outliers
-One of the things that happend when you download genomes from public databases is that some times you can find some *outliers*, genomes that not belong to the selected specie. PATO implement a function to indentify outliers and to remove it if is neccessary. In this case we set a threshold of 0.06 (~94% of ANI) to be considered as outlier.
+One of the things that happen when you download genomes from public databases is that some times you can find some *outliers*, genomes that not belong to the selected specie. PATO implement a function to indentify outliers and to remove it if is neccessary. In this case we set a threshold of 0.06 (~94% of ANI) to be considered as outlier.
 ```{r eval=FALSE, include=TRUE}
-outl <- outliers(efaecium_mash_all,threshold = 0.06)
+outl <- outliers(ecoli_mash_all,threshold = 0.06)
 ```
  ![Outliers plot](./outliers.png)
 
@@ -245,8 +276,8 @@ outl <- outliers(efaecium_mash_all,threshold = 0.06)
 You can remove the outliers from `mash` or `accnet` objects
 
 ```{r eval=FALSE, include=TRUE}
-efaecium_mash_all <-remove_outliers(efaecium_mash_all, outl)
-efaecium_accnet_all <-remove_outliers(efaecium_accnet_all, outl)
+ecoli_mash_all <-remove_outliers(ecoli_mash_all, outl)
+ecoli_accnet_all <-remove_outliers(ecoli_accnet_all, outl)
 ```
 (see )
 If you desire to remove outliers from `files` object you can do it
@@ -261,28 +292,28 @@ Most of the times in the public databases are redundancies. The inclusion of out
 
 ```{r eval=FALSE, include=TRUE}
 # For select 800 non redundant samples
-nr_list <- non_redundant(efaecium_mash_all,number = 800)
+nr_list <- non_redundant(ecoli_mash_all,number = 800)
 ```
 or
 ```{r eval=FALSE, include=TRUE}
 # For select a subset of samples with 99.99% of indentity
-nr_list <- non_redundant(efaecium_mash_all, distance = 0.0001)
+nr_list <- non_redundant(ecoli_mash_all, distance = 0.0001)
 ```
 to create the objects only with the representatives of each cluster:
 ```{r eval=FALSE, include=TRUE}
-efaecium_accnet <- extract_non_redundant(efaecium_accnet_all, nr_list)
-efaecium_mash <- extract_non_redundant(efaecium_mash_all, nr_list)
+ecoli_accnet <- extract_non_redundant(ecoli_accnet_all, nr_list)
+ecoli_mash <- extract_non_redundant(ecoli_mash_all, nr_list)
 ```
 
 Moreover, there is another function `non_redundant_hier()` that perform a hierarchical approach to perform the clusterization of the genomes. It is faster for big dataset (>1000 genomes) so we recommend use it in this cases.
 
 ```{r eval=FALSE, include=TRUE}
-nr_list <- non_redundant_hier(efaecium_mash_all,800, partitions = 10)
-efaecium_accnet <- extract_non_redundant(efaecium_accnet_all, nr_list)
-efaecium_mash <- extract_non_redundant(efaecium_mash_all, nr_list)
+nr_list <- non_redundant_hier(ecoli_mash_all,800, partitions = 10)
+ecoli_accnet <- extract_non_redundant(ecoli_accnet_all, nr_list)
+ecoli_mash <- extract_non_redundant(ecoli_mash_all, nr_list)
 ```
 
-The `partition` parameter set the number of hiaerarchical steps.
+The `partition` parameter set the number of hierarchical steps.
 
 ## Core Genome analysis
 
@@ -291,7 +322,7 @@ PATO implements a set of tools to inspect the core genome. It includes the pange
 We can inspect the Pangenome composition of our dataset with:
 
 ```{r eval=FALSE, include=TRUE}
-cp <- core_plots(efaecium_mm,reps = 10, threshold = 0.95, steps = 10)
+cp <- core_plots(ecoli_mm,reps = 10, threshold = 0.95, steps = 10)
 ```
 
 ![Core Plots](./core_plot.png){width=100%}
@@ -302,7 +333,7 @@ cp <- core_plots(efaecium_mm,reps = 10, threshold = 0.95, steps = 10)
 PATO can build a core-genome alignment to use with external software such as IQTree[http://www.iqtree.org/], RAxML-NG[http://www.exelixis-lab.org/software.html], FastTree[http://www.microbesonline.org/fasttree/] or other phylogenetic inference software. The core genome is computed based on a `mmseq` object, so the definition of core-genome depends of the parameters used in that step.
 
 ```{r eval=FALSE, include=TRUE}
-core <- mmseqs(files) %>% core_genome()
+core <- mmseqs(files) %>% core_genome(type = "prot")
 export_core_to_fasta(core,"core.aln")
 
 ```
@@ -319,13 +350,21 @@ The exported files are in Multi-alignment FASTA format and ca be use with most o
 ```{bash eval=FALSE, include=TRUE}
 iqtree -s core.aln 
 ```
-And then we can read the output file to import to our R enviroment and plot the result.
+And then we can read the output file to import to our R environment and plot the result.
 ```{r eval=FALSE, include=TRUE}
 core_tree = read.tree("core.aln.treefile")
 core_tree %>% midpoint.root() %>% ggtree()
 ```
 
 ![ML Core-genome phylogenetic tree](Core_tree.png)
+
+Finally, you can obtain a SNPs matrix from the coregenome alignment. The matrix shown the number of total SNPs (or changes in the case of proteins alignments) shared among the samples. The matrix can be normalized by the total length of the genome (in magabases) or can be raw numer of variants.
+
+```{r eval = FALSE, include=TRUE}
+var_matrix = core_snps_matrix(core, norm = TRUE)
+pheatmap::pheatmap(var_matrix)
+```
+
 
 You must take into account that Maximun Likelyhood tree can take long computational times.
 
@@ -334,7 +373,7 @@ You must take into account that Maximun Likelyhood tree can take long computatio
 
 I this case we are creating the *accessory genome* taking those proteins presence in no more than 80% of the genomes.
 ```{r eval=FALSE, include=TRUE}
-efaecium_accnet_all <- accnet(efaecium_mm,threshold = 0.8, singles = FALSE)
+ecoli_accnet_all <- accnet(ecoli_mm,threshold = 0.8, singles = FALSE)
 ```
 
 
@@ -344,21 +383,21 @@ As we have shown above, PATO has an object type to accessory genome `accnet` and
 One of the most interesting things when we analyze an accessory genome is try to find what genes/proteins are over-represented in a set of genomes. `accnet_enrichment_analysis()` function analyze what genes/proteins are over-represented in a *cluster* in comparisson with the population (i.e. in the wholem dataset). The clusters definition can be external (any catagorical metadata such as Sequence Type, Source, Serotype etc...) or internal using some clustering proccess. We have to take into account, that the redundancies can bias this kind of analysis. If there are an over-representation of samples, for example an outbreak, in your dataset the results could be bias. You will find more significant genes/proteins because the diversity of the dataset is not homegenously distributed. For this reason we recommend to use a non redundant set of samples. In this example we select 800 non redundant genomes.
 
 ```{r eval=FALSE, include=TRUE}
-ef_nr<- non_redundant(efaecium_mash,number = 800 )
-efaecium_accnet_nr <- extract_non_redundant(efaecium_accnet, ef_nr)
-ef_800_cl <- clustering(efaecium_accnet_nr, method = "mclust", d_reduction = TRUE)
+ef_nr<- non_redundant(ecoli_mash,number = 800 )
+ecoli_accnet_nr <- extract_non_redundant(ecoli_accnet, ef_nr)
+ef_800_cl <- clustering(ecoli_accnet_nr, method = "mclust", d_reduction = TRUE)
 ```
 
 Now we can visualize the network using Gephi.
 
 ```{r eval=FALSE, include=TRUE}
-export_to_gephi(efaecium_accnet_nr, "accnet800", cluster = ef_800_cl)
+export_to_gephi(ecoli_accnet_nr, "accnet800", cluster = ef_800_cl)
 ```
 ![Accnet of 800 non redundant *E. faecium* strains](Accnet_800.png){width=100%}
 
 To perform the enrichment analysis we use:
 ```{r eval=FALSE, include=TRUE}
-accnet_enr_result <- accnet_enrichment_analysis(efaecium_accnet_nr, cluster = ef_800_cl)
+accnet_enr_result <- accnet_enrichment_analysis(ecoli_accnet_nr, cluster = ef_800_cl)
 
 accnet_enr_result
 
@@ -402,10 +441,10 @@ PATO includes tools for population structure search and comparisson. PATO can an
 
 We can visualize our dataset as a dendrogram (i.e a tree). PATO allows to visualize both `mash` and `accnet` data as a tree. In the caso of `accnet` data, first PATO calculate a distance matrix using the presence/absence matrix in combination with Jaccard distance. The function `similarity_tree()` implement different methods to build the dendrogram. Phylogenetic aproaches such as Neighbour Joining, FastME:Minimun Evolution and  hierarchical clustering method such us complete linkage, UPGMA, Ward's mininum variance, and WPGMC.
 ```{r eval=FALSE, include=TRUE}
-mash_tree_fastme <- similarity_tree(efaecium_mash)
-mash_tree_NJ <- similarity_tree(efaecium_mash, method = "NJ")
-mash_tree_upgma <- similarity_tree(efaecium_mash,method = "UPGMA")
-accnet_tree_upgma <- similarity_tree(efaecium_accnet,method = "UPGMA")
+mash_tree_fastme <- similarity_tree(ecoli_mash)
+mash_tree_NJ <- similarity_tree(ecoli_mash, method = "NJ")
+mash_tree_upgma <- similarity_tree(ecoli_mash,method = "UPGMA")
+accnet_tree_upgma <- similarity_tree(ecoli_accnet,method = "UPGMA")
 ```
 The output has a `phylo` format, so can be visualize with external packages as `ggtree`.
 ```{r eval=FALSE, include=TRUE}
@@ -450,11 +489,11 @@ PATO has a set of function to visualize data. We have saw the tree but algo impl
 ```{r eval=FALSE, include=TRUE}
 
 # K-NNN with 10 neighbours and with repetitions
-knnn_mash_10_w_r <- knnn(efaecium_mash,n=10, repeats = TRUE)
+knnn_mash_10_w_r <- knnn(ecoli_mash,n=10, repeats = TRUE)
 # K-NNN with 25 neighbours and with repetitions
-knnn_mash_25_w_r <- knnn(efaecium_mash,n=25, repeats = TRUE)
+knnn_mash_25_w_r <- knnn(ecoli_mash,n=25, repeats = TRUE)
 # K-NNN with 50 neighbours and with repetitions
-knnn_mash_50_w_r <- knnn(efaecium_mash,n=50, repeats = TRUE)
+knnn_mash_50_w_r <- knnn(ecoli_mash,n=50, repeats = TRUE)
 
 ```
 
@@ -485,7 +524,7 @@ Any of the above methods is compatible with a multidimentsional scaling (MDS). P
 as PCA , MDS , and Sammon mapping fall into the former category while t-SNE, Isomap or UMAP,fall into the later category. This kind of MDS combine better with the clustering algorithms due to clustering process try to find local structures.
 
 ```{r eval=FALSE, include=TRUE}
-ef_cl_mclust_umap <- clustering(efaecium_mash, method = "mclust",d_reduction = TRUE)
+ef_cl_mclust_umap <- clustering(ecoli_mash, method = "mclust",d_reduction = TRUE)
 ```
 On other hand, `clustering()` can handle `knnn` networks as input. In this caso, PATO uses network clustering algorithms such us:
 
@@ -503,12 +542,12 @@ To visualize the clustering data or just to see the data structure we can use `u
 
 
 ```{r eval =FALSE, include=TRUE}
-umap_mash <- umap_plot(efaecium_mash)
+umap_mash <- umap_plot(ecoli_mash)
 ```
 ![UMAP visualization for MASH data](umap_wo_colors.png){width=80%}
 
 ```{r eval =FALSE, include=TRUE}
-umap_mash <- umap_plot(efaecium_mash, cluster = ef_cl_mclust_umap)
+umap_mash <- umap_plot(ecoli_mash, cluster = ef_cl_mclust_umap)
 ```
 ![UMAP visualization with cluster definition](umap_w_colors.png){width=80%}
 
@@ -529,7 +568,7 @@ PATO has a function to annotate the Antibiotic Resistance Genes and the Virulenc
 ```{r eval=FALSE, include=TRUE}
 library(tidyverse)
 
-annotation <- annotate(efaecium_mm, type = "prot",database = c("AbR","VF_A"))
+annotation <- annotate(ecoli_mm, type = "prot",database = c("AbR","VF_A"))
 
 annotation %>% 
   filter(pident > 0.95 ) %>% #remove all hits with identity lower than 95%
