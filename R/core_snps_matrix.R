@@ -30,9 +30,9 @@ core_snps_matrix <- function(data, norm =T){
     stop("data must be a core_genome object")
   }
 
-  # n_cores = detectCores()
-  # cl <- makeCluster(n_cores)
-  # registerDoParallel(cl)
+  n_cores = detectCores()
+  cl <- makeCluster(n_cores)
+  registerDoParallel(cl)
 
   res <- matrix(0L, nrow =length(data$core_genome$Genomes) , ncol = length(data$core_genome$Genomes))
 
@@ -40,14 +40,17 @@ core_snps_matrix <- function(data, norm =T){
   for(i in 1:length(data$core_genome$Genomes)){
     print(i)
     tmp1 <- data$core_genome$Seq[i] %>% str_split("") %>% as.matrix()
-    for(j in i:length(data$core_genome$Genomes)){
+    for(j in i:length(data$core_genome$Genomes))
+    {
 
       tmp2 <- data$core_genome$Seq[j] %>% str_split("") %>% as.matrix()
       res[i,j] = sum(tmp1[[1]] != tmp2[[1]])
+      #res[i,j] = adist(data$core_genome$Seq[i],data$core_genome$Seq[j])
       res[j,i] = res[i,j]
-      }
     }
-  # stopCluster(cl)
+    res = rbind(res,res_tmp)
+  }
+  stopCluster(cl)
 
   colnames(res) <- gsub(">","",data$core_genome$Genomes)
   rownames(res) <- gsub(">","",data$core_genome$Genomes)

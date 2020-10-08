@@ -83,7 +83,6 @@ mmseqs <- function(file_list, coverage = 0.8, identity = 0.8, evalue = 1e-6, n_c
       write(paste("zcat ",i," | perl -pe 's/>/$&.\"",basename(i),"\".\"#\".++$n.\"|\"/e' >> all.rnm \n", collapse = "",sep = ""),file = "commands.txt", append = T)
     }else{
       write(paste("perl -pe 's/>/$&.\"",basename(i),"\".\"#\".++$n.\"|\"/e' ",i," >> all.rnm \n", collapse = "",sep = ""),file = "commands.txt", append = T)
-
     }
   }
 

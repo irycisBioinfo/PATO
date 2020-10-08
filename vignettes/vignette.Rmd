@@ -245,7 +245,7 @@ species %>% group_by(organism_name) %>% summarise(Number = n())
 
 In this example we found 5 foreign genomes (1 Citrobacter and 4 E. marmotae). Now we can create a new list of files with the output of classifier. Using the tidyverse style we filter the unwanted sequences
 
-```{r}
+```{r eval=FALSE, include=TRUE}
 files = species %>% filter(!grepl("Citrobacter",organism_name)) %>% filter(!grepl("marmotae",organism_name)) 
 ```
 
@@ -325,15 +325,29 @@ We can inspect the Pangenome composition of our dataset with:
 cp <- core_plots(ecoli_mm,reps = 10, threshold = 0.95, steps = 10)
 ```
 
-![Core Plots](./core_plot.png){width=100%}
+![Core Plots](./core_plot.png)
 
 
 
 
 PATO can build a core-genome alignment to use with external software such as IQTree[http://www.iqtree.org/], RAxML-NG[http://www.exelixis-lab.org/software.html], FastTree[http://www.microbesonline.org/fasttree/] or other phylogenetic inference software. The core genome is computed based on a `mmseq` object, so the definition of core-genome depends of the parameters used in that step.
 
+In this example we build a core-genome aligment of the ~800 samples of non-redundant result.
+
 ```{r eval=FALSE, include=TRUE}
-core <- mmseqs(files) %>% core_genome(type = "prot")
+nr_files = nr_list %>% 
+  as.data.frame() %>% 
+  group_by(cluster) %>% 
+  top_n(1,centrality) %>% 
+  summarise_all(first) %>% 
+  select(Source) %>% 
+  distinct()
+```
+
+We have selected the best sample of each cluster (max centrality value). Some cluster has several samples with the same centrality value, so we take one of them (the first one). Now we run the core genome for this list of samples.
+
+```{r eval=FALSE, include=TRUE}
+core <- mmseqs(nr_files) %>% core_genome(type = "prot")
 export_core_to_fasta(core,"core.aln")
 
 ```
@@ -345,17 +359,24 @@ Some time, when you are using public data, core-genome can be smaller than you e
 
 other times you can have a problem of *outliers*
 
-The exported files are in Multi-alignment FASTA format and ca be use with most of the Phylogenetic tools. In this case we used IQTree for phylogenetic inference
+The exported files are in Multi-alignment FASTA format and ca be use with most of the Phylogenetic tools. In this case we used FastTree for phylogenetic inference
 
 ```{bash eval=FALSE, include=TRUE}
-iqtree -s core.aln 
+fasttreeMP core.aln > core.tree
 ```
 And then we can read the output file to import to our R environment and plot the result.
 ```{r eval=FALSE, include=TRUE}
-core_tree = read.tree("core.aln.treefile")
-core_tree %>% midpoint.root() %>% ggtree()
-```
+library(phangorn)
+library(ggtree)
+core_tree = read.tree("core.tree")
 
+annot_tree = species %>% 
+  filter(!grepl("Citrobacter",organism_name)) %>% 
+  filter(!grepl("marmotae",organism_name)) %>% 
+  select(Target,organism_name) %>% distinct()
+core_tree %>% midpoint %>% ggtree() %<+% annot_tree + geom_tippoint(aes(color = organism_name))
+```
+In this case we have added the species information extracted above.
 ![ML Core-genome phylogenetic tree](Core_tree.png)
 
 Finally, you can obtain a SNPs matrix from the coregenome alignment. The matrix shown the number of total SNPs (or changes in the case of proteins alignments) shared among the samples. The matrix can be normalized by the total length of the genome (in magabases) or can be raw numer of variants.
