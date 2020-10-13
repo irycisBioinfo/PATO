@@ -6,7 +6,6 @@
 #' database and search, using mash, the best hit for each genome file in the input list.
 #'
 #' @param file_list Data frame with the full path to the genome files (gene or protein multi-fasta).
-#' @param re_use You can re-use the sketch step if you have executed a previous \emph{mash()} function
 #' @param n_cores Number of cores to use.
 #' @param type Type of sequence 'nucl' (nucleotides) or 'prot' (aminoacids)
 #' @param max_dist Maximun distance to report (1-Average Nucleotide Identity). Usually all species have 0.05 distance among all each memebers
@@ -21,7 +20,7 @@
 #' @import dtplyr
 #' @import data.table
 
-classifier <- function(file_list, re_use = TRUE, n_cores, type ="nucl", max_dist = 0.06)
+classifier <- function(file_list, n_cores, type ="nucl", max_dist = 0.06)
 {
   if(missing(n_cores))
   {
@@ -38,30 +37,35 @@ classifier <- function(file_list, re_use = TRUE, n_cores, type ="nucl", max_dist
     stop("Error in type options. Only prot or nucl options are allowed")
   }
 
-
   mashPath <- system.file("mash",package = "pato")
-  if(!re_use)
+
+  folderName = paste(getwd(),"/",md5(paste(file_list[,1], sep = "",collapse = "")),"_mash",sep = "",collapse = "")
+
+  if(!file.exists(paste(folderName,"/all.msh", sep = "",collapse = "")))
   {
-    system("rm all.msh input_mash.txt")
-    write.table(file_list[,1],"input_mash.txt", quote = F, col.names = FALSE, row.names = FALSE)
+    dir.create(folderName)
+    write.table(file_list[,1],paste(folderName,"/input_mash.txt",sep = "",collapse = ""),
+                quote = F, col.names = FALSE, row.names = FALSE)
 
     if(type == "prot")
     {
-      cmd1 <- paste(mashPath," sketch -p ",n_cores," -l input_mash.txt"," -a -o all.msh", sep = "", collapse = "")
+      cmd1 <- paste(mashPath," sketch -p ",n_cores," -l ",folderName,"/input_mash.txt"," -a -o ",folderName,"/all.msh", sep = "", collapse = "")
     }else if(type =="nucl")
     {
-      cmd1 <- paste(mashPath," sketch -p ",n_cores," -l input_mash.txt"," -o all.msh", sep = "", collapse = "")
+      cmd1 <- paste(mashPath," sketch -p ",n_cores," -l ",folderName,"/input_mash.txt"," -o ",folderName,"/all.msh", sep = "", collapse = "")
     } else{
       stop("Error in type options. Only prot or nucl options are allowed")
     }
+
     system(cmd1)
   }
 
-
-  cmd3 <- paste(mashPath," dist -p ",n_cores," -d ",max_dist," ",reference," all.msh > classification.tab", sep = "", collapse = "")
+  cmd3 <- paste(mashPath," dist -p ",n_cores," -d ",max_dist," ",reference," ",folderName,"/all.msh > ",folderName,"/classification.tab", sep = "", collapse = "")
   system(cmd3)
 
-  class.table <- data.table::fread("classification.tab", header = F) %>% as_tibble()
+
+  class.table <- data.table::fread(paste(folderName,"/classification.tab",sep = "",collapse = ""),
+                                         header = F) %>% as_tibble()
   colnames(class.table) <- c("Source","Target","Dist","pvalue","sketch")
 
 

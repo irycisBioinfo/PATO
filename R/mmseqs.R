@@ -52,6 +52,7 @@
 #' @import data.table
 #' @import foreach
 #' @import doParallel
+#' @import openssl
 #'
 mmseqs <- function(file_list, coverage = 0.8, identity = 0.8, evalue = 1e-6, n_cores, cov_mode = 0, cluster_mode = 0)
 {
@@ -70,65 +71,98 @@ mmseqs <- function(file_list, coverage = 0.8, identity = 0.8, evalue = 1e-6, n_c
     mmseqPath = system.file("mmseqs.sse41", package = "pato")
   }
 
+  folderName = paste(getwd(),"/",md5(paste(file_list[,1], sep = "",collapse = "")),"_mmseq",sep = "",collapse = "")
 
-  system("rm *.rnm")
-  system("rm -r tmpDir")
-  system("rm all*")
-  system("rm commands.txt")
+  if(!dir.exists(folderName))
+  {
+    dir.create(folderName,)
+  }
+
+  # system("rm *.rnm")
+  # system("rm -r tmpDir")
+  # system("rm all*")
+  if(file.exists("commands.txt"))
+  {
+    file.remove("commands.txt")
+  }
 
   for (i in file_list[,1])
   {
     if(grepl("gz",i[1]))
     {
-      write(paste("zcat ",i," | perl -pe 's/>/$&.\"",basename(i),"\".\"#\".++$n.\"|\"/e' >> all.rnm \n", collapse = "",sep = ""),file = "commands.txt", append = T)
+      write(paste("zcat ",i," | perl -pe 's/>/$&.\"",basename(i),"\".\"#\".++$n.\"|\"/e' >> ",folderName,"/all.rnm \n", collapse = "",sep = ""),
+            file = "commands.txt",
+            append = T)
     }else{
+<<<<<<< HEAD
+      write(paste("perl -pe 's/>/$&.\"",basename(i),"\".\"#\".++$n.\"|\"/e' ",i," >> ",folderName,"/all.rnm \n", collapse = "",sep = ""),
+            file = "commands.txt",
+            append = T)
+
+=======
       write(paste("perl -pe 's/>/$&.\"",basename(i),"\".\"#\".++$n.\"|\"/e' ",i," >> all.rnm \n", collapse = "",sep = ""),file = "commands.txt", append = T)
+>>>>>>> 88a4b00ff724c56c87309c3d37a0e1f648521d27
     }
   }
 
   system(paste(Sys.getenv("SHELL")," commands.txt",collapse = "",sep = ""))
 
+  origin_path = getwd()
+  setwd(folderName)
+
+  on.exit(setwd(origin_path))
 
 
-  cmd1 <- paste(mmseqPath," createdb all.rnm all.mmseq",sep = "",collapse = "")
-  print(cmd1)
-  system(cmd1)
 
-  cmd2 <- paste(mmseqPath," linclust all.mmseq all.cluster tmpDir --threads ",n_cores,
+  if(!file.exists("all.mmseq"))
+  {
+    cmd1 <- paste(mmseqPath," createdb all.rnm all.mmseq",sep = "",collapse = "")
+    print(cmd1)
+    system(cmd1)
+  }
+
+  if(!file.exists("all.cluster"))
+  {
+    cmd2 <- paste(mmseqPath," linclust all.mmseq all.cluster . --threads ",n_cores,
                 " -e ",evalue,
                 " --min-seq-id ",identity,
                 " -c ",coverage,
                 "--cov-mode", cov_mode,
                 "--cluster-mode",cluster_mode,
                 sep = "",collapse = "")
-  print(cmd2)
-  system(cmd2)
+    print(cmd2)
+    system(cmd2)
 
-  cmd3 <- paste(mmseqPath," createtsv all.mmseq all.mmseq all.cluster all.cluster.tsv",sep = "",collapse = "")
-  print(cmd3)
-  system(cmd3)
+    cmd3 <- paste(mmseqPath," createtsv all.mmseq all.mmseq all.cluster all.cluster.tsv",sep = "",collapse = "")
+    print(cmd3)
+    system(cmd3)
 
-  cmd4 <- paste(mmseqPath," result2repseq all.mmseq all.cluster all.representatives",sep = "",collapse = "")
-  print(cmd4)
-  system(cmd4)
+    cmd4 <- paste(mmseqPath," result2repseq all.mmseq all.cluster all.representatives",sep = "",collapse = "")
+    print(cmd4)
+    system(cmd4)
 
-  cmd5 <- paste(mmseqPath," result2flat all.mmseq all.mmseq all.representatives all.representatives.fasta --use-fasta-header",sep = "",collapse = "")
-  print(cmd5)
-  system(cmd5)
+    cmd5 <- paste(mmseqPath," result2flat all.mmseq all.mmseq all.representatives all.representatives.fasta --use-fasta-header",sep = "",collapse = "")
+    print(cmd5)
+    system(cmd5)
 
-  system("grep '>' all.representatives.fasta | sed 's/>//' | sed 's/ /~~/' | sed 's/\t/ /g' > AnnotFile.tsv");
+    system("grep '>' all.representatives.fasta | sed 's/>//' | sed 's/ /~~/' | sed 's/\t/ /g' > AnnotFile.tsv");
 
-  Annotation <- data.table::fread("AnnotFile.tsv", header = FALSE, sep = "\t") %>% as_tibble() %>%
-  separate(V1, c("Genome","kk"), sep = "#") %>%
-    separate("kk",c("Prot_prot","Annot"), sep= "~~") %>%
-    select(Prot_prot,Annot)
-  mmseqs.raw <- fread("all.cluster.tsv", header = FALSE, sep = "\t") %>% as_tibble()
-  colnames(mmseqs.raw) = c("Prot","Genome")
-  mmseqs.raw <- mmseqs.raw %>%
-    separate(Prot,c("Prot_genome","Prot_prot"),sep = "#") %>%
-    separate(Genome,c("Genome_genome","Genome_prot"), sep = "#")
+    Annotation <- data.table::fread("AnnotFile.tsv", header = FALSE, sep = "\t") %>% as_tibble() %>%
+      separate(V1, c("Genome","kk"), sep = "#") %>%
+      separate("kk",c("Prot_prot","Annot"), sep= "~~") %>%
+      select(Prot_prot,Annot)
 
-  results <- list(table = mmseqs.raw, annot = Annotation)
+    system("sed -i 's/#/\t/g' all.cluster.tsv")
+    mmseqs.raw <- fread("all.cluster.tsv", header = FALSE, sep = "\t")
+    colnames(mmseqs.raw) = c("Prot_genome","Prot_prot","Genome_genome","Genome_prot")
+    #mmseqs.raw <- mmseqs.raw %>%
+     # separate(Prot,c("Prot_genome","Prot_prot"),sep = "#") %>%
+      #separate(Genome,c("Genome_genome","Genome_prot"), sep = "#")
+
+  }
+
+
+  results <- list(table = mmseqs.raw, annot = Annotation, path = folderName)
   class(results) <- "mmseq"
   return(results)
 

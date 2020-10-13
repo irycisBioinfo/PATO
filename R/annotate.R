@@ -12,8 +12,6 @@
 #'
 #'
 #' @param files data.frame with the absolute path to the genome files (protein fasta file).
-#' @param re_use Re-use the precomputed mmseqs2 database. The index must be in
-#' the working directory
 #' @param type user must be specified if the data set is nucleotide or protein.
 #' @param database A vector with the query databases:
 #' \itemize{
@@ -55,7 +53,7 @@
 #' @import dtplyr
 #' @import data.table
 #'
-annotate <- function(files, re_use = TRUE, type = "nucl", database =c("AbR","VF_A","VF_B"), query = "all")
+annotate <- function(files, type = "nucl", database =c("AbR","VF_A","VF_B"), query = "all")
 {
 
   if(sum(grep("avx2",system("cat /proc/cpuinfo",intern = TRUE),ignore.case = TRUE)))
@@ -65,6 +63,7 @@ annotate <- function(files, re_use = TRUE, type = "nucl", database =c("AbR","VF_
     mmseqPath = system.file("mmseqs.sse41", package = "pato")
   }
 
+  n_cores = detectCores()
 
   if(type == "prot")
   {
@@ -85,55 +84,86 @@ annotate <- function(files, re_use = TRUE, type = "nucl", database =c("AbR","VF_
   results <- data.frame()
 
 
+  folderName = paste(getwd(),"/",md5(paste(files[,1], sep = "",collapse = "")),"_mmseq",sep = "",collapse = "")
+
+  if(file.exists("commands.txt"))
+  {
+    file.remove("commands.txt")
+  }
+
+  if(!file.exists(paste(folderName,"/all.mmseq",sep = "",collapse = "")))
+  {
+    dir.create(folderName)
+    for (i in files[,1])
+    {
+      if(grepl("gz",i[1]))
+      {
+        write(paste("zcat ",i," | perl -pe 's/>/$&.\"",basename(i),"\".\"#\".++$n.\"|\"/e' >> ",folderName,"/all.rnm \n", collapse = "",sep = ""),
+              file = "commands.txt",
+              append = T)
+      }else{
+        write(paste("perl -pe 's/>/$&.\"",basename(i),"\".\"#\".++$n.\"|\"/e' ",i," >> ",folderName,"/all.rnm \n", collapse = "",sep = ""),
+              file = "commands.txt",
+              append = T)
+
+      }
+    }
+
+    system(paste(Sys.getenv("SHELL")," commands.txt",collapse = "",sep = ""))
+
+    origin_path = getwd()
+    on.exit(setwd(origin_path))
+    setwd(folderName)
+
+    cmd1 <- paste(mmseqPath," createdb all.rnm all.mmseq",sep = "",collapse = "")
+    print(cmd1)
+    system(cmd1)
+
+  }else{
+    origin_path = getwd()
+    on.exit(setwd(origin_path))
+    setwd(folderName)
+
+  }
+
+
 
 
   if(query =="all")
   {
-    if(!re_use)
-    {
-      system("rm *.rnm")
-      system("rm -r tmpDir")
-      for (i in files[,1])
-      {
-
-        if(grepl("gz",i[1]))
-        {
-          print(print(paste("zcat ",i," | perl -pe 's/>/$&.\"",basename(i),"\".\"#\".++$n.\"|\"/e' >> all.rnm", collapse = "",sep = ""), quote = FALSE)) %>% system()
-        }else{
-          print(print(paste("perl -pe 's/>/$&.\"",basename(i),"\".\"#\".++$n.\"|\"/e' ",i," >> all.rnm", collapse = "",sep = ""), quote = FALSE)) %>% system()
-
-        }
-
-      }
-
-      print(paste(mmseqPath," createdb all.rnm all.mmseq",sep = "",collapse = "")) %>% system()
-      print(paste(mmseqPath," createindex all.mmseq tmpDqir",sep = "",collapse = "")) %>% system()
-
-    }
-
-    if(!file.exists("all.mmseq"))
-    {
-      stop("all.mmseq file not found. Try option: re_use = FALSE")
-    }
-
-    if(!prod(database %in% c("AbR","VF_A","VF_B")))
-    {
-      stop("Error: Only AbR, VF_A and VF_B are available")
-    }
 
     rep = "all.mmseq"
 
   }else if (query == "accessory")
   {
-    if(file.exists("all.representatives.fasta"))
+    if(!file.exists("all.representatives.fasta"))
     {
-      print(paste(mmseqPath," createdb all.representatives.fasta all.representatives.mm",sep = "",collapse = "")) %>% system()
-      print(paste(mmseqPath," createindex all.representatives.mm tmpDqir",sep = "",collapse = "")) %>% system()
 
-      rep = "all.representatives.mm"
-    }else{
-      stop("Does not exists 'all.representatives.fasta' file in your workdirectory")
+      cmd2 <- paste(mmseqPath," linclust all.mmseq all.cluster . --threads ",n_cores,
+                    " -e ",evalue,
+                    " --min-seq-id ",identity,
+                    " -c ",coverage,
+                    "--cov-mode", cov_mode,
+                    "--cluster-mode",cluster_mode,
+                    sep = "",collapse = "")
+      print(cmd2)
+      system(cmd2)
+
+      cmd3 <- paste(mmseqPath," createtsv all.mmseq all.mmseq all.cluster all.cluster.tsv",sep = "",collapse = "")
+      print(cmd3)
+      system(cmd3)
+
+      cmd4 <- paste(mmseqPath," result2repseq all.mmseq all.cluster all.representatives",sep = "",collapse = "")
+      print(cmd4)
+      system(cmd4)
+
+      cmd5 <- paste(mmseqPath," result2flat all.mmseq all.mmseq all.representatives all.representatives.fasta --use-fasta-header",sep = "",collapse = "")
+      print(cmd5)
+      system(cmd5)
     }
+    print(paste(mmseqPath," createdb all.representatives.fasta all.representatives.mm",sep = "",collapse = "")) %>% system()
+    print(paste(mmseqPath," createindex all.representatives.mm tmpDqir",sep = "",collapse = "")) %>% system()
+    rep = "all.representatives.mm"
   }else{
     stop("Error: query must be 'all' or 'accessory'")
   }
@@ -147,10 +177,11 @@ annotate <- function(files, re_use = TRUE, type = "nucl", database =c("AbR","VF_
     }
     if(type =="nucl")
     {
-      print(paste(mmseqPath," search ",rep," ",resfinder_path," abr.out tmpDir --search-type 3 ", sep = "", collapse = "")) %>% system()
+      #print(paste(mmseqPath," createindex all.mmseq tmpDir --search-type 3", sep = "", collapse = "")) %>% system()
+      print(paste(mmseqPath," search ",rep," ",resfinder_path," abr.out tmpDir --search-type 3", sep = "", collapse = "")) %>% system()
       Sys.sleep(1)
     }else{
-      print(paste(mmseqPath," search ",rep," ",resfinder_path," abr.out tmpDir", sep = "", collapse = "")) %>% system()
+      print(paste(mmseqPath," map ",rep," ",resfinder_path," abr.out tmpDir", sep = "", collapse = "")) %>% system()
       Sys.sleep(1)
     }
     print(paste(mmseqPath," convertalis ",rep," ",resfinder_path," abr.out abr.tsv", sep = "", collapse = "")) %>% system()

@@ -40,26 +40,39 @@ mash <- function(file_list, n_cores =4, sketch = 1000, kmer = 21, type = "prot")
 
 
   mashPath = system.file("mash",package = "pato")
-  system("rm all.msh input_mash.txt")
 
-  write.table(file_list[,1],"input_mash.txt", quote = F, col.names = FALSE, row.names = FALSE)
 
-  if(type == "prot")
+
+  folderName = paste(getwd(),"/",md5(paste(file_list[,1], sep = "",collapse = "")),"_mash",sep = "",collapse = "")
+
+  if(!dir.exists(folderName))
   {
-    cmd1 <- paste(mashPath," sketch -p ",n_cores," -s ",sketch," -k ",kmer," -l input_mash.txt"," -a -o all.msh", sep = "", collapse = "")
-  }else if(type =="nucl")
-  {
-    cmd1 <- paste(mashPath," sketch -p ",n_cores," -s ",sketch," -k ",kmer," -l input_mash.txt"," -o all.msh", sep = "", collapse = "")
-  } else{
-    stop("Error in type options. Only prot or nucl options are allowed")
+    dir.create(folderName,)
   }
 
-  system(cmd1)
+  write.table(file_list[,1],paste(folderName,"/input_mash.txt",sep = "",collapse = ""),
+                                  quote = F, col.names = FALSE, row.names = FALSE)
+  if(!file.exists(paste(folderName,"/all.msh",sep = "", collapse = ""))){
+    if(type == "prot")
+    {
+      cmd1 <- paste(mashPath," sketch -p ",n_cores," -s ",sketch," -k ",kmer," -l ",folderName,"/input_mash.txt"," -a -o ",folderName,"/all.msh", sep = "", collapse = "")
+    }else if(type =="nucl")
+    {
+      cmd1 <- paste(mashPath," sketch -p ",n_cores," -s ",sketch," -k ",kmer," -l ",folderName,"/input_mash.txt"," -o ",folderName,"/all.msh", sep = "", collapse = "")
+    } else{
+      stop("Error in type options. Only prot or nucl options are allowed")
+    }
+    system(cmd1)
+  }
 
-  cmd3 <- paste(mashPath," dist -p ",n_cores," -t all.msh all.msh > Dist.tab", sep = "", collapse = "")
+
+
+  cmd3 <- paste(mashPath," dist -p ",n_cores," -t ",folderName,"/all.msh ",folderName,"/all.msh > ",folderName,"/Dist.tab", sep = "", collapse = "")
+
   system(cmd3)
 
-  mash.matrix <- data.table::fread("Dist.tab", header = T) %>% as_tibble()
+  mash.matrix <- data.table::fread(paste(folderName,"/Dist.tab",sep = "",collapse = ""),
+                                   header = T) %>% as_tibble()
   colnames(mash.matrix) <- gsub("#","",colnames(mash.matrix))
 
   mash.list <- mash.matrix %>%
@@ -76,7 +89,7 @@ mash <- function(file_list, n_cores =4, sketch = 1000, kmer = 21, type = "prot")
          as.matrix()
 
   colnames(mash.matrix) <- rownames(mash.matrix)
-  results <- list(matrix = mash.matrix, table = mash.list)
+  results <- list(matrix = mash.matrix, table = mash.list, path=folderName)
   class(results) <- "mash"
   return(results)
 

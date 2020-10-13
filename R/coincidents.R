@@ -21,13 +21,14 @@
 #' @import uwot
 #' @import dbscan
 #'
-coincidents <- function(data, min_freq, min_size)
+coincidents <- function(data, min_freq = 5, min_size = 4)
 {
 
   if(!is(data,"accnet"))
   {
     stop("data must be an Accnet object")
   }
+
 
   tmp <- data$list %>% group_by(Target) %>%
     mutate(Freq = n()) %>% filter(Freq > min_freq) %>%

@@ -65,11 +65,15 @@ core_genome <- function(data, type, n_cores)
 
   blastParser = system.file("blast_parser.pl", package = "pato")
 
+  origin_path = getwd()
+  setwd(data$path)
+  on.exit(setwd(origin_path))
+
   if(file.exists("all.mmseq") & file.exists("all.cluster.index"))
   {
 
-    data$table <- data$table %>% as_tibble()
-    nGenomes  <-  data$table  %>% distinct(Genome_genome) %>% count()
+    data$table <- data$table %>% lazy_dt() ### por aqui
+    nGenomes  <-  data$table  %>% distinct(Genome_genome) %>% count() %>% as_tibble()
 
     table <-  data$table %>%
       distinct() %>%
@@ -78,13 +82,15 @@ core_genome <- function(data, type, n_cores)
       filter(Ngenomes ==  nGenomes$n & Nprot == nGenomes$n)
 
 
-    lookup <- data.table::fread("all.mmseq.lookup", sep = "\t") %>% as_tibble()
+    lookup <- data.table::fread("all.mmseq.lookup", sep = "\t") %>% lazy_dt()
     colnames(lookup) = c("ID","head","value")
 
     core_table <-  table %>%
       unite(head, Prot_genome, Prot_prot, sep = "#", remove = FALSE) %>%
       select(head) %>%
       distinct() %>% inner_join(lookup)
+
+    core_table <- core_table %>% as_tibble()
 
     if(nrow(core_table) >0)
     {

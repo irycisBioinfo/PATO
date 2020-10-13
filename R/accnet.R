@@ -43,31 +43,35 @@ accnet <- function(mmseqs,threshold = 0.8, singles = TRUE)
     stop("mmseqs must be a 'mmseq' object")
   }
 
-  accnet <- mmseqs$table %>% select(Prot_prot,Genome_genome) %>% distinct()
-  n_genomes <- accnet %>% distinct(Genome_genome) %>% nrow(.)
+  accnet <- mmseqs$table %>% lazy_dt()
+  accnet <- accnet %>% select(Prot_prot,Genome_genome) %>% distinct()
+  n_genomes <- accnet %>% distinct(Genome_genome) %>% count() %>% as_tibble()
+
+  n_genomes <- n_genomes$n
 
   accnet <- accnet %>% group_by(Prot_prot) %>% mutate(freq = n()) %>% filter(freq < threshold*n_genomes)
+
   if(!singles)
   {
     accnet <- accnet %>% filter(freq > 1)
   }
 
-  accnet.matrix <- accnet %>%
+  accnet.matrix <- accnet %>% as_tibble() %>%
     mutate(value =1) %>%
     select(Prot_prot,Genome_genome,value) %>%
     spread(Prot_prot,value, fill = 0) %>% rename(Source = Genome_genome)
 
-
-  Annotation <- mmseqs$annot %>% semi_join(accnet %>% select(Prot_prot) %>% distinct(), by = "Prot_prot")
+  Annotation <- mmseqs$annot %>% lazy_dt()
+  Annotation <- Annotation %>% semi_join(accnet %>% select(Prot_prot) %>% distinct(), by = "Prot_prot")
   results <- list(list = accnet %>% rename(Target = Prot_prot,
                                           Source = Genome_genome,
-                                          degree = freq) %>% select(Source,Target,degree),
-                 matrix = accnet.matrix,
+                                          degree = freq) %>% select(Source,Target,degree) %>% as_tibble(),
+                 matrix = accnet.matrix %>% as_tibble(),
                  annot = Annotation %>%
                          rename(ID = Prot_prot) %>%
                          group_by(ID) %>%
                          summarise(Annot = first(Annot)) %>%
-                         ungroup()
+                         ungroup() %>% as_tibble()
                  )
   class(results) <- "accnet"
   return(results)
