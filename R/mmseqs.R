@@ -94,14 +94,12 @@ mmseqs <- function(file_list, coverage = 0.8, identity = 0.8, evalue = 1e-6, n_c
             file = "commands.txt",
             append = T)
     }else{
-<<<<<<< HEAD
+
       write(paste("perl -pe 's/>/$&.\"",basename(i),"\".\"#\".++$n.\"|\"/e' ",i," >> ",folderName,"/all.rnm \n", collapse = "",sep = ""),
             file = "commands.txt",
             append = T)
 
-=======
-      write(paste("perl -pe 's/>/$&.\"",basename(i),"\".\"#\".++$n.\"|\"/e' ",i," >> all.rnm \n", collapse = "",sep = ""),file = "commands.txt", append = T)
->>>>>>> 88a4b00ff724c56c87309c3d37a0e1f648521d27
+
     }
   }
 

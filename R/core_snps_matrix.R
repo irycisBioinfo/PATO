@@ -30,9 +30,9 @@ core_snps_matrix <- function(data, norm =T){
     stop("data must be a core_genome object")
   }
 
-  n_cores = detectCores()
-  cl <- makeCluster(n_cores)
-  registerDoParallel(cl)
+  # n_cores = detectCores()
+  # cl <- makeCluster(n_cores)
+  # registerDoParallel(cl)
 
   res <- matrix(0L, nrow =length(data$core_genome$Genomes) , ncol = length(data$core_genome$Genomes))
 
@@ -48,9 +48,8 @@ core_snps_matrix <- function(data, norm =T){
       #res[i,j] = adist(data$core_genome$Seq[i],data$core_genome$Seq[j])
       res[j,i] = res[i,j]
     }
-    res = rbind(res,res_tmp)
   }
-  stopCluster(cl)
+  # stopCluster(cl)
 
   colnames(res) <- gsub(">","",data$core_genome$Genomes)
   rownames(res) <- gsub(">","",data$core_genome$Genomes)

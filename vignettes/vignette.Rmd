@@ -379,15 +379,17 @@ core_tree %>% midpoint %>% ggtree() %<+% annot_tree + geom_tippoint(aes(color = 
 In this case we have added the species information extracted above.
 ![ML Core-genome phylogenetic tree](Core_tree.png)
 
+You must take into account that Maximun Likelyhood tree can take long computational times.
+
+
 Finally, you can obtain a SNPs matrix from the coregenome alignment. The matrix shown the number of total SNPs (or changes in the case of proteins alignments) shared among the samples. The matrix can be normalized by the total length of the genome (in magabases) or can be raw numer of variants.
 
 ```{r eval = FALSE, include=TRUE}
 var_matrix = core_snps_matrix(core, norm = TRUE)
-pheatmap::pheatmap(var_matrix)
+pheatmap::pheatmap(var_matrix,show_rownames = F, show_colnames = F)
 ```
+![SNPs matrix heatmap](snp_heatmap.png)
 
-
-You must take into account that Maximun Likelyhood tree can take long computational times.
 
 ## Accessory Genome Analysis
 
