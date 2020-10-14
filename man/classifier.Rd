@@ -4,12 +4,10 @@
 \alias{classifier}
 \title{Classifier}
 \usage{
-classifier(file_list, re_use = TRUE, n_cores, type = "nucl", max_dist = 0.06)
+classifier(file_list, n_cores, type = "nucl", max_dist = 0.06)
 }
 \arguments{
 \item{file_list}{Data frame with the full path to the genome files (gene or protein multi-fasta).}
-
-\item{re_use}{You can re-use the sketch step if you have executed a previous \emph{mash()} function}
 
 \item{n_cores}{Number of cores to use.}
 

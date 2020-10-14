@@ -38,7 +38,8 @@ Imports:
  doParallel (>= 1.0.15),
  parallel (>= 3.5.2),
  manipulateWidget (>= 0.10.0),
- stringr (>= 1.4.0)
+ stringr (>= 1.4.0),
+ openssl (>= 1.4.3)
 Suggests:
     pheatmap (>= 1.0.12),
     knitr,

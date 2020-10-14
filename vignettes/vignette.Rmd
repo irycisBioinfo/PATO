@@ -374,7 +374,7 @@ annot_tree = species %>%
   filter(!grepl("Citrobacter",organism_name)) %>% 
   filter(!grepl("marmotae",organism_name)) %>% 
   select(Target,organism_name) %>% distinct()
-core_tree %>% midpoint %>% ggtree() %<+% annot_tree + geom_tippoint(aes(color = organism_name))
+core_tree %>% midpoint %>% ggtree(layout = "circular") %<+% annot_tree + geom_tippoint(aes(color = organism_name))
 ```
 In this case we have added the species information extracted above.
 ![ML Core-genome phylogenetic tree](Core_tree.png)
@@ -406,48 +406,49 @@ As we have shown above, PATO has an object type to accessory genome `accnet` and
 One of the most interesting things when we analyze an accessory genome is try to find what genes/proteins are over-represented in a set of genomes. `accnet_enrichment_analysis()` function analyze what genes/proteins are over-represented in a *cluster* in comparisson with the population (i.e. in the wholem dataset). The clusters definition can be external (any catagorical metadata such as Sequence Type, Source, Serotype etc...) or internal using some clustering proccess. We have to take into account, that the redundancies can bias this kind of analysis. If there are an over-representation of samples, for example an outbreak, in your dataset the results could be bias. You will find more significant genes/proteins because the diversity of the dataset is not homegenously distributed. For this reason we recommend to use a non redundant set of samples. In this example we select 800 non redundant genomes.
 
 ```{r eval=FALSE, include=TRUE}
-ef_nr<- non_redundant(ecoli_mash,number = 800 )
+ec_nr<- non_redundant(ecoli_mash,number = 800 )
 ecoli_accnet_nr <- extract_non_redundant(ecoli_accnet, ef_nr)
-ef_800_cl <- clustering(ecoli_accnet_nr, method = "mclust", d_reduction = TRUE)
+ec_800_cl <- clustering(ecoli_accnet_nr, method = "mclust", d_reduction = TRUE)
 ```
 
 Now we can visualize the network using Gephi.
 
 ```{r eval=FALSE, include=TRUE}
-export_to_gephi(ecoli_accnet_nr, "accnet800", cluster = ef_800_cl)
+export_to_gephi(ecoli_accnet_nr, "accnet800", cluster = ec_800_cl)
 ```
-![Accnet of 800 non redundant *E. faecium* strains](Accnet_800.png){width=100%}
+![Accnet of 800 non redundant *E. coli and Shigella* strains](Accnet_800.png)
+[https://doi.org/10.6084/m9.figshare.13089338]
 
 To perform the enrichment analysis we use:
 ```{r eval=FALSE, include=TRUE}
 accnet_enr_result <- accnet_enrichment_analysis(ecoli_accnet_nr, cluster = ef_800_cl)
 
-accnet_enr_result
-
-# A tibble: 854,887 x 14
-   Target Source Cluster perClusterFreq ClusterFreq ClusterGenomeSi… perTotalFreq TotalFreq OdsRatio  pvalue
-   <chr>  <chr>    <dbl>          <dbl>       <int>            <int>        <dbl>     <int>    <dbl>   <dbl>
- 1 WP_00… GCF_0…       1          0.248          53              214        0.145       172     1.71 2.44e-6
- 2 WP_00… GCF_0…       1          0.248          53              214        0.145       172     1.71 2.44e-6
- 3 WP_00… GCF_0…       1          0.248          53              214        0.145       172     1.71 2.44e-6
- 4 WP_00… GCF_0…       1          0.248          53              214        0.145       172     1.71 2.44e-6
- 5 WP_00… GCF_0…       1          0.248          53              214        0.145       172     1.71 2.44e-6
- 6 WP_00… GCF_0…       1          0.248          53              214        0.145       172     1.71 2.44e-6
- 7 WP_00… GCF_0…       1          0.248          53              214        0.145       172     1.71 2.44e-6
- 8 WP_00… GCF_0…       1          0.248          53              214        0.145       172     1.71 2.44e-6
- 9 WP_00… GCF_0…       1          0.248          53              214        0.145       172     1.71 2.44e-6
-10 WP_00… GCF_0…       1          0.248          53              214        0.145       172     1.71 2.44e-6
-# … with 854,877 more rows, and 4 more variables: padj <dbl>, AccnetGenomeSize <int>, AccnetProteinSize <int>,
-#   Annot <chr>
+# A tibble: 1,149,041 x 14
+   Target             Source                   Cluster perClusterFreq ClusterFreq ClusterGenomeSize perTotalFreq TotalFreq OdsRatio   pvalue    padj AccnetGenomeSize AccnetProteinSi… Annot
+   <chr>              <chr>                      <dbl>          <dbl>       <int>             <int>        <dbl>     <int>    <dbl>    <dbl>   <dbl>            <int>            <int> <chr>
+ 1 1016|NZ_CP053592.… GCF_000009565.1_ASM956v…       1         0.0436          13               298       0.0173        20     2.52  3.62e-5 0.00130             1156            74671 ""   
+ 2 1016|NZ_CP053592.… GCF_000022665.1_ASM2266…       1         0.0436          13               298       0.0173        20     2.52  3.62e-5 0.00130             1156            74671 ""   
+ 3 1016|NZ_CP053592.… GCF_000023665.1_ASM2366…       1         0.0436          13               298       0.0173        20     2.52  3.62e-5 0.00130             1156            74671 ""   
+ 4 1016|NZ_CP053592.… GCF_000830035.1_ASM8300…       1         0.0436          13               298       0.0173        20     2.52  3.62e-5 0.00130             1156            74671 ""   
+ 5 1016|NZ_CP053592.… GCF_000833145.1_ASM8331…       1         0.0436          13               298       0.0173        20     2.52  3.62e-5 0.00130             1156            74671 ""   
+ 6 1016|NZ_CP053592.… GCF_001039415.1_ASM1039…       1         0.0436          13               298       0.0173        20     2.52  3.62e-5 0.00130             1156            74671 ""   
+ 7 1016|NZ_CP053592.… GCF_001596115.1_ASM1596…       1         0.0436          13               298       0.0173        20     2.52  3.62e-5 0.00130             1156            74671 ""   
+ 8 1016|NZ_CP053592.… GCF_009663855.1_ASM9663…       1         0.0436          13               298       0.0173        20     2.52  3.62e-5 0.00130             1156            74671 ""   
+ 9 1016|NZ_CP053592.… GCF_009832985.1_ASM9832…       1         0.0436          13               298       0.0173        20     2.52  3.62e-5 0.00130             1156            74671 ""   
+10 1016|NZ_CP053592.… GCF_013166955.1_ASM1316…       1         0.0436          13               298       0.0173        20     2.52  3.62e-5 0.00130             1156            74671 ""   
+# … with 1,149,031 more rows
 ```
+[https://doi.org/10.6084/m9.figshare.13089314.v2]
 
 Now, we can export a new network with the *adjusted p-values* as edge-weigth.
 
 ```{r eval=FALSE, include=TRUE}
-accnet_with_padj(accnet_enr_result) %>% export_to_gephi("accnet800.padj", cluster = ef_800_cl)
+accnet_with_padj(accnet_enr_result) %>% export_to_gephi("accnet800.padj", cluster = ec_800_cl)
 ```
 
-![Accnet network with enrichment analysis add. Edge color are proportional to the p-value (adjusted)](Accnet_800_enr.png){width=100%}
+![Accnet network with enrichment analysis add. Edge color are proportional to the p-value (adjusted)](Accnet_800_enr.png)
+
+[https://doi.org/10.6084/m9.figshare.13089401.v1]
 
 PATO also include some functions to study the genes/proteins distribution: `singles()`, `twins()` and `conicidents()`.  
 
@@ -455,7 +456,7 @@ PATO also include some functions to study the genes/proteins distribution: `sing
 * `twins()` finds those genes/proteins that have the same connections (i.e. genes/proteins present in the same genomes).
 * `coincidents()` finds those genes/proteins with similar connections (i.e. genes/proteins that usually are together)
 
-The differencies between `twins()` and `concidents` are that `coincidents()` is more flexible and therefore less sensitive to outliers. `twins()` is faster and accurate but is very sensitive to noise or outliers because just one missing conection (for example a bad prediction of a protein in a genome) remove automatically that proteins from the `twin` group. On other hand, `coincidents()` is slower, and some time the results are to much generalistic giving big cluster of pseudo-core.
+The differencies between `twins()` and `concidents()` are that `coincidents()` is more flexible and therefore less sensitive to outliers. `twins()` is faster and accurate but is very sensitive to noise or outliers because just one missing conection (for example a bad prediction of a protein in a genome) remove automatically that proteins from the `twin` group. On other hand, `coincidents()` is slower, and some time the results are to much generalistic giving big cluster of pseudo-core.
 
 ## Population structure
 
@@ -471,18 +472,18 @@ accnet_tree_upgma <- similarity_tree(ecoli_accnet,method = "UPGMA")
 ```
 The output has a `phylo` format, so can be visualize with external packages as `ggtree`.
 ```{r eval=FALSE, include=TRUE}
-ggtree(mash_tree_NJ) + geom_tippoint()
+mash_tree_fastme %>% midpoint %>% ggtree(layout = "circular") %<+% annot_tree + geom_tippoint(aes(color = organism_name))
 ```
-![Neighbour Joining tree](./tree.png)
+![Neighbour Joining tree](./tree_mash.png)
 
 Using others external packages, we can compare the arragement of the pangenom (`mash` data) against the accessory genome (`accnet`)
 ```{r eval=FALSE, include=TRUE}
 library(dendextend)
-tanglegram(ladderize(mash_tree_upgma), ladderize(accnet_tree_upgma), fast = TRUE)
+tanglegram(ladderize(mash_tree_upgma), ladderize(accnet_tree_upgma), fast = TRUE, main = "Mash vs AccNET UPGMA")
 
 ```
 
-![](./tanglegram.png){width=100%}
+![](./tanglegram.png)
 
 Some Maximun Likelyhood inference trees software accept,as input, binary data (0-1) alignments.So, we can use accessory data (*accnet*) to infere a tree (non-phylogenetic) with this data. This is similar to the `similarity_tree()` but instead to be based on distance metrics it's based on ML principles. To export this alignment you can use `export_accnet_aln()`.
 

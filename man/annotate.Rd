@@ -6,7 +6,6 @@
 \usage{
 annotate(
   files,
-  re_use = TRUE,
   type = "nucl",
   database = c("AbR", "VF_A", "VF_B"),
   query = "all"
@@ -14,9 +13,6 @@ annotate(
 }
 \arguments{
 \item{files}{data.frame with the absolute path to the genome files (protein fasta file).}
-
-\item{re_use}{Re-use the precomputed mmseqs2 database. The index must be in
-the working directory}
 
 \item{type}{user must be specified if the data set is nucleotide or protein.}
 

@@ -4,7 +4,7 @@
 \alias{coincidents}
 \title{Find coincidents gene/proteins (clustering)}
 \usage{
-coincidents(data, min_freq, min_size)
+coincidents(data, min_freq = 5, min_size = 4)
 }
 \arguments{
 \item{data}{An \emph{accnet} object}
