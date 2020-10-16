@@ -64,150 +64,143 @@ core_genome <- function(data, type, n_cores)
   }
 
   blastParser = system.file("blast_parser.pl", package = "pato")
+  msaParser = system.file("parse_msa_result.pl", package = "pato")
+  msa2table = system.file("msa2table.pl", package = "pato")
 
   origin_path = getwd()
   setwd(data$path)
   on.exit(setwd(origin_path))
 
-  if(file.exists("all.mmseq") & file.exists("all.cluster.index"))
+
+
+  nGenomes  <-  data$table  %>% distinct(Genome_genome) %>% count() %>% as_tibble()
+
+  table <-  data$table %>%
+    distinct() %>%
+    group_by(Prot_prot) %>%
+    mutate(Nprot = n_distinct(Genome_prot), Ngenomes = n_distinct(Genome_genome)) %>% ungroup() %>%
+    filter(Ngenomes ==  nGenomes$n & Nprot == nGenomes$n) %>% as_tibble()
+
+
+  lookup <- data.table::fread("all.mmseq.lookup", sep = "\t",stringsAsFactors = F,col.names = c("ID","head","value")) %>% as_tibble()
+
+
+  core_table <-  table %>%
+    unite(head, Prot_genome, Prot_prot, sep = "#", remove = FALSE) %>%
+    select(head) %>%
+    distinct() %>% inner_join(lookup)
+
+  core_table <- core_table %>% as_tibble()
+
+  if(nrow(core_table) >0)
   {
+    core_table %>%
+      select(ID) %>% write.table("IDS.txt", col.names = FALSE, row.names = FALSE, quote = FALSE)
+  }else{
+    stop("No core_genome found")
+  }
+
+  if(dir.exists("f_core"))
+  {
+    system("rm -r f_core")
+  }
+  if(length(list.files(".",pattern = "core"))>0)
+  {
+    file.remove(list.files(".",pattern = "core"),recursive = TRUE)
+  }
+
+  dir.create("f_core")
 
 
-    nGenomes  <-  data$table  %>% distinct(Genome_genome) %>% count() %>% as_tibble()
+  paste(mmseqPah," createsubdb IDS.txt all.cluster all.cluster.subset -v 0", sep = "", collapse = "") %>%
+    system(.,intern = F,ignore.stdout = T, ignore.stderr = T)
+  paste(mmseqPah," createseqfiledb all.mmseq all.cluster.subset subset  -v 0", sep = "", collapse = "") %>%
+    system(.,intern = F,ignore.stdout = T, ignore.stderr = T)
+  paste(mmseqPah," result2flat all.mmseq all.mmseq subset subset.fasta", sep = "", collapse = "") %>%
+    system(.,intern = F,ignore.stdout = T, ignore.stderr = T)
 
-    table <-  data$table %>%
-      distinct() %>%
-      group_by(Prot_prot) %>%
-      mutate(Nprot = n_distinct(Genome_prot), Ngenomes = n_distinct(Genome_genome)) %>% ungroup() %>%
-      filter(Ngenomes ==  nGenomes$n & Nprot == nGenomes$n) %>% as_tibble()
-
-
-    lookup <- data.table::fread("all.mmseq.lookup", sep = "\t",stringsAsFactors = F,col.names = c("ID","head","value")) %>% as_tibble()
-
-
-    core_table <-  table %>%
-      unite(head, Prot_genome, Prot_prot, sep = "#", remove = FALSE) %>%
-      select(head) %>%
-      distinct() %>% inner_join(lookup)
-
-    core_table <- core_table %>% as_tibble()
-
-    if(nrow(core_table) >0)
-    {
-      core_table %>%
-        select(ID) %>% write.table("IDS.txt", col.names = FALSE, row.names = FALSE, quote = FALSE)
-    }else{
-      stop("No core_genome found")
-    }
-
-    if(dir.exists("f_core"))
-    {
-      system("rm -r f_core")
-    }
-    if(length(list.files(".",pattern = "core"))>0)
-    {
-      file.remove(list.files(".",pattern = "core"),recursive = TRUE)
-    }
-
-    dir.create("f_core")
+  paste("split -a 4 --numeric-suffixes=1 -l ",(nGenomes$n*2)+1," subset.fasta core_") %>%
+    system(.,intern = F,ignore.stdout = T, ignore.stderr = T)
 
 
-     paste(mmseqPah," createsubdb IDS.txt all.cluster all.cluster.subset -v 0", sep = "", collapse = "") %>%
-       system(.,intern = F,ignore.stdout = T, ignore.stderr = T)
-     paste(mmseqPah," createseqfiledb all.mmseq all.cluster.subset subset  -v 0", sep = "", collapse = "") %>%
-       system(.,intern = F,ignore.stdout = T, ignore.stderr = T)
-     paste(mmseqPah," result2flat all.mmseq all.mmseq subset subset.fasta", sep = "", collapse = "") %>%
-       system(.,intern = F,ignore.stdout = T, ignore.stderr = T)
-
-     paste("split -a 4 --numeric-suffixes=1 -l ",(nGenomes$n*2)+1," subset.fasta core_") %>%
-       system(.,intern = F,ignore.stdout = T, ignore.stderr = T)
+  system("mv core* f_core")
+  system("sed -i '1d' ./f_core/*",intern = F,ignore.stdout = T, ignore.stderr = T)
 
 
-    system("mv core* f_core")
-    system("sed -i '1d' ./f_core/*",intern = F,ignore.stdout = T, ignore.stderr = T)
-    # seqs <-  data.frame()
+  #for (i in(dir("./f_core")))
 
-    #for (i in(dir("./f_core")))
 
-    cl <- makeCluster(n_cores)
-    registerDoParallel(cl)
-
-    seqs <- foreach( i = dir("./f_core"), .combine = "rbind") %dopar%
-    {
-      #cat(i,'\n')
-      system(paste("head -2 ./f_core/",i," > ./f_core/",i,".ref.fasta",sep = "",collapse = ""))
-      system(paste("grep '>' ./f_core/",i," > ./f_core/headers_",i,sep = "",collapse = ""))
-      l = system(paste("head -2 ./f_core/",i,"| tail -1 |wc -m ",sep = "",collapse = ""), intern =T)
-
-      l = as.numeric(l)*10
       if(type =="nucl")
       {
-        paste("blastn -task blastn -query ./f_core/",i,".ref.fasta -subject ./f_core/",
-              i,
-              " -outfmt 4 -max_hsps 1 -out ./f_core/",i,".blast -line_length ",
-              l,
-              " -num_alignments ",
-              nGenomes$n+10,
-              sep = "", collapse = "") %>%
-          system()
+
+        cl <- makeCluster(n_cores)
+        registerDoParallel(cl)
+
+        seqs <- foreach( i = dir("./f_core"), .combine = "rbind") %dopar%
+          {
+                #cat(i,'\n')
+            system(paste("head -2 ./f_core/",i," > ./f_core/",i,".ref.fasta",sep = "",collapse = ""))
+            system(paste("grep '>' ./f_core/",i," > ./f_core/headers_",i,sep = "",collapse = ""))
+            l = system(paste("head -2 ./f_core/",i,"| tail -1 |wc -m ",sep = "",collapse = ""), intern =T)
+
+            l = as.numeric(l)*10
+            paste("blastn -task blastn -query ./f_core/",i,".ref.fasta -subject ./f_core/",
+                 i,
+                 " -outfmt 4 -max_hsps 1 -out ./f_core/",i,".blast -line_length ",
+                 l,
+                 " -num_alignments ",
+                 nGenomes$n+10,
+                 sep = "", collapse = "") %>% system()
+            paste("perl ",blastParser," ./f_core/",i,".blast ./f_core/headers_",i," > ./f_core/",i,".aln", sep = "", collapse = "") %>%
+              system()
+            tmp <- data.table::fread(
+              paste("./f_core/", i, ".aln", sep = "", collapse = ""),
+              sep = "\t",
+              stringsAsFactors = F,
+              header = F,
+              colClasses = c("character", "character"),
+              col.names = c("Head", "Seq")
+            ) %>% as_tibble()
+          }
+
+        stopCluster(cl)
+
       }else if(type=="prot")
       {
-        paste("blastp -query ./f_core/",i,".ref.fasta -subject ./f_core/",
-              i,
-              " -outfmt 4 -max_hsps 1 -out ./f_core/",i,".blast -line_length ",
-              l,
-              " -num_alignments ",
-              nGenomes$n+10,
-              sep = "", collapse = "") %>%
-          system()
-      }else{
-        stop("type must be 'prot' or 'nucl'")
+        paste(mmseqPah," result2msa all.mmseq all.mmseq all.cluster.subset all.core", sep = "", collapse = "") %>%
+          system(.,intern = F,ignore.stdout = T, ignore.stderr = T)
+
+        paste(mmseqPah," result2flat all.mmseq all.mmseq all.core all.core.fasta --use-fasta-header 0", sep = "", collapse = "") %>%
+          system(.,intern = F,ignore.stdout = T, ignore.stderr = T)
+        #paste("perl ",msaParser," all.core.fasta") %>% system(.,intern = F,ignore.stdout = T, ignore.stderr = T)
+
+        paste("perl ",msa2table," all.core.fasta > all.core.fasta.tab", sep = "", collapse = "") %>%
+          system(.,intern = F,ignore.stdout = T, ignore.stderr = T)
+
+          seqs <- data.table::fread("all.core.fasta.tab",
+            sep = "\t",
+            stringsAsFactors = F,
+            header = F,
+            colClasses = c("character", "character"),
+            col.names = c("Head", "Seq")
+          ) %>% as_tibble()
+
       }
 
-      paste("perl ",blastParser," ./f_core/",i,".blast ./f_core/headers_",i," > ./f_core/",i,".aln", sep = "", collapse = "") %>%
-        system()
 
-      #tmp <- readLines(paste("./f_core/",i,".aln",sep = "",collapse = ""))
-      tmp <-
-        data.table::fread(
-          paste("./f_core/", i, ".aln", sep = "", collapse = ""),
-          sep = "\t",
-          stringsAsFactors = F,
-          header = F,
-          colClasses = c("character", "character"),
-          col.names = c("Head", "Seq")
-        ) %>% as_tibble()
+  print(colnames(seqs))
+  seqs <- seqs %>%
+    separate(Head,c("Genomes","Prot"),sep="#") %>%
+    group_by(Genomes) %>%
+    summarise(Seq = paste(Seq,sep = "",collapse = ""))
 
+  print("Number of hard core-genes (100% presence split paralogous):")
+  print(table %>% select(Prot_prot) %>% distinct() %>% nrow())
 
+  results <- list(core_genome = seqs)
+  class(results) <-  append(class(results),"core_genome" )
+  return(results)
 
-#
-#       if(type=='nucl')
-#       {
-#         individual_aln[[i]] <- read.FASTA(paste("./f_core/",i,".aln",sep = "",collapse = ""), type = "DNA")
-#       }else{
-#         individual_aln[[i]] <- read.FASTA(paste("./f_core/",i,".aln",sep = "",collapse = ""), type = "AA")
-#       }
-
-
-    }
-    stopCluster(cl)
-
-    print(colnames(seqs))
-    seqs <- seqs %>%
-      separate(Head,c("Genomes","Prot"),sep="#") %>%
-      group_by(Genomes) %>%
-      summarise(Seq = paste(Seq,sep = "",collapse = ""))
-
-    print("Number of hard core-genes (100% presence split paralogous):")
-    print(table %>% select(Prot_prot) %>% distinct() %>% nrow())
-
-    results <- list(core_genome = seqs)
-    class(results) <-  append(class(results),"core_genome" )
-    return(results)
-
-  } else{
-    stop("You must execute mmseqs() before core_genome()")
-  }
 
 
 
