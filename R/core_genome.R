@@ -72,18 +72,18 @@ core_genome <- function(data, type, n_cores)
   if(file.exists("all.mmseq") & file.exists("all.cluster.index"))
   {
 
-    data$table <- data$table %>% lazy_dt() ### por aqui
+
     nGenomes  <-  data$table  %>% distinct(Genome_genome) %>% count() %>% as_tibble()
 
     table <-  data$table %>%
       distinct() %>%
       group_by(Prot_prot) %>%
       mutate(Nprot = n_distinct(Genome_prot), Ngenomes = n_distinct(Genome_genome)) %>% ungroup() %>%
-      filter(Ngenomes ==  nGenomes$n & Nprot == nGenomes$n)
+      filter(Ngenomes ==  nGenomes$n & Nprot == nGenomes$n) %>% as_tibble()
 
 
-    lookup <- data.table::fread("all.mmseq.lookup", sep = "\t") %>% lazy_dt()
-    colnames(lookup) = c("ID","head","value")
+    lookup <- data.table::fread("all.mmseq.lookup", sep = "\t",stringsAsFactors = F,col.names = c("ID","head","value")) %>% as_tibble()
+
 
     core_table <-  table %>%
       unite(head, Prot_genome, Prot_prot, sep = "#", remove = FALSE) %>%

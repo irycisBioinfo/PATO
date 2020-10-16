@@ -30,7 +30,7 @@
 #' @import data.table
 #' @import parallelDist
 #'
-non_redundant <- function(data, number, fraction, distance, tolerance = 0.05, max_iter = 10000, fast =TRUE)
+non_redundant <- function(data, number, fraction, distance, tolerance = 0.05, max_iter = 10000, fast =TRUE, snps)
 {
 
  if(is(data,"accnet"))
@@ -47,15 +47,43 @@ non_redundant <- function(data, number, fraction, distance, tolerance = 0.05, ma
 
  }else if (is(data,"mash")){
    m.list = data$table
+ }else if (is(data,"matrix")){
+   if(!missing(snps))
+   {
+     m.list = data %>% as_tibble() %>% rownames_to_column("Source") %>% gather(Target,Dist, -Source)
+     gr.tmp <- m.list %>% filter(Dist <= snps) %>% graph_from_data_frame(.,directed = FALSE)
+     gr.tmp <- simplify(gr.tmp, remove.multiple = TRUE, remove.loops = TRUE) %>% as.undirected()
+
+     if(fast ==TRUE) {
+       cluster <- components(gr.tmp)
+     }else{
+       cluster <- cluster_louvain(gr.tmp)
+     }
+
+     Nc <- as.numeric(max(cluster$membership))
+     cent <- centralization.degree(gr.tmp)
+     results = data.frame(Source = as.character(vertex.attributes(gr.tmp)$name),
+                          centrality = cent$res,
+                          cluster = cluster$membership, stringsAsFactors = F)
+     class(results) <- "nr_list"
+     return(results)
+   }else{
+     m.list = data %>%
+       as_tibble() %>%
+       rownames_to_column("Source") %>%
+       gather(Target,Dist, -Source)
+   }
  }else {
-   print("Error: data must be accnet or mash object")
+   print("Error: data must be accnet or mash object or snps matrix")
  }
 
   if(!missing(number))
   {
-    min <- 0
-    max <- 1
-    Th <- 0.05
+    min <- min(m.list$Dist)
+    max <- max(m.list$Dist)
+    Th <- mean(m.list$Dist)
+
+
     gr.tmp <- m.list %>% filter(Dist <= Th) %>% graph_from_data_frame(.,directed = FALSE)
     gr.tmp <- simplify(gr.tmp, remove.multiple = TRUE, remove.loops = TRUE) %>% as.undirected()
 
@@ -105,9 +133,10 @@ non_redundant <- function(data, number, fraction, distance, tolerance = 0.05, ma
     number = m.list %>% select(Source) %>% distinct() %>% count()
     number = number[1] * fraction
 
-    min <- 0
-    max <- 1
-    Th <- 0.05
+    min <- min(m.list$Dist)
+    max <- max(m.list$Dist)
+    Th <- mean(m.list$Dist)
+
     gr.tmp <- m.list %>% filter(Dist <= Th) %>% graph_from_data_frame(.,directed = FALSE)
     gr.tmp <- simplify(gr.tmp, remove.multiple = TRUE, remove.loops = TRUE) %>% as.undirected()
 
