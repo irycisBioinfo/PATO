@@ -4,7 +4,7 @@
 \alias{export_accnet_aln}
 \title{Export accesory genome binary multi-alignment.}
 \usage{
-export_accnet_aln(accnet, file, min_freq)
+export_accnet_aln(accnet, file, min_freq = 3)
 }
 \arguments{
 \item{accnet}{An \emph{accnet} object}

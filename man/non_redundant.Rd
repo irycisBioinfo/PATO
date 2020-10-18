@@ -11,7 +11,8 @@ non_redundant(
   distance,
   tolerance = 0.05,
   max_iter = 10000,
-  fast = TRUE
+  fast = TRUE,
+  snps
 )
 }
 \arguments{

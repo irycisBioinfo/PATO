@@ -12,7 +12,8 @@ non_redundant_hier(
   tolerance = 0.05,
   partitions = 10,
   max_iter = 10000,
-  fast = FALSE
+  fast = FALSE,
+  snps
 )
 }
 \arguments{

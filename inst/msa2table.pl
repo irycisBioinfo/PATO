@@ -8,7 +8,7 @@ close A;
 
 for($i =0; $i<scalar(@txt)-1; $i = $i+1)
 {
-	if(
+	if($txt[$i] =~ />/ && $txt[$i+1] !~ />/)
 	{
 		$l1 = $txt[$i];
 		$l2 = $txt[$i+1];

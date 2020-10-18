@@ -39,6 +39,7 @@ Imports:
  parallel (>= 3.5.2),
  manipulateWidget (>= 0.10.0),
  stringr (>= 1.4.0),
+ stringdist (>= 0.9.6.3),
  openssl (>= 1.4.3)
 Suggests:
     pheatmap (>= 1.0.12),

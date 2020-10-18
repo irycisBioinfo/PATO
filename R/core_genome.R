@@ -71,11 +71,11 @@ core_genome <- function(data, type, n_cores)
   setwd(data$path)
   on.exit(setwd(origin_path))
 
+  table = data$table %>% as_tibble()
 
+  nGenomes  <-  table  %>% distinct(Genome_genome) %>% count() %>% as_tibble()
 
-  nGenomes  <-  data$table  %>% distinct(Genome_genome) %>% count() %>% as_tibble()
-
-  table <-  data$table %>%
+  table <-  table %>%
     distinct() %>%
     group_by(Prot_prot) %>%
     mutate(Nprot = n_distinct(Genome_prot), Ngenomes = n_distinct(Genome_genome)) %>% ungroup() %>%
@@ -90,7 +90,7 @@ core_genome <- function(data, type, n_cores)
     select(head) %>%
     distinct() %>% inner_join(lookup)
 
-  core_table <- core_table %>% as_tibble()
+  #core_table <- core_table %>% as_tibble()
 
   if(nrow(core_table) >0)
   {
@@ -127,46 +127,42 @@ core_genome <- function(data, type, n_cores)
   system("sed -i '1d' ./f_core/*",intern = F,ignore.stdout = T, ignore.stderr = T)
 
 
-  #for (i in(dir("./f_core")))
+  if(type =="nucl")
+  {
 
+    cl <- makeCluster(n_cores)
+    registerDoParallel(cl)
 
-      if(type =="nucl")
-      {
+    seqs <- foreach( i = dir("./f_core"), .combine = "rbind") %dopar%
+    {
+      system(paste("head -2 ./f_core/",i," > ./f_core/",i,".ref.fasta",sep = "",collapse = ""))
+      system(paste("grep '>' ./f_core/",i," > ./f_core/headers_",i,sep = "",collapse = ""))
+      l = system(paste("head -2 ./f_core/",i,"| tail -1 |wc -m ",sep = "",collapse = ""), intern =T)
 
-        cl <- makeCluster(n_cores)
-        registerDoParallel(cl)
+      l = as.numeric(l)*10
+      paste("blastn -task blastn -query ./f_core/",i,".ref.fasta -subject ./f_core/",
+             i,
+             " -outfmt 4 -max_hsps 1 -out ./f_core/",i,".blast -line_length ",
+             l,
+             " -num_alignments ",
+             nGenomes$n+10,
+             sep = "", collapse = "") %>% system()
+        paste("perl ",blastParser," ./f_core/",i,".blast ./f_core/headers_",i," > ./f_core/",i,".aln", sep = "", collapse = "") %>%
+          system()
+        tmp <- data.table::fread(
+          paste("./f_core/", i, ".aln", sep = "", collapse = ""),
+          sep = "\t",
+          stringsAsFactors = F,
+          header = F,
+          colClasses = c("character", "character"),
+          col.names = c("Head", "Seq")
+        ) %>% as_tibble()
+    }
 
-        seqs <- foreach( i = dir("./f_core"), .combine = "rbind") %dopar%
-          {
-                #cat(i,'\n')
-            system(paste("head -2 ./f_core/",i," > ./f_core/",i,".ref.fasta",sep = "",collapse = ""))
-            system(paste("grep '>' ./f_core/",i," > ./f_core/headers_",i,sep = "",collapse = ""))
-            l = system(paste("head -2 ./f_core/",i,"| tail -1 |wc -m ",sep = "",collapse = ""), intern =T)
+    stopCluster(cl)
 
-            l = as.numeric(l)*10
-            paste("blastn -task blastn -query ./f_core/",i,".ref.fasta -subject ./f_core/",
-                 i,
-                 " -outfmt 4 -max_hsps 1 -out ./f_core/",i,".blast -line_length ",
-                 l,
-                 " -num_alignments ",
-                 nGenomes$n+10,
-                 sep = "", collapse = "") %>% system()
-            paste("perl ",blastParser," ./f_core/",i,".blast ./f_core/headers_",i," > ./f_core/",i,".aln", sep = "", collapse = "") %>%
-              system()
-            tmp <- data.table::fread(
-              paste("./f_core/", i, ".aln", sep = "", collapse = ""),
-              sep = "\t",
-              stringsAsFactors = F,
-              header = F,
-              colClasses = c("character", "character"),
-              col.names = c("Head", "Seq")
-            ) %>% as_tibble()
-          }
-
-        stopCluster(cl)
-
-      }else if(type=="prot")
-      {
+    }else if(type=="prot")
+    {
         paste(mmseqPah," result2msa all.mmseq all.mmseq all.cluster.subset all.core", sep = "", collapse = "") %>%
           system(.,intern = F,ignore.stdout = T, ignore.stderr = T)
 
@@ -175,9 +171,9 @@ core_genome <- function(data, type, n_cores)
         #paste("perl ",msaParser," all.core.fasta") %>% system(.,intern = F,ignore.stdout = T, ignore.stderr = T)
 
         paste("perl ",msa2table," all.core.fasta > all.core.fasta.tab", sep = "", collapse = "") %>%
-          system(.,intern = F,ignore.stdout = T, ignore.stderr = T)
+          system()
 
-          seqs <- data.table::fread("all.core.fasta.tab",
+        seqs <- data.table::fread("all.core.fasta.tab",
             sep = "\t",
             stringsAsFactors = F,
             header = F,
@@ -185,7 +181,7 @@ core_genome <- function(data, type, n_cores)
             col.names = c("Head", "Seq")
           ) %>% as_tibble()
 
-      }
+    }
 
 
   print(colnames(seqs))
@@ -200,11 +196,6 @@ core_genome <- function(data, type, n_cores)
   results <- list(core_genome = seqs)
   class(results) <-  append(class(results),"core_genome" )
   return(results)
-
-
-
-
-
 
 
 }

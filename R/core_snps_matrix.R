@@ -19,6 +19,7 @@
 #' @import foreach
 #' @import doParallel
 #' @import parallel
+#' @import stringdist
 #'
 #'
 
@@ -39,12 +40,12 @@ core_snps_matrix <- function(data, norm =T){
 
   for(i in 1:length(data$core_genome$Genomes)){
     print(i)
-    tmp1 <- data$core_genome$Seq[i] %>% str_split("") %>% as.matrix()
+    #tmp1 <- data$core_genome$Seq[i] %>% str_split("") %>% as.matrix()
     for(j in i:length(data$core_genome$Genomes))
     {
 
-      tmp2 <- data$core_genome$Seq[j] %>% str_split("") %>% as.matrix()
-      res[i,j] = sum(tmp1[[1]] != tmp2[[1]])
+      #tmp2 <- data$core_genome$Seq[j] %>% str_split("") %>% as.matrix()
+      res[i,j] = stringdist::stringdist(data$core_genome$Seq[[i]],data$core_genome$Seq[[j]], method ="hamming")
       #res[i,j] = adist(data$core_genome$Seq[i],data$core_genome$Seq[j])
       res[j,i] = res[i,j]
     }
