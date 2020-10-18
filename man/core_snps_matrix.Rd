@@ -17,6 +17,3 @@ A square matrix
 \description{
 This function calculates the number of SNPs among samples in core genome.
 }
-\examples{
-#' @examples
-}

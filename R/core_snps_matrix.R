@@ -10,6 +10,7 @@
 #'
 #' @examples
 #' @import stringdist
+#' @import magrittr
 #'
 #'
 
@@ -21,22 +22,7 @@ core_snps_matrix <- function(data, norm =T){
     stop("data must be a core_genome object")
   }
 
-
-  res <- matrix(0L, nrow =length(data$core_genome$Genomes) , ncol = length(data$core_genome$Genomes))
-
-
-  for(i in 1:length(data$core_genome$Genomes)){
-    print(i)
-
-    for(j in i:length(data$core_genome$Genomes))
-    {
-      res[i,j] = stringdist::stringdist(data$core_genome$Seq[[i]],data$core_genome$Seq[[j]], method ="hamming")
-      res[j,i] = res[i,j]
-    }
-  }
-
-  colnames(res) <- gsub(">","",data$core_genome$Genomes)
-  rownames(res) <- gsub(">","",data$core_genome$Genomes)
+  res = data$core_genome$Seq %>% unlist() %>% stringdistmatrix(., method="hamming") %>% as.matrix()
 
   if(norm)
   {

@@ -168,7 +168,6 @@ core_genome <- function(data, type, n_cores)
 
         paste(mmseqPah," result2flat all.mmseq all.mmseq all.core all.core.fasta --use-fasta-header 0", sep = "", collapse = "") %>%
           system(.,intern = F,ignore.stdout = T, ignore.stderr = T)
-        #paste("perl ",msaParser," all.core.fasta") %>% system(.,intern = F,ignore.stdout = T, ignore.stderr = T)
 
         paste("perl ",msa2table," all.core.fasta > all.core.fasta.tab", sep = "", collapse = "") %>%
           system()
