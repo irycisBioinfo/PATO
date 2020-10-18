@@ -9,16 +9,6 @@
 #' @export
 #'
 #' @examples
-#' #' @examples
-#' @import dplyr
-#' @import tidyr
-#' @import tibble
-#' @import dtplyr
-#' @import data.table
-#' @import stringr
-#' @import foreach
-#' @import doParallel
-#' @import parallel
 #' @import stringdist
 #'
 #'
@@ -31,26 +21,19 @@ core_snps_matrix <- function(data, norm =T){
     stop("data must be a core_genome object")
   }
 
-  # n_cores = detectCores()
-  # cl <- makeCluster(n_cores)
-  # registerDoParallel(cl)
 
   res <- matrix(0L, nrow =length(data$core_genome$Genomes) , ncol = length(data$core_genome$Genomes))
 
 
   for(i in 1:length(data$core_genome$Genomes)){
     print(i)
-    #tmp1 <- data$core_genome$Seq[i] %>% str_split("") %>% as.matrix()
+
     for(j in i:length(data$core_genome$Genomes))
     {
-
-      #tmp2 <- data$core_genome$Seq[j] %>% str_split("") %>% as.matrix()
       res[i,j] = stringdist::stringdist(data$core_genome$Seq[[i]],data$core_genome$Seq[[j]], method ="hamming")
-      #res[i,j] = adist(data$core_genome$Seq[i],data$core_genome$Seq[j])
       res[j,i] = res[i,j]
     }
   }
-  # stopCluster(cl)
 
   colnames(res) <- gsub(">","",data$core_genome$Genomes)
   rownames(res) <- gsub(">","",data$core_genome$Genomes)
