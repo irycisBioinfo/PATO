@@ -164,8 +164,15 @@ mmseqs <- function(file_list, coverage = 0.8, identity = 0.8, evalue = 1e-6, n_c
       separate("kk",c("Prot_prot","Annot"), sep= "~~") %>%
       select(Prot_prot,Annot)
 
-    system("sed -i 's/#/\t/g' all.cluster.tsv")
-    mmseqs.raw <- fread("all.cluster.tsv", header = FALSE, sep = "\t")
+    if(grepl('linux',Sys.getenv("R_PLATFORM"))) ## Linux
+    {
+      system("sed -i 's/#/\t/g' all.cluster.tsv")
+      mmseqs.raw <- fread("all.cluster.tsv", header = FALSE, sep = "\t")
+    }else{
+      system("sed 's/#/        /g' all.cluster.tsv > tmp")
+      mmseqs.raw <- fread("tmp", header = FALSE, sep = "\t")
+    }
+    
     colnames(mmseqs.raw) = c("Prot_genome","Prot_prot","Genome_genome","Genome_prot")
 
 
