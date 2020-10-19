@@ -86,13 +86,15 @@ annotate <- function(files, type = "nucl", database =c("AbR","VF_A","VF_B"), que
 
   folderName = paste(getwd(),"/",md5(paste(files[,1], sep = "",collapse = "")),"_mmseq",sep = "",collapse = "")
 
-  if(file.exists("commands.txt"))
-  {
-    file.remove("commands.txt")
-  }
+
 
   if(!file.exists(paste(folderName,"/all.mmseq",sep = "",collapse = "")))
   {
+    if(file.exists("commands.txt"))
+    {
+      file.remove("commands.txt")
+    }
+
     dir.create(folderName)
     for (i in files[,1])
     {
@@ -177,7 +179,7 @@ annotate <- function(files, type = "nucl", database =c("AbR","VF_A","VF_B"), que
     }
     if(type =="nucl")
     {
-      #print(paste(mmseqPath," createindex all.mmseq tmpDir --search-type 3", sep = "", collapse = "")) %>% system()
+
       print(paste(mmseqPath," search ",rep," ",resfinder_path," abr.out tmpDir --search-type 3", sep = "", collapse = "")) %>% system()
       Sys.sleep(1)
     }else{
@@ -204,7 +206,7 @@ annotate <- function(files, type = "nucl", database =c("AbR","VF_A","VF_B"), que
       print(paste(mmseqPath," search ",rep," ",vf_A_path," vf_a.out tmpDir --search-type 3", sep = "", collapse = "")) %>% system()
       Sys.sleep(1)
     }else{
-      print(paste(mmseqPath," search ",rep," ",vf_A_path," vf_a.out tmpDir", sep = "", collapse = "")) %>% system()
+      print(paste(mmseqPath," map ",rep," ",vf_A_path," vf_a.out tmpDir", sep = "", collapse = "")) %>% system()
       Sys.sleep(1)
     }
 
@@ -228,7 +230,7 @@ annotate <- function(files, type = "nucl", database =c("AbR","VF_A","VF_B"), que
       print(paste(mmseqPath," search ",rep," ",vf_B_path," vf_b.out tmpDir --search-type 3 ", sep = "", collapse = "")) %>% system()
       Sys.sleep(1)
     }else{
-      print(paste(mmseqPath," search ",rep," ",vf_B_path," vf_b.out tmpDir", sep = "", collapse = "")) %>% system()
+      print(paste(mmseqPath," map ",rep," ",vf_B_path," vf_b.out tmpDir", sep = "", collapse = "")) %>% system()
       Sys.sleep(1)
     }
 
