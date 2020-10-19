@@ -73,7 +73,7 @@ annotate <- function(files, type = "nucl", database =c("AbR","VF_A","VF_B"), que
     annot <- read.delim(system.file("annotation/annot.data", package = "pato"), stringsAsFactors = FALSE, header = TRUE, sep = "\t")
   }else if(type =="nucl")
   {
-    resfinder_path <- system.file("annotation/resfinder_nuc", package = "pato")
+    resfinder_path <- system.file("annotation/resfinder_nucl", package = "pato")
     vf_A_path <- system.file("annotation/VFDB_setA_nucl", package = "pato")
     vf_B_path <- system.file("annotation/VFDB_setB_nucl", package = "pato")
     annot <- read.delim(system.file("annotation/annot.data", package = "pato"), stringsAsFactors = FALSE, header = TRUE, sep = "\t")
@@ -243,6 +243,7 @@ annotate <- function(files, type = "nucl", database =c("AbR","VF_A","VF_B"), que
     Sys.sleep(1)
     results <- bind_rows(results,tmp)
   }
+
   results <- inner_join(results,annot, by = c("target" = "ID")) %>% separate(query,c("Genome","Protein"), sep = "#")
   return(results)
 }

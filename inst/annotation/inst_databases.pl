@@ -13,7 +13,7 @@ system("gzip -d *.fas.gz");
 
 
 system("mmseqs createdb VFDB_setA_nt.fas VFDB_setA_nucl");
-system("mmseqs createdb VFDB_setB_nt.fas VFDB_setA_nucl");
+system("mmseqs createdb VFDB_setB_nt.fas VFDB_setB_nucl");
 system("mmseqs createdb VFDB_setA_pro.fas VFDB_setA_prot");
 system("mmseqs createdb VFDB_setB_pro.fas VFDB_setB_prot");
 
@@ -27,7 +27,7 @@ system("sed 's/>/\\n>/' ./resfinder_db/*.fsa > res_finder.fsa");
 system("transeq res_finder.fsa res_finder.faa");
 system("sed -i 's/*//' res_finder.faa");
 system("grep '>' res_finder.fsa | sed 's/>//' | sed 's/^/AbR|/' > headersAbR.txt");
-system("mmseqs createdb res_finder.fsa resfinder_nuc");
+system("mmseqs createdb res_finder.fsa resfinder_nucl");
 system("mmseqs createdb res_finder.faa resfinder_prot");
 
 system("cat headersAbR.txt headersVFA.txt headersVFB.txt > headers.txt");
