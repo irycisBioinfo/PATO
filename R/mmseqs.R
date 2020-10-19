@@ -62,13 +62,27 @@ mmseqs <- function(file_list, coverage = 0.8, identity = 0.8, evalue = 1e-6, n_c
     n_cores = detectCores()-1
   }
 
-  proc_cpu = readLines("/proc/cpuinfo")
-
-  if(sum(grep("avx2",proc_cpu,ignore.case = TRUE)))
+  if(grep('linux',Sys.getenv("R_PLATFORM"))) ## Linux
   {
-    mmseqPath = system.file("mmseqs.avx2", package = "pato")
+    proc_cpu = readLines("/proc/cpuinfo")
+
+    if(sum(grep("avx2",proc_cpu,ignore.case = TRUE)))
+    {
+      mmseqPath = system.file("mmseqs.avx2", package = "pato")
+    }else{
+      mmseqPath = system.file("mmseqs.sse41", package = "pato")
+    }
+  }else if(grep('apple',Sys.getenv("R_PLATFORM"))){ ##MacOS
+
+
+    if(grep("AVX2",system("sysctl -a | grep 'AVX2'", intern = T)))
+    {
+      mmseqPath = system.file("mmseqs.macos.avx2", package = "pato")
+    }else{
+      mmseqPath = system.file("mmseqs.macos.sse41", package = "pato")
+    }
   }else{
-    mmseqPath = system.file("mmseqs.sse41", package = "pato")
+    stop("Error, OS not supported.")
   }
 
   folderName = paste(getwd(),"/",md5(paste(file_list[,1], sep = "",collapse = "")),"_mmseq",sep = "",collapse = "")
@@ -153,9 +167,7 @@ mmseqs <- function(file_list, coverage = 0.8, identity = 0.8, evalue = 1e-6, n_c
     system("sed -i 's/#/\t/g' all.cluster.tsv")
     mmseqs.raw <- fread("all.cluster.tsv", header = FALSE, sep = "\t")
     colnames(mmseqs.raw) = c("Prot_genome","Prot_prot","Genome_genome","Genome_prot")
-    #mmseqs.raw <- mmseqs.raw %>%
-     # separate(Prot,c("Prot_genome","Prot_prot"),sep = "#") %>%
-      #separate(Genome,c("Genome_genome","Genome_prot"), sep = "#")
+
 
   }
 

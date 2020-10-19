@@ -39,7 +39,14 @@ mash <- function(file_list, n_cores =4, sketch = 1000, kmer = 21, type = "prot")
 {
 
 
-  mashPath = system.file("mash",package = "pato")
+  if(grep('linux',Sys.getenv("R_PLATFORM"))) ## Linux
+  {
+    mashPath = system.file("mash",package = "pato")
+  }else if(grep('apple',Sys.getenv("R_PLATFORM"))){ ##MacOS
+    mashPath = system.file("mash.macos",package = "pato")
+  }else{
+    stop("Error, OS not supported.")
+  }
 
 
 

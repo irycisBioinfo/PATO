@@ -1,3 +1,7 @@
 mash
 mmseqs.avx2
 mmseqs.ssr41
+mash.macos
+mmseqs.macos.avx2
+mmseqs.macos.ssr41
+
