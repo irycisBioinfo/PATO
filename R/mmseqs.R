@@ -169,10 +169,10 @@ mmseqs <- function(file_list, coverage = 0.8, identity = 0.8, evalue = 1e-6, n_c
       system("sed -i 's/#/\t/g' all.cluster.tsv")
       mmseqs.raw <- fread("all.cluster.tsv", header = FALSE, sep = "\t")
     }else{
-      system("sed 's/#/        /g' all.cluster.tsv > tmp")
+      system("perl -pe 's/#/\t/g' all.cluster.tsv > tmp")
       mmseqs.raw <- fread("tmp", header = FALSE, sep = "\t")
     }
-    
+
     colnames(mmseqs.raw) = c("Prot_genome","Prot_prot","Genome_genome","Genome_prot")
 
 
