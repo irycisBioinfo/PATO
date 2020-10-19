@@ -62,7 +62,7 @@ mmseqs <- function(file_list, coverage = 0.8, identity = 0.8, evalue = 1e-6, n_c
     n_cores = detectCores()-1
   }
 
-  if(grep('linux',Sys.getenv("R_PLATFORM"))) ## Linux
+  if(grepl('linux',Sys.getenv("R_PLATFORM"))) ## Linux
   {
     proc_cpu = readLines("/proc/cpuinfo")
 
@@ -72,10 +72,10 @@ mmseqs <- function(file_list, coverage = 0.8, identity = 0.8, evalue = 1e-6, n_c
     }else{
       mmseqPath = system.file("mmseqs.sse41", package = "pato")
     }
-  }else if(grep('apple',Sys.getenv("R_PLATFORM"))){ ##MacOS
+  }else if(grepl('apple',Sys.getenv("R_PLATFORM"))){ ##MacOS
 
 
-    if(grep("AVX2",system("sysctl -a | grep 'AVX2'", intern = T)))
+    if(grepl("AVX2",system("sysctl -a | grep 'AVX2'", intern = T)))
     {
       mmseqPath = system.file("mmseqs.macos.avx2", package = "pato")
     }else{
