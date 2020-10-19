@@ -37,7 +37,15 @@ classifier <- function(file_list, n_cores, type ="nucl", max_dist = 0.06)
     stop("Error in type options. Only prot or nucl options are allowed")
   }
 
-  mashPath <- system.file("mash",package = "pato")
+  if(grepl('linux',Sys.getenv("R_PLATFORM"))) ## Linux
+  {
+    mashPath = system.file("mash",package = "pato")
+  }else if(grepl('apple',Sys.getenv("R_PLATFORM"))){ ##MacOS
+    mashPath = system.file("mash.macos",package = "pato")
+  }else{
+    stop("Error, OS not supported.")
+  }
+
 
   folderName = paste(getwd(),"/",md5(paste(file_list[,1], sep = "",collapse = "")),"_mash",sep = "",collapse = "")
 

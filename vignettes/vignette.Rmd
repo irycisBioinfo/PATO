@@ -526,7 +526,7 @@ knnn_mash_50_w_r <- knnn(ecoli_mash,n=50, repeats = TRUE)
 ```{r eval=FALSE, include=TRUE}
 export_to_gephi(knnn_mash_50_w_r,file = "knnn_50_w_r.tsv")
 ```
-![Gephi visualization of the K-NNN with 50 neighbours](./gephi.png){width=100%}
+![Gephi visualization of the K-NNN with 50 neighbours](./gephi.png)
 
 If you want, you can use the internal function `plot_knnn_network()` to visualize the network. This funtion uses `igraph` layouts algorith to arrange the network and `threejs` package to draw and explore the network.
 
@@ -534,7 +534,7 @@ If you want, you can use the internal function `plot_knnn_network()` to visualiz
 plot_knnn_network(knnn_mash_50_w_r)
 ```
 
-![Threejs visualization of the K-NNN with 50 neighbours](./knnn_plot.png){width=100%}
+![Threejs visualization of the K-NNN with 50 neighbours](./knnn_plot.png)
 
 
 PATO includes a different clustering methods for different kind of data (objects). `clustering()` function joins all the different approaches to make easier the process. For `mash` and `accnet`objects  we have the following methods:
@@ -548,7 +548,7 @@ Any of the above methods is compatible with a multidimentsional scaling (MDS). P
 as PCA , MDS , and Sammon mapping fall into the former category while t-SNE, Isomap or UMAP,fall into the later category. This kind of MDS combine better with the clustering algorithms due to clustering process try to find local structures.
 
 ```{r eval=FALSE, include=TRUE}
-ef_cl_mclust_umap <- clustering(ecoli_mash, method = "mclust",d_reduction = TRUE)
+ec_cl_mclust_umap <- clustering(ecoli_mash, method = "mclust",d_reduction = TRUE)
 ```
 On other hand, `clustering()` can handle `knnn` networks as input. In this caso, PATO uses network clustering algorithms such us:
 
@@ -557,7 +557,7 @@ On other hand, `clustering()` can handle `knnn` networks as input. In this caso,
 + walktrap: Community strucure via short random walks
 
 ```{r eval =FALSE, include=TRUE}
-ef_cl_knnn <-clustering(knnn_mash_50_w_r, method = "louvain")
+ec_cl_knnn <-clustering(knnn_mash_50_w_r, method = "louvain")
 ```
 
 Whatever the method used, the output has allways the same structure: a `data.frame` with two columns `c("Source","Cluster")`. The reason of this format is to be compatible with the rest of the data, being able to combine with the rest of the objects using `Source` variable as key.
@@ -568,12 +568,12 @@ To visualize the clustering data or just to see the data structure we can use `u
 ```{r eval =FALSE, include=TRUE}
 umap_mash <- umap_plot(ecoli_mash)
 ```
-![UMAP visualization for MASH data](umap_wo_colors.png){width=80%}
+![UMAP visualization for MASH data](umap_wo_colors.png)
 
 ```{r eval =FALSE, include=TRUE}
 umap_mash <- umap_plot(ecoli_mash, cluster = ef_cl_mclust_umap)
 ```
-![UMAP visualization with cluster definition](umap_w_colors.png){width=80%}
+![UMAP visualization with cluster definition](umap_w_colors.png)
 
 We also can use `plot_knnn_network()` to visualize the network clustering results.
 
@@ -581,7 +581,7 @@ We also can use `plot_knnn_network()` to visualize the network clustering result
 cl_louvain = clustering(knnn_mash_25_wo_r, method = "louvain")
 plot_knnn_network(knnn_mash_25_wo_r, cluster = cl_louvain, edge.alpha = 0.1)
 ```
-![K-NNN with clustering results](knnn_plot_w_cluster.png){width=100%}
+![K-NNN with clustering results](knnn_plot_w_cluster.png)
 
 ## Annotation
 
@@ -592,7 +592,7 @@ PATO has a function to annotate the Antibiotic Resistance Genes and the Virulenc
 ```{r eval=FALSE, include=TRUE}
 library(tidyverse)
 
-annotation <- annotate(ecoli_mm, type = "prot",database = c("AbR","VF_A"))
+annotation <- annotate(files, type = "prot",database = c("AbR","VF_A"))
 
 annotation %>% 
   filter(pident > 0.95 ) %>% #remove all hits with identity lower than 95%
