@@ -95,33 +95,35 @@ mmseqs <- function(file_list, coverage = 0.8, identity = 0.8, evalue = 1e-6, n_c
   # system("rm *.rnm")
   # system("rm -r tmpDir")
   # system("rm all*")
-  if(file.exists("commands.txt"))
-  {
-    file.remove("commands.txt")
-  }
 
-  for (i in file_list[,1])
+
+  if(!file.exists(paste(folderName,"/all.rnm",sep = "",collapse = "")))
   {
-    if(grepl("gz",i[1]))
+    if(file.exists("commands.txt"))
     {
-      write(paste("zcat ",i," | perl -pe 's/>/$&.\"",basename(i),"\".\"#\".++$n.\"|\"/e' >> ",folderName,"/all.rnm \n", collapse = "",sep = ""),
-            file = "commands.txt",
-            append = T)
-    }else{
-
-      write(paste("perl -pe 's/>/$&.\"",basename(i),"\".\"#\".++$n.\"|\"/e' ",i," >> ",folderName,"/all.rnm \n", collapse = "",sep = ""),
-            file = "commands.txt",
-            append = T)
-
-
+      file.remove("commands.txt")
     }
+
+    for (i in file_list[,1])
+    {
+      if(grepl("gz",i[1]))
+      {
+        write(paste("zcat ",i," | perl -pe 's/>/$&.\"",basename(i),"\".\"#\".++$n.\"|\"/e' >> ",folderName,"/all.rnm \n", collapse = "",sep = ""),
+              file = "commands.txt",
+              append = T)
+      }else{
+        write(paste("perl -pe 's/>/$&.\"",basename(i),"\".\"#\".++$n.\"|\"/e' ",i," >> ",folderName,"/all.rnm \n", collapse = "",sep = ""),
+              file = "commands.txt",
+              append = T)
+      }
+    }
+    system(paste(Sys.getenv("SHELL")," commands.txt",collapse = "",sep = ""))
   }
 
-  system(paste(Sys.getenv("SHELL")," commands.txt",collapse = "",sep = ""))
+
 
   origin_path = getwd()
   setwd(folderName)
-
   on.exit(setwd(origin_path))
 
 

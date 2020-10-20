@@ -226,7 +226,7 @@ determination for each input file. The method is based in the minimun mash dista
 file against a homemade reference database. Thr reference database comprises all _reference_ and _representative_ genomes of Refseq. Input files can be fasta nucleotides or aminoacids.
 
 ```{r eval=FALSE, include=TRUE}
-species <- classifier(files,re_use = F,n_cores = 20,type = 'prot')
+species <- classifier(files,n_cores = 20,type = 'prot')
 
 species %>% group_by(organism_name) %>% summarise(Number = n())
 
@@ -498,13 +498,15 @@ And then you can use it as input alignment
 iqtree -s my_accnet_aln.fasta -st BIN
 
 ```
+
 Again, we can import to R and plot it.
 ```{r eval=FALSE, include=TRUE}
 acc_tree = read.tree("acc.aln.treefile")
 acc_tree %>% midpoint.root() %>% ggtree()
 ```
 
-![ML tree of accessory genome](acc_ml_tree.png)
+
+![ML tree of accessory genome](./acc_ml_tree.png)
 
 
 This kind of alignments can be very large. Most of the times accessory genomes contains a lot of spurious genes/proteins that do not add information to the alignment. For this reason `export_accnet_aln()` has a parameter, `min_freq`, to filter the genes/proteins by their frequency. This option cut significantly the alingment length and improves computational times.
@@ -597,7 +599,7 @@ annotation <- annotate(files, type = "prot",database = c("AbR","VF_A"))
 annotation %>% 
   filter(pident > 0.95 ) %>% #remove all hits with identity lower than 95%
   filter(evalue < 1e-6) %>%  #remove all hits with E-Value greater than 1e-6
-  group_by(Genome,Protein) %>% top_n(1,target) #select only the best hit for each protein-genome.
+  group_by(Genome,Protein) %>% arrange(desc(bits)) %>% slice_head() #select only the best hit for each protein-genome.
   
 ```
 
@@ -615,7 +617,7 @@ Or to visualizae as a network.
 network_of_annotation(annotation %>% filter(DataBase =="AbR"), min_identity = 0.99) %>% export_to_gephi("annotation_Network")
 ```
 
-![Gephi visualization of the network of AbR genes](./annotation_network.png){width=100%}
+![Gephi visualization of the network of AbR genes](./annotation_network.png)
 
 
 ## Pangenomes Analysis

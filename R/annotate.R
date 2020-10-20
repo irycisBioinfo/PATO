@@ -11,7 +11,7 @@
 #' \strong{search} of \strong{mmseqs2} so it olny return high identity matchs.
 #'
 #'
-#' @param files data.frame with the absolute path to the genome files (protein fasta file).
+#' @param data A \code{mmseq} object
 #' @param type user must be specified if the data set is nucleotide or protein.
 #' @param database A vector with the query databases:
 #' \itemize{
@@ -53,14 +53,40 @@
 #' @import dtplyr
 #' @import data.table
 #'
-annotate <- function(files, type = "nucl", database =c("AbR","VF_A","VF_B"), query = "all")
+annotate <- function(data, type = "nucl", database =c("AbR","VF_A","VF_B"), query = "all")
 {
 
-  if(sum(grep("avx2",system("cat /proc/cpuinfo",intern = TRUE),ignore.case = TRUE)))
+  if(!is(data,"mmseq"))
   {
-    mmseqPath = system.file("mmseqs.avx2", package = "pato")
+    stop("Error data must be a mmseq object")
+  }
+
+  if(!dir.exists(data$path))
+  {
+    stop("There is an error with the input data. Please be sure that you are in the right path or re-do de mmseq object")
+  }
+
+  if(grepl('linux',Sys.getenv("R_PLATFORM"))) ## Linux
+  {
+    proc_cpu = readLines("/proc/cpuinfo")
+
+    if(sum(grep("avx2",proc_cpu,ignore.case = TRUE)))
+    {
+      mmseqPath = system.file("mmseqs.avx2", package = "pato")
+    }else{
+      mmseqPath = system.file("mmseqs.sse41", package = "pato")
+    }
+  }else if(grepl('apple',Sys.getenv("R_PLATFORM"))){ ##MacOS
+
+
+    if(grepl("AVX2",system("sysctl -a | grep 'AVX2'", intern = T)))
+    {
+      mmseqPath = system.file("mmseqs.macos.avx2", package = "pato")
+    }else{
+      mmseqPath = system.file("mmseqs.macos.sse41", package = "pato")
+    }
   }else{
-    mmseqPath = system.file("mmseqs.sse41", package = "pato")
+    stop("Error, OS not supported.")
   }
 
   n_cores = detectCores()
@@ -81,53 +107,9 @@ annotate <- function(files, type = "nucl", database =c("AbR","VF_A","VF_B"), que
     stop("Error in data type selection: please specify 'nucl' or 'prot'")
   }
 
-  results <- data.frame()
-
-
-  folderName = paste(getwd(),"/",md5(paste(files[,1], sep = "",collapse = "")),"_mmseq",sep = "",collapse = "")
-
-
-
-  if(!file.exists(paste(folderName,"/all.mmseq",sep = "",collapse = "")))
-  {
-    if(file.exists("commands.txt"))
-    {
-      file.remove("commands.txt")
-    }
-
-    dir.create(folderName)
-    for (i in files[,1])
-    {
-      if(grepl("gz",i[1]))
-      {
-        write(paste("zcat ",i," | perl -pe 's/>/$&.\"",basename(i),"\".\"#\".++$n.\"|\"/e' >> ",folderName,"/all.rnm \n", collapse = "",sep = ""),
-              file = "commands.txt",
-              append = T)
-      }else{
-        write(paste("perl -pe 's/>/$&.\"",basename(i),"\".\"#\".++$n.\"|\"/e' ",i," >> ",folderName,"/all.rnm \n", collapse = "",sep = ""),
-              file = "commands.txt",
-              append = T)
-
-      }
-    }
-
-    system(paste(Sys.getenv("SHELL")," commands.txt",collapse = "",sep = ""))
-
-    origin_path = getwd()
-    on.exit(setwd(origin_path))
-    setwd(folderName)
-
-    cmd1 <- paste(mmseqPath," createdb all.rnm all.mmseq",sep = "",collapse = "")
-    print(cmd1)
-    system(cmd1)
-
-  }else{
-    origin_path = getwd()
-    on.exit(setwd(origin_path))
-    setwd(folderName)
-
-  }
-
+  origin <- getwd()
+  setwd(data$path)
+  on.exit(setwd(origin))
 
 
 
@@ -138,38 +120,15 @@ annotate <- function(files, type = "nucl", database =c("AbR","VF_A","VF_B"), que
 
   }else if (query == "accessory")
   {
-    if(!file.exists("all.representatives.fasta"))
-    {
 
-      cmd2 <- paste(mmseqPath," linclust all.mmseq all.cluster . --threads ",n_cores,
-                    " -e ",evalue,
-                    " --min-seq-id ",identity,
-                    " -c ",coverage,
-                    "--cov-mode", cov_mode,
-                    "--cluster-mode",cluster_mode,
-                    sep = "",collapse = "")
-      print(cmd2)
-      system(cmd2)
-
-      cmd3 <- paste(mmseqPath," createtsv all.mmseq all.mmseq all.cluster all.cluster.tsv",sep = "",collapse = "")
-      print(cmd3)
-      system(cmd3)
-
-      cmd4 <- paste(mmseqPath," result2repseq all.mmseq all.cluster all.representatives",sep = "",collapse = "")
-      print(cmd4)
-      system(cmd4)
-
-      cmd5 <- paste(mmseqPath," result2flat all.mmseq all.mmseq all.representatives all.representatives.fasta --use-fasta-header",sep = "",collapse = "")
-      print(cmd5)
-      system(cmd5)
-    }
     print(paste(mmseqPath," createdb all.representatives.fasta all.representatives.mm",sep = "",collapse = "")) %>% system()
-    print(paste(mmseqPath," createindex all.representatives.mm tmpDqir",sep = "",collapse = "")) %>% system()
+    print(paste(mmseqPath," createindex all.representatives.mm tmpDir",sep = "",collapse = "")) %>% system()
     rep = "all.representatives.mm"
   }else{
     stop("Error: query must be 'all' or 'accessory'")
   }
 
+  results <- data.frame()
 
   if("AbR" %in% database)
   {
@@ -189,9 +148,10 @@ annotate <- function(files, type = "nucl", database =c("AbR","VF_A","VF_B"), que
     print(paste(mmseqPath," convertalis ",rep," ",resfinder_path," abr.out abr.tsv", sep = "", collapse = "")) %>% system()
     Sys.sleep(1)
     tmp<- read.table("abr.tsv", header = FALSE, stringsAsFactors = FALSE,comment.char = "")
+
     Sys.sleep(1)
     colnames(tmp) <- c("query","target","pident","alnlen","mismatch","gapopen","qstart","qend","tstart","tend","evalue","bits")
-
+    tmp <- tmp %>% mutate(target = gsub("_\\d+$","",target))
     results <- bind_rows(results,tmp)
   }
   if("VF_A" %in% database)
@@ -215,6 +175,7 @@ annotate <- function(files, type = "nucl", database =c("AbR","VF_A","VF_B"), que
     tmp <- read.table("vf_a.tsv", header = FALSE, stringsAsFactors = FALSE,comment.char = "")
     Sys.sleep(1)
     colnames(tmp) <- c("query","target","pident","alnlen","mismatch","gapopen","qstart","qend","tstart","tend","evalue","bits")
+
     Sys.sleep(1)
     results <- bind_rows(results,tmp)
 
@@ -244,7 +205,13 @@ annotate <- function(files, type = "nucl", database =c("AbR","VF_A","VF_B"), que
     results <- bind_rows(results,tmp)
   }
 
+
+
   results <- inner_join(results,annot, by = c("target" = "ID")) %>% separate(query,c("Genome","Protein"), sep = "#")
+  if(!("VF_B" %in% database)){
+    results <- results %>% filter(DataBase != "VFB")
+  }
+
   return(results)
 }
 

@@ -56,13 +56,28 @@ core_genome <- function(data, type, n_cores)
     n_cores = detectCores()-1
   }
 
-  if(sum(grep("avx2",system("cat /proc/cpuinfo",intern = TRUE),ignore.case = TRUE)))
+  if(grepl('linux',Sys.getenv("R_PLATFORM"))) ## Linux
   {
-    mmseqPah = system.file("mmseqs.avx2", package = "pato")
-  }else{
-    mmseqPah = system.file("mmseqs.sse41", package = "pato")
-  }
+    proc_cpu = readLines("/proc/cpuinfo")
 
+    if(sum(grep("avx2",proc_cpu,ignore.case = TRUE)))
+    {
+      mmseqPath = system.file("mmseqs.avx2", package = "pato")
+    }else{
+      mmseqPath = system.file("mmseqs.sse41", package = "pato")
+    }
+  }else if(grepl('apple',Sys.getenv("R_PLATFORM"))){ ##MacOS
+
+
+    if(grepl("AVX2",system("sysctl -a | grep 'AVX2'", intern = T)))
+    {
+      mmseqPath = system.file("mmseqs.macos.avx2", package = "pato")
+    }else{
+      mmseqPath = system.file("mmseqs.macos.sse41", package = "pato")
+    }
+  }else{
+    stop("Error, OS not supported.")
+  }
   blastParser = system.file("blast_parser.pl", package = "pato")
   msaParser = system.file("parse_msa_result.pl", package = "pato")
   msa2table = system.file("msa2table.pl", package = "pato")
@@ -112,11 +127,11 @@ core_genome <- function(data, type, n_cores)
   dir.create("f_core")
 
 
-  paste(mmseqPah," createsubdb IDS.txt all.cluster all.cluster.subset -v 0", sep = "", collapse = "") %>%
+  paste(mmseqPath," createsubdb IDS.txt all.cluster all.cluster.subset -v 0", sep = "", collapse = "") %>%
     system(.,intern = F,ignore.stdout = T, ignore.stderr = T)
-  paste(mmseqPah," createseqfiledb all.mmseq all.cluster.subset subset  -v 0", sep = "", collapse = "") %>%
+  paste(mmseqPath," createseqfiledb all.mmseq all.cluster.subset subset  -v 0", sep = "", collapse = "") %>%
     system(.,intern = F,ignore.stdout = T, ignore.stderr = T)
-  paste(mmseqPah," result2flat all.mmseq all.mmseq subset subset.fasta", sep = "", collapse = "") %>%
+  paste(mmseqPath," result2flat all.mmseq all.mmseq subset subset.fasta", sep = "", collapse = "") %>%
     system(.,intern = F,ignore.stdout = T, ignore.stderr = T)
 
   paste("split -a 4 --numeric-suffixes=1 -l ",(nGenomes$n*2)+1," subset.fasta core_") %>%
@@ -163,10 +178,10 @@ core_genome <- function(data, type, n_cores)
 
     }else if(type=="prot")
     {
-        paste(mmseqPah," result2msa all.mmseq all.mmseq all.cluster.subset all.core", sep = "", collapse = "") %>%
+        paste(mmseqPath," result2msa all.mmseq all.mmseq all.cluster.subset all.core", sep = "", collapse = "") %>%
           system(.,intern = F,ignore.stdout = T, ignore.stderr = T)
 
-        paste(mmseqPah," result2flat all.mmseq all.mmseq all.core all.core.fasta --use-fasta-header 0", sep = "", collapse = "") %>%
+        paste(mmseqPath," result2flat all.mmseq all.mmseq all.core all.core.fasta --use-fasta-header 0", sep = "", collapse = "") %>%
           system(.,intern = F,ignore.stdout = T, ignore.stderr = T)
 
         print(paste("perl ",msa2table," all.core.fasta > all.core.fasta.tab", sep = "", collapse = ""))

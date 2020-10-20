@@ -5,14 +5,14 @@
 \title{Annotate Virulence Factors and Antibiotic Resistance Genes}
 \usage{
 annotate(
-  files,
+  data,
   type = "nucl",
   database = c("AbR", "VF_A", "VF_B"),
   query = "all"
 )
 }
 \arguments{
-\item{files}{data.frame with the absolute path to the genome files (protein fasta file).}
+\item{data}{A \code{mmseq} object}
 
 \item{type}{user must be specified if the data set is nucleotide or protein.}
 
