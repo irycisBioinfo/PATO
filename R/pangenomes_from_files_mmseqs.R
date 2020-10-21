@@ -21,48 +21,83 @@
 #' @import dtplyr
 #' @import data.table
 #'
-pangenomes_from_files_mmseqs <- function(files,i, coverage, identity, evalue, n_cores = 5, cov_mode,cluster_mode)
+pangenomes_from_files_mmseqs <- function(files,i, coverage, identity, evalue, n_cores, cov_mode,cluster_mode)
 {
 
-  if(sum(grep("avx2",system("cat /proc/cpuinfo",intern = TRUE),ignore.case = TRUE)))
+  if(missing(n_cores))
   {
-    mmseqPah <-  system.file("mmseqs.avx2", package = "pato")
+    n_cores = parallel::detectCores()-1
+  }
+
+  if(grepl('linux',Sys.getenv("R_PLATFORM"))) ## Linux
+  {
+    proc_cpu = readLines("/proc/cpuinfo")
+
+    if(sum(grep("avx2",proc_cpu,ignore.case = TRUE)))
+    {
+      mmseqPath = system.file("mmseqs.avx2", package = "pato")
+    }else{
+      mmseqPath = system.file("mmseqs.sse41", package = "pato")
+    }
+  }else if(grepl('apple',Sys.getenv("R_PLATFORM"))){ ##MacOS
+
+
+    if(grepl("AVX2",system("sysctl -a | grep 'AVX2'", intern = T)))
+    {
+      mmseqPath = system.file("mmseqs.macos.avx2", package = "pato")
+    }else{
+      mmseqPath = system.file("mmseqs.macos.sse41", package = "pato")
+    }
   }else{
-    mmseqPah <-  system.file("mmseqs.sse41", package = "pato")
+    stop("Error, OS not supported.")
   }
 
 
+  folderName = paste(getwd(),"/",md5(paste(files[,1], sep = "",collapse = "")),"_pange",sep = "",collapse = "")
+
+  if(!dir.exists(folderName))
+  {
+    dir.create(folderName,)
+  }
+
   members <- data.frame()
 
-  system("rm tmp.fasta*")
+
   num <- 0
+
 
 
   for(f in files[,1])
   {
     num <-  num+1
     members <- bind_rows(members,data.frame(pangenome = i, file = f, number = num))
-    if(grep("gz",f))
+    if(grepl("gz",f))
     {
-      system(paste("zcat ",f," | sed 's/>/>",i,".",num,"|/' >> tmp.fasta",sep ="",collapse = ""))
+      print(paste("zcat ",f," | sed 's/>/>",i,".",num,"|/' >> ",folderName,"/tmp.fasta",sep ="",collapse = ""))
+      system(paste("zcat ",f," | sed 's/>/>",i,".",num,"|/' >> ",folderName,"/tmp.fasta",sep ="",collapse = ""))
     }else{
-      system(paste("sed 's/>/>",i,".",num,"|/' ",f," >> tmp.fasta",sep ="",collapse = ""))
+      print(paste("sed 's/>/>",i,".",num,"|/' ",f," >> ",folderName,"/tmp.fasta",sep ="",collapse = ""))
+      system(paste("sed 's/>/>",i,".",num,"|/' ",f," >> ",folderName,"/tmp.fasta",sep ="",collapse = ""))
     }
   }
-  cmd <- paste(mmseqPah,
-        " easy-linclust tmp.fasta pangenome_",i,
-        " tmpDir ",
-        " --threads ",n_cores,
-        " -e ",evalue,
-        " --min-seq-id ",identity,
-        " -c ",coverage,
-        " --cov-mode ", cov_mode,
-        " --cluster-mode ",cluster_mode,
-        " -v 0",
-        sep = "",collapse = "")
+  origin_path = getwd()
+  setwd(folderName)
+  on.exit(setwd(origin_path))
 
+  cmd <- paste(mmseqPath,
+               " easy-linclust tmp.fasta pangenome_",i,
+               " tmpDir ",
+               " --threads ",n_cores,
+               " -e ",evalue,
+               " --min-seq-id ",identity,
+               " -c ",coverage,
+               " --cov-mode ", cov_mode,
+               " --cluster-mode ",cluster_mode,
+               " -v 0",
+               sep = "",collapse = "")
 
-  system(cmd,intern = T)
+  print(cmd)
+  system(cmd)
 
   cluster_table <- fread(paste("pangenome_",i,"_cluster.tsv", sep = "", collapse = ""),header = F, sep = "\t")
   colnames(cluster_table) <- c("cluster","prot")

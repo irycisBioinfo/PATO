@@ -10,7 +10,7 @@ pangenomes_from_files_mmseqs(
   coverage,
   identity,
   evalue,
-  n_cores = 5,
+  n_cores,
   cov_mode,
   cluster_mode
 )

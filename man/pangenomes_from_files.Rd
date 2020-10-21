@@ -14,7 +14,7 @@ pangenomes_from_files(
   coverage = 0.8,
   identity = 0.8,
   evalue = 1e-06,
-  n_cores = 5,
+  n_cores,
   cov_mode = 0,
   cluster_mode = 0
 )

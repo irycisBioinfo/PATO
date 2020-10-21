@@ -35,8 +35,14 @@
 #' @export
 #'
 #' @examples
-pangenomes_from_files <- function(files, min_pange_size = 10, min_prot_freq = 2, file_type = 'prot', distance, cluster, coverage = 0.8, identity = 0.8, evalue = 1e-6, n_cores = 5, cov_mode = 0, cluster_mode = 0)
+pangenomes_from_files <- function(files, min_pange_size = 10, min_prot_freq = 2, file_type = 'prot', distance, cluster, coverage = 0.8, identity = 0.8, evalue = 1e-6, n_cores, cov_mode = 0, cluster_mode = 0)
 {
+
+
+  if(missing(n_cores))
+  {
+    n_cores = parallel::detectCores()-1
+  }
 
   if(!missing(distance))
   {
@@ -55,7 +61,7 @@ pangenomes_from_files <- function(files, min_pange_size = 10, min_prot_freq = 2,
 
   cluster$Cluster <- as.factor(cluster$Cluster)
 
-  system("rm pangenome_*_*")
+
   results <- data.frame()
   members <- data.frame()
   for (lv in levels(cluster$Cluster))

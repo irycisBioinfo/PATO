@@ -15,30 +15,63 @@
 #' @import data.table
 #' @import igraph
 #'
-#'
 cluster_files_from_distance <- function(files, file_type, distance, n_cores)
 {
 
-  mashPath = system.file("mash",package = "pato")
-  system("rm all.msh input_mash.txt")
+
+  if(grepl('linux',Sys.getenv("R_PLATFORM"))) ## Linux
+  {
+    mashPath = system.file("mash",package = "pato")
+  }else if(grepl('apple',Sys.getenv("R_PLATFORM"))){ ##MacOS
+    mashPath = system.file("mash.macos",package = "pato")
+  }else{
+    stop("Error, OS not supported.")
+  }
+
+
+  folderName = paste(getwd(),"/",md5(paste(files[,1], sep = "",collapse = "")),"_mash",sep = "",collapse = "")
+
+  if(!dir.exists(folderName))
+  {
+    dir.create(folderName,)
+  }
+
 
   write.table(files[,1],"input_mash.txt", quote = F, col.names = FALSE, row.names = FALSE)
 
-  if(file_type == "prot")
+
+  if(!file.exists(paste(folderName,"/all.msh",sep = "",collapse = "")))
   {
-    cmd1 <- paste(mashPath," sketch -p ",n_cores," -l input_mash.txt"," -a -o all.msh", sep = "", collapse = "")
-  }else if(file_type =="nucl")
-  {
-    cmd1 <- paste(mashPath," sketch -p ",n_cores," -l input_mash.txt","-o all.msh", sep = "", collapse = "")
-  } else{
-    stop("Error in type options. Only prot or nucl options are allowed")
+    if(file_type == "prot")
+    {
+
+      cmd1 <- paste(mashPath," sketch -p ",n_cores," -l input_mash.txt"," -a -o ",folderName,"/all.msh", sep = "", collapse = "")
+
+
+    }else if(file_type =="nucl")
+    {
+      cmd1 <- paste(mashPath," sketch -p ",n_cores," -l input_mash.txt","-o ",folderName,"/all.msh", sep = "", collapse = "")
+    } else{
+      stop("Error in type options. Only prot or nucl options are allowed")
+    }
+    print(cmd1)
+    system(cmd1)
   }
-  system(cmd1)
 
-  cmd3 <- paste(mashPath," dist -p ",n_cores," -d ",distance," all.msh all.msh > pangeDist.tab", sep = "", collapse = "")
-  system(cmd3)
 
-  table <- fread("pangeDist.tab", header = F)
+
+  origin_path = getwd()
+  setwd(folderName)
+  on.exit(setwd(origin_path))
+
+  if(!file.exists("pangeDist.tab"))
+  {
+    cmd3 <- paste(mashPath," dist -p ",n_cores," -d ",distance," all.msh all.msh > pangeDist.tab", sep = "", collapse = "")
+    system(cmd3)
+  }
+
+  table <- fread("pangeDist.tab", header = F) %>% as_tibble()
+  #table <- vroom::vroom("pangeDist.tab", col_names = F)
   colnames(table) <-  c("from","to","weigth","pvalue","sketch")
 
   cl <- table %>%

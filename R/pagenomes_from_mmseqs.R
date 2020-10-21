@@ -38,8 +38,7 @@ pangenomes_from_mmseqs <-function(data,cluster,min_freq = 0,max_freq = 1,min_pan
 
   colnames(cluster) = c("Source", "Cluster")
 
-  accnet <-
-    data$table %>% select(Source = Genome_genome, Target = Prot_prot) %>%
+  accnet <- data$table %>% as_tibble() %>% select(Source = Genome_genome, Target = Prot_prot) %>%
     distinct() %>%
     inner_join(cluster) %>%
     mutate(dummy = "Pangenome") %>%
