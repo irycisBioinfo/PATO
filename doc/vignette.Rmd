@@ -13,7 +13,7 @@ output:
     toc: yes
   '': default
 vignette: |
-  %\VignetteIndexEntry{vignette} 
+  %\VignetteIndexEntry{Pato vignette} 
   %\VignetteEncoding{UTF-8} 
   %\VignetteEngine{knitr::rmarkdown}
 ---
@@ -25,7 +25,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-![](logo.png){width=100%}
+![](./logo.png){width=100%}
 
 
 # Installation
@@ -60,7 +60,7 @@ PATO is a R package designed to analyze pangenomes (set of genomes) intra or int
 
 These software can handle thousands of genomes using conventional computers without the necessity to use on a HPC facilities. PATO can analyze data in mash distance format (whole genome) or accnet format (accessory genome) Most of the functions can handle both objects. Some functions are specific for some kind of data. The primitive object *mmseq* is a orthologous clustering that is used to build accnet object, annotate the genomes and characterize the core-, accessory- and pan-genome size (and dynamic). 
 
-![PATO diagram](diagram.png){width=100%}
+![PATO diagram](./diagram.png){width=100%}
 
 
 # Usage
@@ -155,27 +155,27 @@ The `mmseq` object is key in the analysis of the pangenome definition (core, acc
 (this section has been extracted from https://github.com/soedinglab/MMseqs2/wiki)
 
 MMseqs2 has three modes to control the sequence length overlap "coverage": (0) bidirectional, (1) target coverage, (2) query coverage and (3) target-in-query length coverage. In the context of cluster or linclust, the query is seen representative sequence and target is a member sequence. The `-cov-mode` flag also automatically sets the `cluster_mode`.
-![Coverage Mode](cov_mode.png){width=100%}
+![Coverage Mode](./cov_mode.png){width=100%}
 
 #### Clustering modes
 All clustering modes transform the alignment results into an undirected graph. In this graph notation, each vertex (i.e. node) represents a sequence, which is connected to other sequences by edges. An edge between a pair of sequences is introduced if the alignment criteria (e.g. `identity`, `coverage` and `evalur`) are fulfilled.
 
 The Greedy Set cover (`cluster-mode = 0`) algorithm is an approximation for the NP-complete optimization problem called set cover. 
 
-![Set Cover clustering](cluster-mode-setcover.png){width=70%}
+![Set Cover clustering](./cluster-mode-setcover.png){width=70%}
 
 Greedy set cover works by interactively selecting the node with most connections and all its connected nodes to form a cluster and repeating until all nodes are in a cluster.
 The greedy set cover is followed by a reassignment step. A Cluster member is assigned to another cluster centroid if their alignment score was higher. 
 
 Connected component (`cluster_mode = 1`) uses transitive connection to cover more remote homologous.
 
-![Connected component clustering](cluster-mode-connectedcomp.png){width=70%}
+![Connected component clustering](./cluster-mode-connectedcomp.png){width=70%}
 
 In connected component clustering starting at the mostly connected vertex, all vertices that are reachable in a breadth-first search are members of the cluster.
 
 Greedy incremental (`cluster_mode = 2`) works analogous to CD-HIT clustering algorithm. 
 
-![Greedy incremental clustering](cluster-mode-greedyincremental.png){width=70%}
+![Greedy incremental clustering](./cluster-mode-greedyincremental.png){width=70%}
 
 Greedy incremental clustering takes the longest sequence (indicated by the size of the node) and puts all connected sequences in that cluster, then repeatedly the longest sequence of the remaining set forms the next cluster.
 
@@ -382,7 +382,7 @@ annot_tree = species %>%
 core_tree %>% midpoint %>% ggtree(layout = "circular") %<+% annot_tree + geom_tippoint(aes(color = organism_name))
 ```
 In this case we have added the species information extracted above.
-![ML Core-genome phylogenetic tree](Core_tree.png)
+![ML Core-genome phylogenetic tree](./Core_tree.png)
 
 You must take into account that Maximun Likelyhood tree can take long computational times.
 
@@ -393,7 +393,7 @@ Finally, you can obtain a SNPs matrix from the coregenome alignment. The matrix 
 var_matrix = core_snps_matrix(core, norm = TRUE)
 pheatmap::pheatmap(var_matrix,show_rownames = F, show_colnames = F)
 ```
-![SNPs matrix heatmap](snp_heatmap.png)
+![SNPs matrix heatmap](./snp_heatmap.png)
 
 
 ## Accessory Genome Analysis
@@ -421,7 +421,7 @@ Now we can visualize the network using Gephi.
 ```{r eval=FALSE, include=TRUE}
 export_to_gephi(ecoli_accnet_nr, "accnet800", cluster = ec_800_cl)
 ```
-![Accnet of 800 non redundant *E. coli and Shigella* strains](Accnet_800.png)
+![Accnet of 800 non redundant *E. coli and Shigella* strains](./Accnet_800.png)
 [https://doi.org/10.6084/m9.figshare.13089338]
 
 To perform the enrichment analysis we use:
@@ -451,7 +451,7 @@ Now, we can export a new network with the *adjusted p-values* as edge-weigth.
 accnet_with_padj(accnet_enr_result) %>% export_to_gephi("accnet800.padj", cluster = ec_800_cl)
 ```
 
-![Accnet network with enrichment analysis add. Edge color are proportional to the p-value (adjusted)](Accnet_800_enr.png)
+![Accnet network with enrichment analysis add. Edge color are proportional to the p-value (adjusted)](./Accnet_800_enr.png)
 
 [https://doi.org/10.6084/m9.figshare.13089401.v1]
 
@@ -575,12 +575,12 @@ To visualize the clustering data or just to see the data structure we can use `u
 ```{r eval =FALSE, include=TRUE}
 umap_mash <- umap_plot(ecoli_mash)
 ```
-![UMAP visualization for MASH data](umap_wo_colors.png)
+![UMAP visualization for MASH data](./umap_wo_colors.png)
 
 ```{r eval =FALSE, include=TRUE}
 umap_mash <- umap_plot(ecoli_mash, cluster = ef_cl_mclust_umap)
 ```
-![UMAP visualization with cluster definition](umap_w_colors.png)
+![UMAP visualization with cluster definition](./umap_w_colors.png)
 
 We also can use `plot_knnn_network()` to visualize the network clustering results.
 
@@ -588,7 +588,7 @@ We also can use `plot_knnn_network()` to visualize the network clustering result
 cl_louvain = clustering(knnn_mash_25_wo_r, method = "louvain")
 plot_knnn_network(knnn_mash_25_wo_r, cluster = cl_louvain, edge.alpha = 0.1)
 ```
-![K-NNN with clustering results](knnn_plot_w_cluster.png)
+![K-NNN with clustering results](./knnn_plot_w_cluster.png)
 
 ## Annotation
 
@@ -661,7 +661,7 @@ annot = res$members %>%
 ```
 We chose as species name the specie most frequent in each cluster. Then usin Gephi we visualiza the network.
 
-![Pangenomes network of firmicutes: Gephi visualization](pangenomes.png){width=100%}
+![Pangenomes network of firmicutes: Gephi visualization](./pangenomes.png){width=100%}
 
 Other way to visualize the results is a heatmap of the sharedness among the pangenoms. PATO includes the function sharedness to visualize this result. To visualize the `data.table` result from `sharedness()` function we can use the package `pheatmap`. As the input value of `pheatmap` can be only a matrix we must first transform our result into a matrix:
 
@@ -685,4 +685,4 @@ Now we can execute `pheatmap()` with our pangenome dataset.
 pheatmap::pheatmap(sh,clustering_method = "ward.D2", clustering_distance_cols = "correlation", clustering_distance_rows = "correlation")
 ```
 
-![Sharedness heatmap](Heatmap_sharedness.png)
+![Sharedness heatmap](./Heatmap_sharedness.png)
