@@ -60,12 +60,13 @@ non_redundant_pangenomes <- function(files, distance, type = "prot", n_cores,ske
   system(cmd3)
 
   mash.table <- data.table::fread(paste(folderName,"/Dist.tab",sep = "",collapse = ""), header = F) %>% as_tibble()
+
   colnames(mash.table) <- c("Source","Target","Dist","p-value","sketch")
 
-  gr.tmp <- mast.table %>%
+  gr.tmp <- mash.table %>%
     select(Source,Target) %>%
     graph_from_data_frame() %>%
-    simplify(gr.tmp, remove.multiple = TRUE, remove.loops = TRUE) %>%
+    simplify(., remove.multiple = TRUE, remove.loops = TRUE) %>%
     as.undirected()
   cluster <- components(gr.tmp)
 

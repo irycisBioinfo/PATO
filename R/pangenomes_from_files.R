@@ -38,6 +38,15 @@
 pangenomes_from_files <- function(files, min_pange_size = 10, min_prot_freq = 2, file_type = 'prot', distance, cluster, coverage = 0.8, identity = 0.8, evalue = 1e-6, n_cores, cov_mode = 0, cluster_mode = 0)
 {
 
+  folderName = paste(getwd(),"/",md5(paste(files[,1], sep = "",collapse = "")),"_pange",sep = "",collapse = "")
+
+  if(!dir.exists(folderName))
+  {
+    dir.create(folderName,)
+  }
+
+
+
 
   if(missing(n_cores))
   {
@@ -46,7 +55,7 @@ pangenomes_from_files <- function(files, min_pange_size = 10, min_prot_freq = 2,
 
   if(!missing(distance))
   {
-    cl <- cluster_files_from_distance(files, file_type, distance, n_cores)
+    cl <- cluster_files_from_distance(files, file_type, distance, n_cores,folderName)
   }else if (!missing(cluster))
   {
     cl <-  cluster
@@ -54,27 +63,31 @@ pangenomes_from_files <- function(files, min_pange_size = 10, min_prot_freq = 2,
     stop("Error: distance or cluster must be provided")
   }
 
-  cluster <- as_tibble(cl)
-  colnames(cluster) <- c("Source","Cluster")
 
-  cluster <- cluster %>% group_by(Cluster) %>% mutate(Size = n()) %>% filter(Size >= min_pange_size)
 
-  cluster$Cluster <- as.factor(cluster$Cluster)
+
+  cl <- as.data.frame(cl)
+  colnames(cl) <- c("Source","Cluster")
+
+  cl <- cl %>% group_by(Cluster) %>% mutate(Size = n()) %>% filter(Size >= min_pange_size) %>% ungroup() %>% as.data.frame()
+
+  cl$Cluster <- as.factor(cl$Cluster)
 
 
   results <- data.frame()
   members <- data.frame()
-  for (lv in levels(cluster$Cluster))
+  for (lv in levels(cl$Cluster))
   {
     print(lv)
-    tmp <- pangenomes_from_files_mmseqs(files = cluster %>% filter(Cluster ==lv),
-                                 lv,
+
+    tmp <- pangenomes_from_files_mmseqs(file_list = cl %>% dplyr::filter(Cluster ==lv),i =lv,
                                  coverage,
                                  identity,
                                  evalue,
                                  n_cores,
                                  cov_mode,
-                                 cluster_mode)
+                                 cluster_mode,
+                                 folderName)
 
     results <- bind_rows(results,tmp$table)
 
@@ -83,7 +96,7 @@ pangenomes_from_files <- function(files, min_pange_size = 10, min_prot_freq = 2,
   }
   mm <- pangenomes_mmseqs(results %>%
                             select(file) %>% mutate(file = gsub("_cluster.tsv","_rep_seq.fasta",file)) %>%
-                            distinct(), coverage, identity, evalue, n_cores, cov_mode, cluster_mode)
+                            distinct(), coverage, identity, evalue, n_cores, cov_mode, cluster_mode,folderName)
   results <- results %>%
     mutate(Genome_genome = gsub("_cluster.tsv","_rep_seq.fasta",file)) %>%
     rename(Genome_prot = cluster) %>%
@@ -103,7 +116,8 @@ pangenomes_from_files <- function(files, min_pange_size = 10, min_prot_freq = 2,
                                          group_by(ID) %>%
                                          summarise(Annot = first(Annot)) %>%
                                          ungroup(),
-                  members = members %>% rename(path =file) %>% mutate(file = basename(path))
+                  members = members %>% rename(path =file) %>% mutate(file = basename(as.character(path))),
+                  path = folderName
                 )
 
   class(results) = c("accnet","pangenome")

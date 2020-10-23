@@ -2,7 +2,7 @@
 #'
 #' This is an internal function for the workflow of pangenomes
 #'
-#' @param files a list of files (genomes of the pangenome)
+#' @param file_list a list of file_list (genomes of the pangenome)
 #' @param i The pangenome number
 #' @param identity min identitity for homologous cluster
 #' @param coverage min coverage  for homologous cluster
@@ -10,6 +10,7 @@
 #' @param n_cores number of cores to use
 #' @param cov_mode coverage mode
 #' @param cluster_mode cluster mode
+#' @param folder
 #'
 #' @return A \emph{list} with two tables, the membership of the pangenome,
 #' and the gene/protein frequency.
@@ -21,7 +22,7 @@
 #' @import dtplyr
 #' @import data.table
 #'
-pangenomes_from_files_mmseqs <- function(files,i, coverage, identity, evalue, n_cores, cov_mode,cluster_mode)
+pangenomes_from_files_mmseqs <- function(file_list,i, coverage, identity, evalue, n_cores, cov_mode,cluster_mode,folder)
 {
 
   if(missing(n_cores))
@@ -53,12 +54,6 @@ pangenomes_from_files_mmseqs <- function(files,i, coverage, identity, evalue, n_
   }
 
 
-  folderName = paste(getwd(),"/",md5(paste(files[,1], sep = "",collapse = "")),"_pange",sep = "",collapse = "")
-
-  if(!dir.exists(folderName))
-  {
-    dir.create(folderName,)
-  }
 
   members <- data.frame()
 
@@ -67,26 +62,25 @@ pangenomes_from_files_mmseqs <- function(files,i, coverage, identity, evalue, n_
 
 
 
-  for(f in files[,1])
+
+  for(f in file_list[,1])
   {
+
     num <-  num+1
     members <- bind_rows(members,data.frame(pangenome = i, file = f, number = num))
     if(grepl("gz",f))
     {
-      print(paste("zcat ",f," | sed 's/>/>",i,".",num,"|/' >> ",folderName,"/tmp.fasta",sep ="",collapse = ""))
-      system(paste("zcat ",f," | sed 's/>/>",i,".",num,"|/' >> ",folderName,"/tmp.fasta",sep ="",collapse = ""))
+      print(paste("zcat ",f," | sed 's/>/>",i,".",num,"|/' >> ",folder,"/tmp.fasta",sep ="",collapse = ""))
+      system(paste("zcat ",f," | sed 's/>/>",i,".",num,"|/' >> ",folder,"/tmp.fasta",sep ="",collapse = ""))
     }else{
-      print(paste("sed 's/>/>",i,".",num,"|/' ",f," >> ",folderName,"/tmp.fasta",sep ="",collapse = ""))
-      system(paste("sed 's/>/>",i,".",num,"|/' ",f," >> ",folderName,"/tmp.fasta",sep ="",collapse = ""))
+      print(paste("sed 's/>/>",i,".",num,"|/' ",f," >> ",folder,"/tmp.fasta",sep ="",collapse = ""))
+      system(paste("sed 's/>/>",i,".",num,"|/' ",f," >> ",folder,"/tmp.fasta",sep ="",collapse = ""))
     }
   }
-  origin_path = getwd()
-  setwd(folderName)
-  on.exit(setwd(origin_path))
 
   cmd <- paste(mmseqPath,
-               " easy-linclust tmp.fasta pangenome_",i,
-               " tmpDir ",
+               " easy-linclust ",folder,"/tmp.fasta ",folder,"/pangenome_",i,
+               " ",folder,"/tmpDir ",
                " --threads ",n_cores,
                " -e ",evalue,
                " --min-seq-id ",identity,
@@ -99,14 +93,14 @@ pangenomes_from_files_mmseqs <- function(files,i, coverage, identity, evalue, n_
   print(cmd)
   system(cmd)
 
-  cluster_table <- fread(paste("pangenome_",i,"_cluster.tsv", sep = "", collapse = ""),header = F, sep = "\t")
+  cluster_table <- fread(paste(folder,"/pangenome_",i,"_cluster.tsv", sep = "", collapse = ""),header = F, sep = "\t")
   colnames(cluster_table) <- c("cluster","prot")
   cluster_table$pangenome <-  paste("pangenome_",i, sep = "", collapse = "")
   cluster_table$file <-  paste("pangenome_",i,"_cluster.tsv", sep = "", collapse = "")
 
   list( table = cluster_table %>%
           group_by(file,pangenome,cluster) %>%
-          summarise(freq = n()/nrow(files)) %>%
+          summarise(freq = n()/nrow(file_list)) %>%
           ungroup() %>% mutate(pangenome = as.character(i)),
         members = members) %>% return()
 

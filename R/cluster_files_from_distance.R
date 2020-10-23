@@ -4,6 +4,7 @@
 #' @param file_type Type of fasta files 'prot' or 'nucl'
 #' @param distance threshold distances of the clustering proccess
 #' @param n_cores Num of cores to use with MASH
+#' @param folder
 #'
 #' @return A data frame with the membership of each genome.
 #'
@@ -15,7 +16,7 @@
 #' @import data.table
 #' @import igraph
 #'
-cluster_files_from_distance <- function(files, file_type, distance, n_cores)
+cluster_files_from_distance <- function(files, file_type, distance, n_cores, folder)
 {
 
 
@@ -29,28 +30,23 @@ cluster_files_from_distance <- function(files, file_type, distance, n_cores)
   }
 
 
-  folderName = paste(getwd(),"/",md5(paste(files[,1], sep = "",collapse = "")),"_mash",sep = "",collapse = "")
 
-  if(!dir.exists(folderName))
-  {
-    dir.create(folderName,)
-  }
 
 
   write.table(files[,1],"input_mash.txt", quote = F, col.names = FALSE, row.names = FALSE)
 
 
-  if(!file.exists(paste(folderName,"/all.msh",sep = "",collapse = "")))
+  if(!file.exists("all.msh"))
   {
     if(file_type == "prot")
     {
 
-      cmd1 <- paste(mashPath," sketch -p ",n_cores," -l input_mash.txt"," -a -o ",folderName,"/all.msh", sep = "", collapse = "")
+      cmd1 <- paste(mashPath," sketch -p ",n_cores," -l input_mash.txt -a -o ",folder,"/all.msh", sep = "", collapse = "")
 
 
     }else if(file_type =="nucl")
     {
-      cmd1 <- paste(mashPath," sketch -p ",n_cores," -l input_mash.txt","-o ",folderName,"/all.msh", sep = "", collapse = "")
+      cmd1 <- paste(mashPath," sketch -p ",n_cores," -l input_mash.txt -o ",folder,"/all.msh", sep = "", collapse = "")
     } else{
       stop("Error in type options. Only prot or nucl options are allowed")
     }
@@ -60,17 +56,14 @@ cluster_files_from_distance <- function(files, file_type, distance, n_cores)
 
 
 
-  origin_path = getwd()
-  setwd(folderName)
-  on.exit(setwd(origin_path))
 
   if(!file.exists("pangeDist.tab"))
   {
-    cmd3 <- paste(mashPath," dist -p ",n_cores," -d ",distance," all.msh all.msh > pangeDist.tab", sep = "", collapse = "")
+    cmd3 <- paste(mashPath," dist -p ",n_cores," -d ",distance," ",folder,"/all.msh ",folder,"/all.msh > ",folder,"/pangeDist.tab", sep = "", collapse = "")
     system(cmd3)
   }
 
-  table <- fread("pangeDist.tab", header = F) %>% as_tibble()
+  table <- fread(paste(folder,"/pangeDist.tab",sep = "",collapse = ""), header = F) %>% as_tibble()
   #table <- vroom::vroom("pangeDist.tab", col_names = F)
   colnames(table) <-  c("from","to","weigth","pvalue","sketch")
 

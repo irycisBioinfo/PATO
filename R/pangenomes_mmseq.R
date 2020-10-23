@@ -46,7 +46,7 @@
 #' @import dtplyr
 #' @import data.table
 #'
-pangenomes_mmseqs <- function(file_list, coverage, identity, evalue, n_cores, cov_mode, cluster_mode)
+pangenomes_mmseqs <- function(file_list, coverage, identity, evalue, n_cores, cov_mode, cluster_mode,folder)
 {
 
   if(sum(grep("avx2",system("cat /proc/cpuinfo",intern = TRUE),ignore.case = TRUE)))
@@ -64,7 +64,7 @@ pangenomes_mmseqs <- function(file_list, coverage, identity, evalue, n_cores, co
   {
     fields = strsplit(i,split = "\\/", perl = TRUE)
 
-    cmd <- paste("sed 's/>/>",basename(i),"#/' ",i," >> pang.all.rnm", collapse = "",sep = "")
+    cmd <- paste("sed 's/>/>",basename(i),"#/' ",folder,"/",i," >> ",folder,"/pang.all.rnm", collapse = "",sep = "")
     print(cmd)
     system(cmd)
   }
@@ -72,13 +72,13 @@ pangenomes_mmseqs <- function(file_list, coverage, identity, evalue, n_cores, co
   print(cmd)
 
 
-  cmd <- paste(mmseqPah," createdb pang.all.rnm pang.all.mmseq -v 0",sep = "",collapse = "")
+  cmd <- paste(mmseqPah," createdb ",folder,"/pang.all.rnm ",folder,"/pang.all.mmseq -v 0",sep = "",collapse = "")
   print(cmd)
   system(cmd)
 
 
 
-  cmd <- paste(mmseqPah," linclust pang.all.mmseq pang.all.cluster pangtmpDir  -v 0 --threads ",n_cores,
+  cmd <- paste(mmseqPah," linclust ",folder,"/pang.all.mmseq ",folder,"/pang.all.cluster ",folder,"/pangtmpDir  -v 0 --threads ",n_cores,
                " -e ",evalue,
                " --min-seq-id ",identity,
                " -c ",coverage,
@@ -89,30 +89,34 @@ pangenomes_mmseqs <- function(file_list, coverage, identity, evalue, n_cores, co
   system(cmd)
 
 
-  cmd <- paste(mmseqPah," createtsv pang.all.mmseq pang.all.mmseq pang.all.cluster pang.all.cluster.tsv  -v 0",sep = "",collapse = "")
+  cmd <- paste(mmseqPah," createtsv ",folder,"/pang.all.mmseq ",folder,"/pang.all.mmseq ",folder,"/pang.all.cluster ",folder,"/pang.all.cluster.tsv  -v 0",sep = "",collapse = "")
   print(cmd)
   system(cmd)
 
 
 
-  cmd <- paste(mmseqPah," result2repseq pang.all.mmseq pang.all.cluster pang.all.representatives  -v 0",sep = "",collapse = "")
+  cmd <- paste(mmseqPah," result2repseq ",folder,"/pang.all.mmseq ",folder,"/pang.all.cluster ",folder,"/pang.all.representatives  -v 0",sep = "",collapse = "")
   print(cmd)
   system(cmd)
 
 
 
-  cmd <- paste(mmseqPah," result2flat pang.all.mmseq pang.all.mmseq pang.all.representatives pang.all.representatives.fasta  -v 0 --use-fasta-header",sep = "",collapse = "")
+  cmd <- paste(mmseqPah," result2flat ",folder,"/pang.all.mmseq ",folder,"/pang.all.mmseq ",folder,"/pang.all.representatives ",folder,"/pang.all.representatives.fasta  -v 0 --use-fasta-header",sep = "",collapse = "")
   print(cmd)
   system(cmd)
 
 
-  system("grep '>' pang.all.representatives.fasta | sed 's/>//' | sed 's/ /~~/' | sed 's/\t/ /g' > pang.AnnotFile.tsv");
+  system(paste("grep '>' ",
+               folder,
+               "/pang.all.representatives.fasta | sed 's/>//' | sed 's/ /~~/' | sed 's/\t/ /g' > ",
+               folder,
+               "/pang.AnnotFile.tsv", sep = "",collapse = ""))
 
-  Annotation <- data.table::fread("pang.AnnotFile.tsv", header = FALSE, sep = "\t")
+  Annotation <- data.table::fread(paste(folder,"/pang.AnnotFile.tsv",sep="",collapse = ""), header = FALSE, sep = "\t")
   Annotation <- Annotation %>% separate(V1, c("Genome","kk"), sep = "#") %>%
     separate("kk",c("Prot_prot","Annot"), sep= "~~") %>%
     select(Prot_prot,Annot)
-  mmseqs.raw <- fread("pang.all.cluster.tsv", header = FALSE, sep = "\t")
+  mmseqs.raw <- fread(paste(folder,"/pang.all.cluster.tsv",sep="",collapse = ""), header = FALSE, sep = "\t")
   colnames(mmseqs.raw) = c("Prot","Genome")
   mmseqs.raw <- mmseqs.raw %>%
     separate(Prot,c("Prot_genome","Prot_prot"),sep = "#") %>%
