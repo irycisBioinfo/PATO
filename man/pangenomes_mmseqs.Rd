@@ -11,7 +11,8 @@ pangenomes_mmseqs(
   evalue,
   n_cores,
   cov_mode,
-  cluster_mode
+  cluster_mode,
+  folder
 )
 }
 \arguments{

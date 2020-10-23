@@ -5,18 +5,19 @@
 \title{Individual pangenome clustering from file-list}
 \usage{
 pangenomes_from_files_mmseqs(
-  files,
+  file_list,
   i,
   coverage,
   identity,
   evalue,
   n_cores,
   cov_mode,
-  cluster_mode
+  cluster_mode,
+  folder
 )
 }
 \arguments{
-\item{files}{a list of files (genomes of the pangenome)}
+\item{file_list}{a list of file_list (genomes of the pangenome)}
 
 \item{i}{The pangenome number}
 
@@ -31,6 +32,8 @@ pangenomes_from_files_mmseqs(
 \item{cov_mode}{coverage mode}
 
 \item{cluster_mode}{cluster mode}
+
+\item{folder}{}
 }
 \value{
 A \emph{list} with two tables, the membership of the pangenome,

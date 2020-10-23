@@ -4,7 +4,7 @@
 \alias{cluster_files_from_distance}
 \title{Internal Function of the workflow pangenomes_from_file}
 \usage{
-cluster_files_from_distance(files, file_type, distance, n_cores)
+cluster_files_from_distance(files, file_type, distance, n_cores, folder)
 }
 \arguments{
 \item{files}{data.frame with the path of the selected genomes}
@@ -14,6 +14,8 @@ cluster_files_from_distance(files, file_type, distance, n_cores)
 \item{distance}{threshold distances of the clustering proccess}
 
 \item{n_cores}{Num of cores to use with MASH}
+
+\item{folder}{}
 }
 \value{
 A data frame with the membership of each genome.

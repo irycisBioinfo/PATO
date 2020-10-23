@@ -1,6 +1,6 @@
 # Pangenome Analysis Toolkit (PATO)
 
-<img src="https://github.com/irycisBioinfo/PATO/blob/master/man/figures/logo.png" width="50%" align = "right">
+<img src="https://github.com/irycisBioinfo/PATO/blob/master/vignettes/logo.png" width="50%" align = "right">
 
 >**IN DEVELOPING.**  
 >**USE UNDER YOUR RESPONSIBILITY**
@@ -20,7 +20,7 @@ Most of the functions can handle both objets. Some functions are specific
 for some kind of data. The primitive objet *mmseq* is a orthologous clustering that
 is used to build accnet object, annotate the genomes and characterize 
 the core-, accessory- and pan-genome size (and dynamic).
-<img src="https://github.com/irycisBioinfo/PATO/blob/master/man/figures/diagram.png" width="100%">
+<img src="https://github.com/irycisBioinfo/PATO/blob/master/vignettes/diagram.png" width="100%">
 
 ## Installation
 
