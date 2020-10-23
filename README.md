@@ -48,11 +48,12 @@ It could take a while because PATO has the following dependencies:
  ggplot2 (>= 3.1.1),
  tibble (>= 2.1.3),
  htmlwidgets (>= 1.3),
+ htmltools (>= 0.4.0),
  threejs (>= 0.3.1),
  igraph (>= 1.2.4.1),
  uwot (>= 0.1.3),
  tidyr (>= 0.8.3),
- dplyr (>= 0.8.1),
+ dplyr (>= 1.0.0),
  dtplyr (>= 0.0.3),
  data.table (>= 1.12.2),
  phangorn (>= 2.5.5),
@@ -60,9 +61,16 @@ It could take a while because PATO has the following dependencies:
  magrittr (>= 1.5),
  Rcpp (>= 1.0.2),
  mclust (>= 5.4.5),
- filesstrings (>= 3.1.5),
  dbscan (>= 1.1-4),
- ape (>= 5.3)
+ ape (>= 5.3),
+ parallelDist (>= 0.2.4),
+ foreach (>= 1.5.0),
+ doParallel (>= 1.0.15),
+ parallel (>= 3.5.2),
+ manipulateWidget (>= 0.10.0),
+ stringr (>= 1.4.0),
+ stringdist (>= 0.9.6),
+ openssl (>= 1.4.3)
 ```
 
 

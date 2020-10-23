@@ -47,8 +47,11 @@ Suggests:
     rmarkdown
 BinaryFiles:
  mash
+ mash.macos
  mmseqs.avx2
  mmseqs.sse41
+ mmseqs.macos.avx2
+ mmseqs.macos.sse41
 Roxygen:
     list(markdown = TRUE)
 RoxygenNote: 7.1.1
