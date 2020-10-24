@@ -1,11 +1,17 @@
-#' Title
+#' Non redundant pangenomes.
 #'
-#' @param files
-#' @param distance
-#' @param type
-#' @param n_cores
-#' @param sketch
-#' @param kmer
+#' Remove redundant sequences from a file list of sequences (nucleotide or protein).
+#'
+#' This function has been designed to remove redundant sequences from a dataset.
+#' Unlike other non redundant functions, this function only accept a distance threshold and has
+#' been designed to remove very similar sequences (>99.9%)
+#'
+#' @param files A *data.frame* with the path list of files.
+#' @param distance Sequence distance (<1)
+#' @param type "nucl" or "prot"
+#' @param n_cores number of cores to use (default: total cores -1)
+#' @param sketch sketch size (mash option)
+#' @param kmer kmer size (mash option)
 
 #' @import dplyr
 #' @import tidyr

@@ -2,7 +2,7 @@
 % Please edit documentation in R/non_redundant_pangenomes.R
 \name{non_redundant_pangenomes}
 \alias{non_redundant_pangenomes}
-\title{Title}
+\title{Non redundant pangenomes.}
 \usage{
 non_redundant_pangenomes(
   files,
@@ -13,9 +13,27 @@ non_redundant_pangenomes(
   kmer = 21
 )
 }
+\arguments{
+\item{files}{A \emph{data.frame} with the path list of files.}
+
+\item{distance}{Sequence distance (<1)}
+
+\item{type}{"nucl" or "prot"}
+
+\item{n_cores}{number of cores to use (default: total cores -1)}
+
+\item{sketch}{sketch size (mash option)}
+
+\item{kmer}{kmer size (mash option)}
+}
 \value{
 
 }
 \description{
-Title
+Remove redundant sequences from a file list of sequences (nucleotide or protein).
+}
+\details{
+This function has been designed to remove redundant sequences from a dataset.
+Unlike other non redundant functions, this function only accept a distance threshold and has
+been designed to remove very similar sequences (>99.9\%)
 }

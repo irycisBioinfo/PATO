@@ -61,7 +61,10 @@ pangenomes_from_files_mmseqs <- function(file_list,i, coverage, identity, evalue
   num <- 0
 
 
-
+  if(file.exists(paste(folder,"/tmp.fasta",sep ="",collapse = "")))
+  {
+    file.remove(paste(folder,"/tmp.fasta",sep ="",collapse = ""))
+  }
 
   for(f in file_list[,1])
   {
