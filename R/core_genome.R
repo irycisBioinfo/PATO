@@ -208,7 +208,7 @@ core_genome <- function(data, type, n_cores)
   print("Number of hard core-genes (100% presence split paralogous):")
   print(table %>% select(Prot_prot) %>% distinct() %>% nrow())
 
-  results <- list(core_genome = seqs)
+  results <- list(core_genome = seqs,path = data$path)
   class(results) <-  append(class(results),"core_genome" )
   return(results)
 

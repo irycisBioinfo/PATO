@@ -245,18 +245,26 @@ knitr::opts_chunk$set(
 #  colnames(assembly) = gsub("# ","",colnames(assembly))
 #  
 #  annot = res$members %>%
-#    mutate(file = basename(path)) %>%
-#    separate(file,c("GCF","acc","acc2"),sep = "_", remove = FALSE) %>%
+#    #mutate(file = basename(path)) %>%
+#    separate(path,c("GCF","acc","acc2"),sep = "_", remove = FALSE) %>%
 #    unite(assembly_accession,GCF,acc,sep = "_") %>%
 #    left_join(assembly) %>%
 #    separate(organism_name,c("genus","specie"), sep = " ") %>%
 #    group_by(pangenome,genus,specie) %>%
 #    summarise(N = n()) %>%
-#    distinct() %>%
+#    distinct() %>% ungroup() %>%
 #    group_by(pangenome) %>%
-#    top_n(1,N) %>%
-#    mutate(ID = paste("pangenome_",pangenome,"_rep_seq.fasta", sep = "",collapse = "")) %>%
-#    write_delim("/storage/tryPATO/firmicutes/pangenomes_gephi_extra_annot.tsv",delim = "\t", col_names = TRUE)
+#    slice_head() %>%
+#    mutate(ID = paste("pangenome_",pangenome,"_rep_seq.fasta", sep = "",collapse = ""))
+#  
+#  annot <- annot %>%
+#    mutate(genus = gsub("\\[","",genus)) %>%
+#    mutate(genus = gsub("\\]","",genus)) %>%
+#    mutate(specie = gsub("\\[","",specie)) %>%
+#    mutate(specie = gsub("\\]","",specie)) %>%
+#    unite("Label",genus,specie, remove = F)
+#  
+#  write_delim(annot,"../pangenomes_gephi_extra_annot.tsv",delim = "\t", col_names = TRUE)
 
 ## ----eval=FALSE, include=TRUE-------------------------------------------------
 #  sh <-  sharedness(res)
@@ -264,13 +272,17 @@ knitr::opts_chunk$set(
 #    rownames_to_column("ID") %>%
 #    inner_join(annot) %>%
 #    unite(Name,genus,specie,pangenome, sep = "_") %>%
-#    select(-ID,-N)%>%
-#    column_to_rownames("Name")
+#    unite("Row_n",Label,N) %>%
+#    select(-ID)%>%
+#    column_to_rownames("Row_n")
 #  
 #  colnames(sh) = rownames(sh)
 #  
 #  
 
 ## ----eval=FALSE, include=TRUE-------------------------------------------------
-#  pheatmap::pheatmap(sh,clustering_method = "ward.D2", clustering_distance_cols = "correlation", clustering_distance_rows = "correlation")
+#  pheatmap::pheatmap(log2(sh+1),
+#                     clustering_method = "ward.D2",
+#                     clustering_distance_cols = "correlation",
+#                     clustering_distance_rows = "correlation")
 

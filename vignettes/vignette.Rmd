@@ -679,8 +679,9 @@ sh  <-  sh %>% as.data.frame() %>%
   rownames_to_column("ID") %>% 
   inner_join(annot) %>% 
   unite(Name,genus,specie,pangenome, sep = "_") %>% 
-  select(-ID,-N,-Label)%>% 
-  column_to_rownames("Name")
+  unite("Row_n",Label,N) %>% 
+  select(-ID)%>% 
+  column_to_rownames("Row_n")
 
 colnames(sh) = rownames(sh)
 
