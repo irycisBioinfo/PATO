@@ -22,7 +22,11 @@ core_snps_matrix <- function(data, norm =T){
     stop("data must be a core_genome object")
   }
 
-  res = data$core_genome$Seq %>% unlist() %>% stringdistmatrix(., method="hamming") %>% as.matrix()
+  tmp = data$core_genome$Seq %>% unlist()
+
+  res = stringdistmatrix(tmp, method="hamming") %>% as.matrix()
+  colnames(res)= data$core_genome$Genomes %>% gsup(">","",.)
+  rownames(res)= data$core_genome$Genomes %>% gsup(">","",.)
 
   if(norm)
   {

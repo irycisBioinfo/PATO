@@ -22,6 +22,8 @@
 #' @import Biostrings
 #' @import openssl
 #' @import microseq
+#' @import foreach
+#' @import doParallel
 #'
 load_gff_list <- function(input_files)
 {
@@ -42,18 +44,19 @@ load_gff_list <- function(input_files)
     dir.create(paste(folderName,"/ffn",sep = "",collapse = ""))
   }
 
-  for (i in 1:nrow(input_files))
+  foreach (i = 1:nrow(input_files)) %dopar%
   {
 
+    tempFile = tempfile(pattern = "gffTMP")
     print(as.character(input_files$File[i]))
-    system(paste("csplit ",as.character(input_files$File[i])," -f temp /#FASTA/"),ignore.stdout = T)
+    system(paste("csplit ",as.character(input_files$File[i])," -f ",tempFile," /#FASTA/"),ignore.stdout = T)
 
     pathName<- gsub(".gff","",basename(as.character(input_files$File[i])))
 
-    gff <- readGFF("temp00")
+    gff <- readGFF(paste(tempFile,"00",sep = "",collapse = ""))
     writeGFF(gff,paste(folderName,"/gff/",pathName,".gff",sep = "",collapse = "") )                         ##Write the gff file
 
-    fasta <- readFasta("temp01")
+    fasta <- readFasta(paste(tempFile,"01",sep = "",collapse = ""))
     writeFasta(fasta,paste(folderName,"/fna/",pathName,".fna",sep = "",collapse = ""))                      ## Write the fna file
 
 
@@ -64,7 +67,7 @@ load_gff_list <- function(input_files)
     writeFasta(ffn_faa , paste(folderName,"/faa/",pathName,".faa",sep = "",collapse = "")) ## Write the faa file
   }
 
-  on.exit(file.remove(c("temp00","temp01")))
+  on.exit(file.remove(list.files(pattern = "gffTMP")))
 
   results <-  list(path = folderName, files = input_files)
   class(results) <- append(class(results),"gff_list")
