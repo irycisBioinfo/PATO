@@ -123,7 +123,7 @@ pangenomes_mmseqs <- function(file_list, coverage, identity, evalue, n_cores, co
     separate(Genome,c("Genome_genome","Genome_prot"), sep = "#")
 
   results <- list(table = mmseqs.raw, annot = Annotation)
-  class(results) <- "mmseq"
+  class(results) <- append(class(results),"mmseq")
   return(results)
 
 }

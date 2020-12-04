@@ -29,8 +29,8 @@ remove_outliers <- function(data,outliers)
     annot <- data$annot %>% as_tibble() %>% anti_join(list %>%
                                         select(Target) %>%
                                         distinct() %>% rename(ID = Target))
-    results <-  list(list = list, matrix = matrix, annot = annot)
-    class(results) <- "accnet"
+    results <-  list(list = list, matrix = matrix, annot = annot, path = data$path)
+    class(results) <- append(class(results),"accnet")
     return(results)
   }else if (is(data,"mash"))
   {
@@ -39,8 +39,8 @@ remove_outliers <- function(data,outliers)
     matrix <- list %>%
       select(Source,Target,Dist) %>%
       spread(Target,Dist, fill = 0) %>% column_to_rownames("Source")
-    results <- list(table =list, matrix = matrix)
-    class(results) <- "mash"
+    results <- list(table =list, matrix = matrix,path = data$path)
+    class(results) <- append(class(results),"mash")
     return(results)
 
   } else{

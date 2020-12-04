@@ -79,6 +79,6 @@ pangenomes_from_mmseqs <-function(data,cluster,min_freq = 0,max_freq = 1,min_pan
     annot = Annotation %>% rename(ID = Prot_prot,),
     membership = correspondence_table
   )
-  class(results) <- "accnet"
+  class(results) <- append(class(results),"accnet")
   return(results)
 }

@@ -5,7 +5,7 @@
 \title{Non redundant pangenomes.}
 \usage{
 non_redundant_pangenomes(
-  files,
+  file_list,
   distance,
   type = "prot",
   n_cores,
@@ -14,7 +14,7 @@ non_redundant_pangenomes(
 )
 }
 \arguments{
-\item{files}{A \emph{data.frame} with the path list of files.}
+\item{file_list}{A \emph{data.frame} with the path list of files or a \emph{gff_list} object.}
 
 \item{distance}{Sequence distance (<1)}
 

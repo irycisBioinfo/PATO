@@ -7,11 +7,11 @@
 classifier(file_list, n_cores, type = "nucl", max_dist = 0.06)
 }
 \arguments{
-\item{file_list}{Data frame with the full path to the genome files (gene or protein multi-fasta).}
+\item{file_list}{Data frame with the full path to the genome files (gene or protein multi-fasta) or \emph{gff_list} object.}
 
 \item{n_cores}{Number of cores to use.}
 
-\item{type}{Type of sequence 'nucl' (nucleotides) or 'prot' (aminoacids)}
+\item{type}{Type of sequence 'nucl' (nucleotides), 'prot' (aminoacids) or 'wgs' for whole genome sequence (only with gff_list objects)}
 
 \item{max_dist}{Maximun distance to report (1-Average Nucleotide Identity). Usually all species have 0.05 distance among all each memebers}
 }

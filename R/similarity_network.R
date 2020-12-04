@@ -29,7 +29,7 @@ similarity_network <- function(data, threshold)
       igraph::simplify(remove.multiple = TRUE,remove.loops = TRUE)
     return(gr)
 
-  }else if (class(data) == "accnet")
+  }else if (is(data,"accnet"))
   {
     gr <- data$matrix %>% column_to_rownames("Source") %>% as.matrix() %>% parallelDist(method ="binary") %>% as.matrix()
     gr = gr < threshold

@@ -37,7 +37,21 @@
 
 mash <- function(file_list, n_cores =4, sketch = 1000, kmer = 21, type = "prot")
 {
-
+  if(is(file_list,"gff_list"))
+  {
+    if(missing(type))
+    {
+      stop("type must be declared for gff_list objects")
+    }else if(type == "prot")
+    {
+      file_list = dir(paste(file_list$path,"/faa",sep = "", collapse = ""),full.names = T) %>% as_tibble()
+    }else if(type == "nucl")
+    {
+      file_list = dir(paste(file_list$path,"/ffn",sep = "", collapse = ""),full.names = T) %>% as_tibble()
+    }else if(type =="wgs"){
+      file_list = dir(paste(file_list$path,"/fna",sep = "", collapse = ""),full.names = T) %>% as_tibble()
+    }
+  }
 
   if(grepl('linux',Sys.getenv("R_PLATFORM"))) ## Linux
   {
@@ -63,7 +77,7 @@ mash <- function(file_list, n_cores =4, sketch = 1000, kmer = 21, type = "prot")
     if(type == "prot")
     {
       cmd1 <- paste(mashPath," sketch -p ",n_cores," -s ",sketch," -k ",kmer," -l ",folderName,"/input_mash.txt"," -a -o ",folderName,"/all.msh", sep = "", collapse = "")
-    }else if(type =="nucl")
+    }else if(type =="nucl" | type =="wgs")
     {
       cmd1 <- paste(mashPath," sketch -p ",n_cores," -s ",sketch," -k ",kmer," -l ",folderName,"/input_mash.txt"," -o ",folderName,"/all.msh", sep = "", collapse = "")
     } else{
@@ -97,7 +111,7 @@ mash <- function(file_list, n_cores =4, sketch = 1000, kmer = 21, type = "prot")
 
   colnames(mash.matrix) <- rownames(mash.matrix)
   results <- list(matrix = mash.matrix, table = mash.list, path=folderName)
-  class(results) <- "mash"
+  class(results) <- append(class(results),"mash")
   return(results)
 
 }

@@ -5,9 +5,9 @@
 #' Classsifier uses all reference and representative genomes from NCBI Refseq
 #' database and search, using mash, the best hit for each genome file in the input list.
 #'
-#' @param file_list Data frame with the full path to the genome files (gene or protein multi-fasta).
+#' @param file_list Data frame with the full path to the genome files (gene or protein multi-fasta) or \emph{gff_list} object.
 #' @param n_cores Number of cores to use.
-#' @param type Type of sequence 'nucl' (nucleotides) or 'prot' (aminoacids)
+#' @param type Type of sequence 'nucl' (nucleotides), 'prot' (aminoacids) or 'wgs' for whole genome sequence (only with gff_list objects)
 #' @param max_dist Maximun distance to report (1-Average Nucleotide Identity). Usually all species have 0.05 distance among all each memebers
 #'
 #' @return Classifier returns a data.frame with the best hit for each input genome.
@@ -22,6 +22,23 @@
 
 classifier <- function(file_list, n_cores, type ="nucl", max_dist = 0.06)
 {
+
+  if(is(file_list,"gff_list"))
+  {
+    if(missing(type))
+    {
+      stop("type must be declared for gff_list objects")
+    }else if(type == "prot")
+    {
+      file_list = dir(paste(file_list$path,"/faa/",sep = "", collapse = ""),full.names = T) %>% as_tibble()
+    }else if(type == "nucl")
+    {
+      file_list = dir(paste(file_list$path,"/ffn/",sep = "", collapse = ""),full.names = T) %>% as_tibble()
+    }else if(type =="wgs"){
+      file_list = dir(paste(file_list$path,"/fna/",sep = "", collapse = ""),full.names = T) %>% as_tibble()
+    }
+  }
+
   if(missing(n_cores))
   {
     n_cores <- detectCores()-1
@@ -30,7 +47,7 @@ classifier <- function(file_list, n_cores, type ="nucl", max_dist = 0.06)
   if(type == "prot")
   {
     reference <- system.file("classifier/ReferenceProt.msh",package = "pato")
-  }else if(type == "nucl")
+  }else if(type == "nucl" | type == "wgs")
   {
     reference <- system.file("classifier/ReferenceNucl.msh",package = "pato")
   }else{
@@ -58,7 +75,7 @@ classifier <- function(file_list, n_cores, type ="nucl", max_dist = 0.06)
     if(type == "prot")
     {
       cmd1 <- paste(mashPath," sketch -p ",n_cores," -l ",folderName,"/input_mash.txt"," -a -o ",folderName,"/all.msh", sep = "", collapse = "")
-    }else if(type =="nucl")
+    }else if(type =="nucl" | type =="wgs")
     {
       cmd1 <- paste(mashPath," sketch -p ",n_cores," -l ",folderName,"/input_mash.txt"," -o ",folderName,"/all.msh", sep = "", collapse = "")
     } else{

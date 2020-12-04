@@ -184,7 +184,7 @@ non_redundant_hier <- function(data, number, fraction, distance, tolerance = 0.0
       results <- data.frame(Source = as.character(vertex.attributes(gr.tmp)$name),
                             centrality = cent$res,
                             cluster = cluster$membership, stringsAsFactors = F)
-      class(results) <- "nr_list"
+      class(results) <- append(class(results),"nr_list")
       return(results)
     }else if (Nc > number){
       min <- Th

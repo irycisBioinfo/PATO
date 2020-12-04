@@ -44,8 +44,6 @@ sharedness <- function(data)
 
   result <- crossprod(t(tmp))
 
-  #rownames(result) <- rownames(tmp)
-  #colnames(result) <- rownames(tmp)
   return(result)
 
 }

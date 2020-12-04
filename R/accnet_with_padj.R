@@ -28,6 +28,6 @@ accnet_with_padj <- function(data)
   Annot <- data %>% select(ID = Target,Annot) %>% distinct()
 
   results <- list(list = list, matrix = matrix, annot = Annot)
-  class(results) <- "accnet"
+  class(results) <- append(class(results),"accnet")
   return(results)
 }

@@ -60,7 +60,43 @@ PATO is a R package designed to analyze pangenomes (set of genomes) intra or int
 
 These software can handle thousands of genomes using conventional computers without the necessity to use on a HPC facilities. PATO can analyze data in mash distance format (whole genome) or accnet format (accessory genome) Most of the functions can handle both objects. Some functions are specific for some kind of data. The primitive object *mmseq* is a orthologous clustering that is used to build accnet object, annotate the genomes and characterize the core-, accessory- and pan-genome size (and dynamic). 
 
-![PATO diagram](./diagram.png){width=100%}
+|                |                            |                                                             Objets
+|----------------|----------------------------|--------|-------|-------------|------|--------|------------|--------|-------|---------|------------|
+|                | Functions                  | files  | mmseq | core_genome | mash | accnet | accnet_enr | igraph | annot | nr_list | Data Frame |
+|                | classifier                 | I      |       |             |      |        |            |        |       |         | O          |
+|                | extract_non_redundant      |        |       |             | I/O  | I/O    |            |        |       |         |            |
+|   QC           | non_redundant_hier         |        |       |             | I    | I      |            |        |       | O       |            |
+|                | non_redundant_pangenomes   | I      |       |             |      |        |            |        |       | O       |            |
+|                | non_redundant              |        |       | I           | I    | I      |            |        |       | O       |            |
+|                | outliers                   |        |       |             | I    | I      |            |        |       |         | O          |
+|                | remove_outliers            |        |       |             | I/O  | I/O    |            |        |       |         |            |
+| Main           | accnet                     |        | I     |             |      | O      |            |        |       |         |            |
+| Functions      | mash                       | I      |       |             | O    |        |            |        |       |         |            |
+|                | mmseqs                     | I      |       |             | O    |        |            |        |       |         |            |
+|                | core_genome                |        | I     | O           |      |        |            |        |       |         |            |
+|                | pagenomes_from_mmseqs      |        | I     |             |      | O      |            |        |       |         |            |
+|                | pangenomes_from_files      |        | I     |             |      | O      |            |        |       |         |            |
+| Visualization  | core_plots                 |        | I     |             |      |        |            |        |       |         | O          |
+|                | similarity_network         |        |       |             | I    | I      |            |        |       |         |            |
+|                | similarity_tree            |        |       |             | I    | I      |            |        |       |         |            |
+|                | umap_plot                  |        |       |             | I    | I      |            |        |       |         |            |
+|                | heatmap_of_annotation      |        |       |             |      |        |            |        | I     |         |            |
+|                | network_of_annotation      |        |       |             |      |        |            | O      | I     |         |            |
+|                | plot_knnn_network          |        |       |             |      |        |            | I      |       |         |            |
+| Analysis       | accnet_enrichment_analysis |        |       |             |      | I      | O          |        |       |         |            |
+|                | accnet_with_padj           |        |       |             |      | O      | I          |        |       |         |            |
+|                | annotate                   |        | I     |             |      |        |            |        | O     |         |            |
+|                | clustering                 |        |       |             | I    | I      |            | I      |       |         | O          |
+|                | coincidents                |        |       |             |      | I      |            |        |       |         | O          |
+|                | core_snps_matrix           |        |       | I           |      |        |            |        |       |         | O          |
+|                | export_accnet_aln          |        |       |             |      | I      |            |        |       |         |            |
+|                | export_core_to_fasta       |        |       | I           |      |        |            |        |       |         |            |
+|                | export_to_gephi            |        |       |             |      | I      |            | I      |       |         |            |
+|                | knnn                       |        |       |             | I    | I      |            | O      |       |         |            |
+|                | sharedness                 |        | I     |             |      | I      |            |        |       |         | O          |
+|                | singles                    |        |       |             |      | I      |            |        |       |         | O          |
+|                | twins                      |        |       |             |      | I      |            |        |       |         | O          |
+
 
 
 # Usage

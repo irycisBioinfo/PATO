@@ -7,7 +7,7 @@
 #' The function clusters the genes or proteins in ortholog clusters and save the
 #' representative member of each one and its annotation.
 #'
-#' @param file_list Data frame with the full path to the genome files (gene or protein multi-fasta).
+#' @param file_list Data frame with the full path to the genome files (gene or protein multi-fasta) or a \emph{gff_list} object.
 #' @param coverage Minimun coverage (length) to cluster.
 #' @param identity Minimun Identity.
 #' @param evalue Maximun Evalue.
@@ -25,6 +25,7 @@
 #' \item 3: target seq. length needs be at least x% of query length
 #' \item 4: query seq. length needs
 #' }
+#' @param type 'only with \emph{gff_list} objects. Specify what kind of data you want to use: 'nucl' or 'prot'
 #'
 #' @return Return a \emph{mmseq} object.
 #'
@@ -54,8 +55,24 @@
 #' @import doParallel
 #' @import openssl
 #'
-mmseqs <- function(file_list, coverage = 0.8, identity = 0.8, evalue = 1e-6, n_cores, cov_mode = 0, cluster_mode = 0)
+mmseqs <- function(file_list, coverage = 0.8, identity = 0.8, evalue = 1e-6, n_cores, cov_mode = 0, cluster_mode = 0, type)
 {
+
+  if(is(file_list,"gff_list"))
+  {
+       if(missing(type))
+       {
+         stop("type must be declared for gff_list objects")
+       }else if(type == "prot")
+       {
+         file_list = dir(paste(file_list$path,"/faa/",sep = "", collapse = ""),full.names = T) %>% as_tibble()
+       }else if(type == "nucl")
+       {
+         file_list = dir(paste(file_list$path,"/ffn/",sep = "", collapse = ""),full.names = T) %>% as_tibble()
+       }else{
+         stop("Error in 'type' parameter. Option not recognized")
+       }
+  }
 
   if(missing(n_cores))
   {
@@ -182,7 +199,7 @@ mmseqs <- function(file_list, coverage = 0.8, identity = 0.8, evalue = 1e-6, n_c
 
 
   results <- list(table = mmseqs.raw, annot = Annotation, path = folderName)
-  class(results) <- "mmseq"
+  class(results) <- append(class(results),"mmseq")
   return(results)
 
 }

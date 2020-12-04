@@ -95,7 +95,7 @@ extract_non_redundant <- function(data, nr_list)
 
         matrix <- table %>% spread(Target, Dist) %>% column_to_rownames("Source")
         results <- list(table = table, matrix = matrix)
-        class(results) = "mash"
+        class(results) = append(class(results),"mash")
         return(results)
 
       }

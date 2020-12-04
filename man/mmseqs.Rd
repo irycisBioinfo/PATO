@@ -11,11 +11,12 @@ mmseqs(
   evalue = 1e-06,
   n_cores,
   cov_mode = 0,
-  cluster_mode = 0
+  cluster_mode = 0,
+  type
 )
 }
 \arguments{
-\item{file_list}{Data frame with the full path to the genome files (gene or protein multi-fasta).}
+\item{file_list}{Data frame with the full path to the genome files (gene or protein multi-fasta) or a \emph{gff_list} object.}
 
 \item{coverage}{Minimun coverage (length) to cluster.}
 
@@ -39,6 +40,8 @@ mmseqs(
 \item{2: Greedy clustering by sequence length}
 \item{3: Greedy clustering by sequence length (low mem)}
 }}
+
+\item{type}{'only with \emph{gff_list} objects. Specify what kind of data you want to use: 'nucl' or 'prot'}
 }
 \value{
 Return a \emph{mmseq} object.

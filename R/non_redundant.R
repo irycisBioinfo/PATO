@@ -65,7 +65,7 @@ non_redundant <- function(data, number, fraction, distance, tolerance = 0.05, ma
      results = data.frame(Source = as.character(vertex.attributes(gr.tmp)$name),
                           centrality = cent$res,
                           cluster = cluster$membership, stringsAsFactors = F)
-     class(results) <- "nr_list"
+     class(results) <- append(class(results),"nr_list")
      return(results)
    }else{
      m.list = data %>%
@@ -197,7 +197,7 @@ non_redundant <- function(data, number, fraction, distance, tolerance = 0.05, ma
     results = data.frame(Source = as.character(vertex.attributes(gr.tmp)$name),
                          centrality = cent$res,
                          cluster = cluster$membership, stringsAsFactors = F)
-    class(results) <- "nr_list"
+    class(results) <- append(class(results),"nr_list")
     return(results)
 
   }else{

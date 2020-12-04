@@ -6,7 +6,7 @@
 #' Unlike other non redundant functions, this function only accept a distance threshold and has
 #' been designed to remove very similar sequences (>99.9%)
 #'
-#' @param files A *data.frame* with the path list of files.
+#' @param file_list A *data.frame* with the path list of files or a \emph{gff_list} object.
 #' @param distance Sequence distance (<1)
 #' @param type "nucl" or "prot"
 #' @param n_cores number of cores to use (default: total cores -1)
@@ -24,9 +24,25 @@
 #' @export
 #'
 #' @examples
-non_redundant_pangenomes <- function(files, distance, type = "prot", n_cores,sketch = 1000, kmer = 21)
+non_redundant_pangenomes <- function(file_list, distance, type = "prot", n_cores,sketch = 1000, kmer = 21)
 {
 
+
+  if(is(file_list,"gff_list"))
+  {
+    if(missing(type))
+    {
+      stop("type must be declared for gff_list objects")
+    }else if(type == "prot")
+    {
+      file_list = dir(paste(file_list$path,"/faa/",sep = "", collapse = ""),full.names = T) %>% as_tibble()
+    }else if(type == "nucl")
+    {
+      file_list = dir(paste(file_list$path,"/ffn/",sep = "", collapse = ""),full.names = T) %>% as_tibble()
+    }else{
+      stop("Error in 'type' parameter. Option not recognized")
+    }
+  }
 
   if(grepl('linux',Sys.getenv("R_PLATFORM"))) ## Linux
   {
@@ -81,5 +97,6 @@ non_redundant_pangenomes <- function(files, distance, type = "prot", n_cores,ske
   results = data.frame(Source = as.character(vertex.attributes(gr.tmp)$name),
                        centrality = cent$res,
                        cluster = cluster$membership, stringsAsFactors = F)
+  class(results) <- append(class(results),"nr_list")
   return(results)
 }

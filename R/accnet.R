@@ -73,7 +73,7 @@ accnet <- function(mmseqs,threshold = 0.8, singles = TRUE)
                          summarise(Annot = first(Annot)) %>%
                          ungroup()
                  )
-  class(results) <- "accnet"
+  class(results) <- append(class(results),"accnet")
   return(results)
 }
 #

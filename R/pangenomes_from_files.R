@@ -120,7 +120,7 @@ pangenomes_from_files <- function(files, min_pange_size = 10, min_prot_freq = 2,
                   path = folderName
                 )
 
-  class(results) = c("accnet","pangenome")
+  class(results)  <- append(class(results),c("accnet","pangenome"))
   return(results)
 
 
