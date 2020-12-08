@@ -1,4 +1,14 @@
-mummer_snps <- function(file_list,ref,type)
+#' Title
+#'
+#' @param file_list
+#' @param ref
+#' @param type
+#'
+#' @return
+#' @export
+#'
+#' @examples
+mummer_core_snps <- function(file_list,ref,type)
 {
 
   if(is(file_list,"gff_list"))
@@ -37,8 +47,8 @@ mummer_snps <- function(file_list,ref,type)
 
   foreach (i = file_list$File) %dopar%{
 
-      system(paste("dnadiff -p ",basename(i)," ",ref," ",i, sep = "", collapse = ""))
-      system(paste("mv ",basename(i),".* ",folderName,sep = "", collapse = ""))
+      system2(paste("dnadiff -p ",basename(i)," ",ref," ",i, sep = "", collapse = ""))
+      system2(paste("mv ",basename(i),".* ",folderName,sep = "", collapse = ""))
 
   }
 
@@ -59,7 +69,7 @@ mummer_snps <- function(file_list,ref,type)
 
 
   snps_table = tibble()
-  for(i in 1:nrow(snps_siles))
+  for(i in 1:nrow(vcf_list))
   {
     if(file.size(vcf_list$files[i]) !=0)
     {
@@ -85,4 +95,5 @@ mummer_snps <- function(file_list,ref,type)
 
   }
 
+  return(snps_matrix)
 }

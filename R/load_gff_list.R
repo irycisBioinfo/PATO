@@ -25,14 +25,23 @@
 #' @import foreach
 #' @import doParallel
 #'
-load_gff_list <- function(input_files)
+load_gff_list <- function(input_files, n_cores)
 {
+
+  if(missing(n_cores)){
+
+    n_cores = detectCores()-1
+  }
+
+  cl <- makeCluster(n_cores)
+  registerDoParallel(cl)
+
   input_files <- as_tibble(input_files) %>% rename(File = 1)
   folderName <- paste(getwd(),"/",md5(paste(input_files$File, sep = "",collapse = "")),"_gffList",sep = "",collapse = "")
 
-  if(file.exists(paste(folderName,"/.gffObject.Rdata", sep = "", collapse = "")))
+  if(file.exists(paste(folderName,"/gffObject.Rdata", sep = "", collapse = "")))
   {
-    return(load(paste(folderName,"/.gffObject.Rdata", sep = "", collapse = "")))
+    return(readRDS(paste(folderName,"/gffObject.Rdata", sep = "", collapse = "")))
   }
 
   if(!dir.exists(folderName))
@@ -67,11 +76,13 @@ load_gff_list <- function(input_files)
     writeFasta(ffn_faa , paste(folderName,"/faa/",pathName,".faa",sep = "",collapse = "")) ## Write the faa file
   }
 
+
   on.exit(file.remove(list.files(pattern = "gffTMP")))
+  on.exit(stopCluster(cl), add = T)
 
   results <-  list(path = folderName, files = input_files)
   class(results) <- append(class(results),"gff_list")
-  save(results,file = paste(folderName,"/.gffObject.Rdata",sep = "",collapse = ""))
+  saveRDS(results,file = paste(folderName,"/gffObject.Rdata",sep = "",collapse = ""))
   return(results)
 
 }

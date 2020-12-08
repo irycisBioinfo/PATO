@@ -4,7 +4,7 @@
 \alias{load_gff_list}
 \title{Load GFF3 file list}
 \usage{
-load_gff_list(input_files)
+load_gff_list(input_files, n_cores)
 }
 \arguments{
 \item{file}{}
