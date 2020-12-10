@@ -20,9 +20,8 @@ maf_to_data.frame <- function(file)
     mutate(srcSize = as.numeric(srcSize)) %>%
     mutate(end = start+size)
 
-  for(i in 1:nrow(coords))
-  {
-    tmp = bind_rows(tmp, data.frame(pos = seq(coords$start[i]:coords$end[i]), contig = coords$src[i]))
-  }
-  return(tmp)
+  output = gsub(".maf",".bed",file)
+
+  write.table(file = output,x = coords %>% select(src,start,end), col.names = F, row.names = F, quote = F, sep = "\t")
+
 }

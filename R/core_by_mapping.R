@@ -67,7 +67,7 @@ core_by_mapping <- function(file_list, n_core, ref, type)
 
   foreach (i = file_list$File) %dopar%{
 
-    system(paste(gsaPath," -i ",folderName,"/reference.bwt -q ",i," -o ",folderName,"/",basename(i),".output"," -t 2", sep = "", collapse = ""),ignore.stdout = T, ignore.stderr = T)
+    system(paste(gsaPath," -one -i ",folderName,"/reference.bwt -q ",i," -o ",folderName,"/",basename(i),".output"," -t 2", sep = "", collapse = ""),ignore.stdout = T, ignore.stderr = T)
 
   }
   stopCluster(cl)
@@ -76,15 +76,14 @@ core_by_mapping <- function(file_list, n_core, ref, type)
 
   mafs <- dir(folderName, pattern = ".maf", full.names = T)
 
-  ref <- maf_to_data.frame(mafs[1])
 
-  for(i in 2:length(mafs))
+
+  for(i in 1:length(mafs))
   {
-    print(mafs[i])
-    query <- maf_to_data.frame(mafs[i])
-
-    ref <- semi_join(ref,query)
+    maf_to_data.frame(mafs[i])
   }
-
-  return(ref)
+  beds = gsub(".maf",".bed",mafs)
+  system(paste("bedtools intersect -a ",beds[1]," -b ",paste(beds[-1],sep = " ",collapse = " ")," >final.bed",sep = "",collapse = ""))
+  result = read.table("final.bed")
+  return(result)
 }
