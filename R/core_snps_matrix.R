@@ -17,23 +17,40 @@
 
 core_snps_matrix <- function(data, norm =T){
 
-  if(!is(data,"core_genome"))
+  if(is(data,"core_genome"))
   {
-    stop("data must be a core_genome object")
-  }
 
-  tmp = data$core_genome$Seq %>% unlist()
+    tmp <- data$core_genome$Seq %>% unlist()
 
-  res = stringdistmatrix(tmp, method="hamming") %>% as.matrix()
-  colnames(res)= gsub(">","",data$core_genome$Genomes)
-  rownames(res)= gsub(">","",data$core_genome$Genomes)
+    res<- stringdistmatrix(tmp, method="hamming") %>% as.matrix()
+    colnames(res)<- gsub(">","",data$core_genome$Genomes)
+    rownames(res) <- gsub(">","",data$core_genome$Genomes)
 
-  if(norm)
+    if(norm)
+    {
+      res <- res / (nchar(data$core_genome$Seq[[1]])/1e6)
+      return(res)
+    }else{
+      return(res)
+    }
+  }else if(is(data,"core_snp_genome"))
   {
-    res <- res / (nchar(data$core_genome$Seq[[1]])/1e6)
-    return(res)
+    res <- stringdistmatrix(data$alignment$Seq, method="hamming") %>% as.matrix()
+    colnames(res) <- data$alignment$Genomes
+    rownames(res) <- data$alignment$Genomes
+
+    if(norm)
+    {
+      align_length <- data$bed %>% mutate(length = END-START)
+      align_length = sum(align_length$length)
+
+      res <- res/(align_length/1e6)
+      return(res)
+    }else{
+      return(res)
+    }
   }else{
-    return(res)
+    stop("Error. data must be a core_genome or core_snp_genome object")
   }
 
 }
