@@ -15,12 +15,22 @@
 #'
 
 
-core_snps_matrix <- function(data, norm =T){
+core_snps_matrix <- function(data, norm =T, rm.gaps = F){
 
   if(is(data,"core_genome"))
   {
 
     tmp <- data$core_genome$Seq %>% unlist()
+
+    if(rm.gaps)
+    {
+      cmat <- str_split(tmp, pattern = "", simplify = T)
+      gap.frac <- colSums(cmat == "-")
+
+      idx.keep <- gap.frac==0
+
+      tmp <- apply(cmat[,idx.keep], 1, paste, collapse="")
+    }
 
     res<- stringdistmatrix(tmp, method="hamming") %>% as.matrix()
     colnames(res)<- gsub(">","",data$core_genome$Genomes)

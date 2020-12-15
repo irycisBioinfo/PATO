@@ -4,7 +4,7 @@
 \alias{core_snps_matrix}
 \title{Core SNPs matrix}
 \usage{
-core_snps_matrix(data, norm = T)
+core_snps_matrix(data, norm = T, rm.gaps = F)
 }
 \arguments{
 \item{data}{A core_genome object.}
