@@ -95,7 +95,8 @@ core_snp_genome <- function(file_list, n_cores, ref, type)
 
 
     system(paste(minimap2," -cx asm20 -t 2 --cs ref.mmi ",i," > ",folderName,"/",basename(i),".paf",collapse = "", sep = ""), ignore.stderr = T)
-    system(paste(k8," ",paftools," call ",folderName,"/",basename(i),".paf"," > ",folderName,"/",basename(i),".vcf",collapse = "",sep = ""),ignore.stderr = T)
+    system(paste("sort -k6,6 -k8,8n ",folderName,"/",basename(i),".paf > asm.srt.paf", sep = "", collapse = ""),ignore.stderr = T)
+    system(paste(k8," ",paftools," call asm.srt.paf > ",folderName,"/",basename(i),".vcf",collapse = "",sep = ""),ignore.stderr = T)
     system(paste(k8," ",paftools," splice2bed ",folderName,"/",basename(i),".paf"," > ",folderName,"/",basename(i),".bed",collapse = "",sep = ""),ignore.stderr = T)
   }
   stopCluster(cl)

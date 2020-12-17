@@ -10,6 +10,8 @@ core_snps_matrix(data, norm = T, rm.gaps = F)
 \item{data}{A core_genome object.}
 
 \item{norm}{Number of SNPs normalize by the length of the alingment?}
+
+\item{rm.gaps}{remove gaps from the alignment?}
 }
 \value{
 A square matrix

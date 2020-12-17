@@ -4,6 +4,7 @@
 #'
 #' @param data A core_genome object.
 #' @param norm Number of SNPs normalize by the length of the alingment?
+#' @param rm.gaps remove gaps from the alignment?
 #'
 #' @return A square matrix
 #' @export

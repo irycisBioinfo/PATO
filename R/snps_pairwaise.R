@@ -36,6 +36,16 @@ snps_pairwaise <- function(file_list,type,n_cores)
     file_list <- file_list %>% as_tibble() %>% rename(File = 1)
   }
 
+  folderName = paste(getwd(),"/",md5(paste(file_list$File, sep = "",collapse = "")),"_spw",sep = "",collapse = "")
+
+  if(!dir.exists(folderName))
+  {
+    dir.create(folderName)
+  }else{
+    system(paste("rm -r ",folderName))
+    dir.create(folderName)
+  }
+
   if(missing(n_cores))
   {
     n_cores = detectCores()-1
@@ -43,36 +53,20 @@ snps_pairwaise <- function(file_list,type,n_cores)
 
   cl <- makeCluster(n_cores)
   registerDoParallel(cl)
-
-
-  results <- foreach (i = file_list$File, .combine = "rbind", .packages = "stringr") %:%
-    foreach(j = file_list$file, .combine = "rbind",.packages = "stringr") %do%{
-
-
-
-      print(paste("dnadiff -p ",basename(i),"_",basename(j)," ",i," ",j, sep = "", collapse = ""))
-      system(paste("dnadiff -p ",basename(i),"_",basename(j)," ",i," ",j, sep = "", collapse = ""))
-
-      report = readLines(paste(basename(i),"_",basename(j),".report",sep = "", collapse = ""))
-
-      totalSNPs = str_split(grep("TotalSNPs",report, value = TRUE),pattern = "\\s+")[[1]][2]
-      totalGSNPs = str_split(grep("TotalGSNPs",report, value = TRUE),pattern = "\\s+")[[1]][2]
-      AlignmentLength = str_split(report[17],pattern = "\\s+")[[1]][2]
-
-      system(paste("rm ",basename(i),"_",basename(j),".*",sep = "", collapse = ""))
-      results = c(Source =basename(i),
-                  Target = basename(j),
-                  totalSNPs = as.numeric(totalSNPs),
-                  totalGSNPs= as.numeric(totalGSNPs),
-                  AlignmentLength = as.numeric(AlignmentLength))
-  }
-
   on.exit(stopCluster(cl))
 
-  results %>%
-    as_tibble() %>%
-    mutate(totalSNPs = as.numeric(totalSNPs)) %>%
-    mutate(totalGSNPs = as.numeric(totalGSNPs)) %>%
-    mutate(AlignmentLength = as.numeric(AlignmentLength)) %>% return()
+  print("Aligning genomes")
+  foreach (i = file_list$File) %dopar%{
+
+    for(j in 1:nrow(file_list))
+    {
+      system(paste(minimap2," -cx asm20 -t 2 --cs ",i," ",file_list$File[j]," > ",folderName,"/",basename(i)"_",basename(file_list$File[j]),".paf",collapse = "", sep = ""), ignore.stderr = T)
+      system(paste("sort -k6,6 -k8,8n ",folderName,"/",basename(i),".paf > asm.srt.paf", sep = "", collapse = ""),ignore.stderr = T)
+      system(paste(k8," ",paftools," call asm.srt.paf > ",folderName,"/",basename(i),".vcf",collapse = "",sep = ""),ignore.stderr = T)
+      system(paste(k8," ",paftools," splice2bed ",folderName,"/",basename(i),".paf"," > ",folderName,"/",basename(i),".bed",collapse = "",sep = ""),ignore.stderr = T)
+    }
+  }
+
+
 }
 
