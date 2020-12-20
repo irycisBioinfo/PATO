@@ -140,6 +140,8 @@ core_snp_genome <- function(file_list, n_cores, ref, type)
   colnames(vcf_table) <- c("type","CHROM","POS","end","query_depth","mapping_quality","REF","ALT","query_name","query_start","query_end","query_orientation","Sample")
   vcf_table <- vcf_table %>% as_tibble()
 
+  vcf_table$POS <- as.numeric(vcf_table$POS)
+  positions$POS <- as.numeric(positions$POS)
 
   result <- semi_join(vcf_table,positions)
   result <- result %>%
@@ -165,7 +167,7 @@ core_snp_genome <- function(file_list, n_cores, ref, type)
   result = result %>% ungroup() %>% select(-CHROM, -POS) %>% t() %>% as.data.frame() %>% rownames_to_column("Genomes") %>% unite(Seq,-Genomes,sep = "")
     result$Genomes = gsub(".vcf","",result$Genomes)
 
-  output <- list(alignment = result,vcf= vcf_table,bed = bed,path = folderName)
+  output <- list(alignment = result,vcf= vcf_table,bed = bed,path = folderName, reference = ref)
   class(output) <-  append(class(output),"core_snp_genome" )
   return(output)
 

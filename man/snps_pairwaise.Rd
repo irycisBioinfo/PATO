@@ -4,10 +4,17 @@
 \alias{snps_pairwaise}
 \title{Direct SNPs pairwaise.}
 \usage{
-snps_pairwaise(file_list, type, n_cores)
+snps_pairwaise(file_list, type, n_cores, norm = T)
 }
 \arguments{
-\item{n_cores}{}
+\item{file_list}{Data frame with the full path to the nucleotide genome files (gene or genomes) or a \emph{gff_list} object.}
+
+\item{type}{Just for \emph{gff_list} objects. You must especified if you want to use whole genome sequences "wgs" or genes "nucl"}
+
+\item{n_cores}{Number of cores to use.}
+
+\item{norm}{The output is normalized by the length of the alignment. If \emph{norm} is TRUE then the output in "SNPs per Megabase".
+If \emph{norm} is FALSE then thr output is the raw number of SNPs.}
 }
 \value{
 
@@ -15,7 +22,8 @@ snps_pairwaise(file_list, type, n_cores)
 \description{
 This function calculates All-vs-All SNPs number. At different of \emph{core_snps_matrix} this function
 calculates the raw number of SNPs among each pair of sequences avoiding the bias of the core genome size and/or
-any reference.
+reference.
+However, this function is an \emph{O(N²)} so can be very slow for large datasets.
 }
 \examples{
 
