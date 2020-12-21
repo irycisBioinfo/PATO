@@ -1,0 +1,91 @@
+---
+title: "PATO: Pangenome Analysis Toolkit"
+author: "Val F. Lanza"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+![](./logo.png){width=100%}
+
+#Introduction
+
+#Installation
+
+
+## Linux/Unix
+
+PATO uses external binaries so it can not be included in CRAN repository. To install PATO use \emph{devtools} package
+
+Some times some dependencies require system packages as *libcurl* *libssl* or *libxml2* (this example is for Ubuntu/Debian based systems):
+
+```{bash eval=FALSE, include =TRUE}
+sudo apt install libcurl4-openssl-dev libssl-dev libxml2-dev libmagick++-dev libv8-dev 
+```
+
+To install \emph{devtool} type:
+
+```{r eval=FALSE, include=TRUE}
+install.packages("devtools")
+```
+ 
+Once you have installed \emph{devtools} you should activated Bioconductor repository 
+
+```{r eval=FALSE, include=TRUE}
+setRepositories()
+## Select options 1 (CRAN) and 2 (Bioconductor Software)
+```
+
+
+Now you can install PATO from GitHub.
+
+```{r eval=FALSE, include=TRUE}
+devtools::install_github("https://github.com/irycisBioinfo/PATO.git", build_vignettes = TRUE)
+```
+
+## MacOS
+
+In MacOS systems you should install first \emph{devtools} package
+
+
+```{r eval=FALSE, include=TRUE}
+install.packages("devtools")
+```
+ 
+Once you have installed \emph{devtools} you should activated Bioconductor repository 
+
+```{r eval=FALSE, include=TRUE}
+setRepositories()
+## Select options 1 (CRAN) and 2 (Bioconductor Software)
+```
+
+
+Now you can install PATO from GitHub.
+
+```{r eval=FALSE, include=TRUE}
+devtools::install_github("https://github.com/irycisBioinfo/PATO.git", build_vignettes = TRUE)
+```
+
+
+#Main Functions
+
+#Quality Control
+
+#Examples
+
+## Outbreak / Transmission / Description
+
+## Population Structure / Pangenome Description
+
+## Pangenomes Analysis
+
