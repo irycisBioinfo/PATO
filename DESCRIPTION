@@ -41,7 +41,7 @@ Imports:
  stringr (>= 1.4.0),
  stringdist (>= 0.9.6),
  openssl (>= 1.4.3),
- Biostrings (>= 2.54.0),
+ Biostrings (>= 2.52.0),
  microseq (>= 2.1.2)
 Suggests:
     pheatmap (>= 1.0.12),
