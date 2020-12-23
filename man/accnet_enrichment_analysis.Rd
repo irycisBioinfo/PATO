@@ -38,7 +38,7 @@ Return a data.frame with the columns:
 \description{
 Perform a statistical test (Hypergeometric test: \code{phyper}) of the genes/proteins.
 It takes the cluster definition from the \code{cluster} table and compute
-the statistical test asuming the frequency of the gene/protein in the cluster vs
+the statistical test assuming the frequency of the gene/protein in the cluster vs
 the frequency of the gene/protein in the population.
 }
 \seealso{
