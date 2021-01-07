@@ -24,10 +24,10 @@ export_accnet_aln <- function(accnet,file, min_freq =3)
   {
     acc_bin <- accnet$list %>%
       filter(degree >= min_freq) %>%
-      mutate(value =1) %>%
+      mutate(value ="A") %>%
       select(Source,Target,value) %>%
       distinct() %>%
-      spread(Target,value, fill = 0) %>%
+      spread(Target,value, fill = "C") %>%
       unite(Seq, -Source, sep = "")
 
 

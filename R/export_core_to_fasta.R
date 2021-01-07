@@ -9,6 +9,11 @@
 export_core_to_fasta <- function(core_data,file)
 {
 
+  if(file.exists(file))
+  {
+    file.remove(file)
+  }
+
   if(is(core_data,"core_genome"))
   {
     for(i in 1:length(core_data$core_genome$Genomes))

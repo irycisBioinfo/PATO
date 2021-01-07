@@ -23,6 +23,8 @@
 #' @param ref Reference genome (if missing, one is selected randomly)
 #' @param type Just for \emph{gff_list} objects. You must especified if you want to use whole genome sequences "wgs" or genes "nucl"
 #'
+#' @references Li, H. (2018). Minimap2: pairwise alignment for nucleotide sequences. Bioinformatics, 34:3094-3100. doi:10.1093/bioinformatics/bty191
+#'
 #' @return core_snp_genome object
 #' @export
 #'
@@ -31,14 +33,17 @@ core_snp_genome <- function(file_list, n_cores, ref, type)
 {
   if(grepl('linux',Sys.getenv("R_PLATFORM"))) ## Linux
   {
-    minimap2 = system.file("minimap2",package = "pato")
-    k8 = system.file("k8",package = "pato")
-    paftools = system.file("paftools.js", package="pato")
+    minimap2 <- system.file("minimap2",package = "pato")
+    k8 <- system.file("k8",package = "pato")
+    paftools <- system.file("paftools.js", package="pato")
+    bedtools <- system.file("bedtools", package="pato")
 
   }else if(grepl('apple',Sys.getenv("R_PLATFORM"))){ ##MacOS
-    minimap2 = system.file("minimap2",package = "pato")
-    k8 = system.file("k8",package = "pato")
-    paftools = system.file("paftools.js", package="pato")
+    minimap2 <- system.file("minimap2",package = "pato")
+    k8 <- system.file("k8",package = "pato")
+    paftools <- system.file("paftools.js", package="pato")
+    bedtools <- system.file("bedtools", package="pato")
+
   }else{
     stop("Error, OS not supported.")
   }
@@ -89,15 +94,16 @@ core_snp_genome <- function(file_list, n_cores, ref, type)
 
   print("Indexing reference genome")
   system(paste(minimap2," -d ref.mmi ",ref, sep = "", collapse = ""))
+  file.copy(from = ref,to = paste0(folderName,"/reference.fasta"))
 
   print("Aligning genomes")
   foreach (i = file_list$File) %dopar%{
 
-
-    system(paste(minimap2," -cx asm20 -t 2 --cs ref.mmi ",i," > ",folderName,"/",basename(i),".paf",collapse = "", sep = ""), ignore.stderr = T)
-    system(paste("sort -k6,6 -k8,8n ",folderName,"/",basename(i),".paf > asm.srt.paf", sep = "", collapse = ""),ignore.stderr = T)
-    system(paste(k8," ",paftools," call asm.srt.paf > ",folderName,"/",basename(i),".vcf",collapse = "",sep = ""),ignore.stderr = T)
-    system(paste(k8," ",paftools," splice2bed ",folderName,"/",basename(i),".paf"," > ",folderName,"/",basename(i),".bed",collapse = "",sep = ""),ignore.stderr = T)
+    system(paste0(minimap2," -cx asm20 -t 2 --cs=long ref.mmi ",i," > ",folderName,"/",basename(i),".paf"), ignore.stderr = T)
+    system(paste0("sort -k6,6 -k8,8n ",folderName,"/",basename(i),".paf > ",folderName,"/",basename(i),".tmp.paf"),ignore.stderr = T)
+    system(paste0(k8," ",paftools," call ",folderName,"/",basename(i),".tmp.paf > ",folderName,"/",basename(i),".vcf"),ignore.stderr = T)
+    system(paste0(k8," ",paftools," splice2bed ",folderName,"/",basename(i),".paf"," > ",folderName,"/",basename(i),".tmp"),ignore.stderr = T)
+    system(paste0(bedtools," sort -i ",folderName,"/",basename(i),".tmp > ",folderName,"/",basename(i),".bed"))
   }
   stopCluster(cl)
 
@@ -105,6 +111,7 @@ core_snp_genome <- function(file_list, n_cores, ref, type)
 
   vcfs <- dir(folderName, pattern = ".vcf", full.names = T)
   beds <- dir(folderName, pattern = ".bed", full.names = T)
+
 
   system(
      paste(
@@ -118,7 +125,7 @@ core_snp_genome <- function(file_list, n_cores, ref, type)
      )
    )
   print("Reading Bed Files")
-   bed <- read.table("final.bed")
+   bed <- read.table("final.bed", stringsAsFactors = F)
    colnames(bed) <- c("CHROM","START","END")
 
 
@@ -133,7 +140,7 @@ core_snp_genome <- function(file_list, n_cores, ref, type)
   vcf_table <- data.frame()
   for(i in 1:length(vcfs))
   {
-    tmp <- fread(sep = "\t",header = F, stringsAsFactors = F,cmd = paste("grep 'V' ",vcfs[i], sep = "",collapse = ))
+    tmp <- fread(sep = "\t",header = F, stringsAsFactors = F,cmd = paste("grep '^V' ",vcfs[i], sep = "",collapse ="" ))
     tmp$sample <- basename(vcfs[i])
     vcf_table <- bind_rows(vcf_table,tmp)
   }
@@ -164,10 +171,16 @@ core_snp_genome <- function(file_list, n_cores, ref, type)
   }
   RefName = basename(ref)
   colnames(result) = gsub("REF",RefName,colnames(result))
-  result = result %>% ungroup() %>% select(-CHROM, -POS) %>% t() %>% as.data.frame() %>% rownames_to_column("Genomes") %>% unite(Seq,-Genomes,sep = "")
+  result = result %>%
+    ungroup() %>%
+    select(-CHROM, -POS) %>%
+    t() %>%
+    as.data.frame() %>%
+    rownames_to_column("Genomes") %>%
+    unite(Seq,-Genomes,sep = "")
     result$Genomes = gsub(".vcf","",result$Genomes)
 
-  output <- list(alignment = result,vcf= vcf_table,bed = bed,path = folderName, reference = ref)
+  output <- list(alignment = result,bed = bed,path = folderName, reference = ref)
   class(output) <-  append(class(output),"core_snp_genome" )
   return(output)
 
