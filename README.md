@@ -11,7 +11,8 @@ intra or inter species. It allows to analyze the core-genome, accessory
 genome and whole genome, the population structure, and the horizontal 
 gene transfer dynamics. PATO uses, as core software, 
 [MASH](https://mash.readthedocs.io/en/latest/) , 
-[MMSeq2](https://github.com/soedinglab/MMseqs2) and R.
+[MMSeq2](https://github.com/soedinglab/MMseqs2),
+[Minimap2](https://github.com/lh3/minimap2)and R.
 
 These software can handle thousands of genomes using conventional computers      
 without the necessity to use on a HPC facilities. PATO can analyze data 
@@ -20,6 +21,7 @@ Most of the functions can handle both objets. Some functions are specific
 for some kind of data. The primitive objet *mmseq* is a orthologous clustering that
 is used to build accnet object, annotate the genomes and characterize 
 the core-, accessory- and pan-genome size (and dynamic).
+
 <img src="https://github.com/irycisBioinfo/PATO/blob/master/vignettes/diagram.png" width="100%">
 
 ## Installation
@@ -70,7 +72,9 @@ It could take a while because PATO has the following dependencies:
  manipulateWidget (>= 0.10.0),
  stringr (>= 1.4.0),
  stringdist (>= 0.9.6),
- openssl (>= 1.4.3)
+ openssl (>= 1.4.3),
+ Biostrings (>= 2.52.0),
+ microseq (>= 2.1.2)
 ```
 
 
