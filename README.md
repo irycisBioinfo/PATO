@@ -77,4 +77,7 @@ It could take a while because PATO has the following dependencies:
  microseq (>= 2.1.2)
 ```
 
+# Documentation
+You can find the documentation in the [wiki](https://github.com/irycisBioinfo/PATO/wiki) area
+
 
