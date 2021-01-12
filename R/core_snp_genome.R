@@ -99,10 +99,10 @@ core_snp_genome <- function(file_list, n_cores, ref, type)
   print("Aligning genomes")
   foreach (i = file_list$File) %dopar%{
 
-    system(paste0(minimap2," -cx asm20 -t 2 --cs=long ref.mmi ",i," > ",folderName,"/",basename(i),".paf"), ignore.stderr = T)
-    system(paste0("sort -k6,6 -k8,8n ",folderName,"/",basename(i),".paf > ",folderName,"/",basename(i),".tmp.paf"),ignore.stderr = T)
-    system(paste0(k8," ",paftools," call ",folderName,"/",basename(i),".tmp.paf > ",folderName,"/",basename(i),".vcf"),ignore.stderr = T)
-    system(paste0(k8," ",paftools," splice2bed ",folderName,"/",basename(i),".paf"," > ",folderName,"/",basename(i),".tmp"),ignore.stderr = T)
+    system(paste(minimap2," -cx asm20 -t 2 --cs=long ref.mmi ",i," > ",folderName,"/",basename(i),".paf",collapse = "", sep = ""), ignore.stderr = T)
+    system(paste("sort -k6,6 -k8,8n ",folderName,"/",basename(i),".paf > ",folderName,"/",basename(i),".tmp.paf", sep = "", collapse = ""),ignore.stderr = T)
+    system(paste0(k8," ",paftools," call -L 100 ",folderName,"/",basename(i),".tmp.paf > ",folderName,"/",basename(i),".vcf",collapse = "",sep = ""),ignore.stderr = T)
+    system(paste(k8," ",paftools," splice2bed ",folderName,"/",basename(i),".paf"," > ",folderName,"/",basename(i),".tmp",collapse = "",sep = ""),ignore.stderr = T)
     system(paste0(bedtools," sort -i ",folderName,"/",basename(i),".tmp > ",folderName,"/",basename(i),".bed"))
   }
   stopCluster(cl)
