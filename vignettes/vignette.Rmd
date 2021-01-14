@@ -1,8 +1,11 @@
 ---
-title: "PATO: Pangenome Analysis Toolkit"
+title: 'PATO: Pangenome Analysis Toolkit'
 author: "Val F. Lanza"
 date: "`r Sys.Date()`"
 output:
+  pdf_document:
+    toc: yes
+  github_document: null
   html_document:
     number_section: no
     theme: simplex
@@ -10,11 +13,8 @@ output:
     toc_float:
       collapsed: yes
       smooth_scroll: no
-  github_document:
-vignette: >
-  %\VignetteIndexEntry{PATO: Pangenome Analysis Toolkit}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+vignette: |
+  %\VignetteIndexEntry{PATO: Pangenome Analysis Toolkit} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include = FALSE}
@@ -33,13 +33,13 @@ species. It allows to analyze the core-genome, accessory genome and whole genome
 the population structure, and the horizontal gene transfer dynamics. PATO uses, 
 as core software, [MASH](https://mash.readthedocs.io/en/latest/), [MMSeq2](https://github.com/soedinglab/MMseqs2), [Minimap2](https://github.com/lh3/minimap2) and R.
 
-These software can handle thousands of genomes using conventional computers without 
-the necessity to use on a HPC facilities. We have designed PATO to work with 
-most common files such us GFF (General Feature Format), FNA (FASTA Nucleotide )
-, FFN (FASTA Feature Nucleotide) or FAA (FASTA Aminoacid). PATO is able to 
-perform the common genomic analysis of phylogenetic, annotation or population 
-structure. Moreover, PATO implements some functions of quality control and 
-dataset manipulation.
+These software can handle thousands of genomes using conventional computers 
+without the necessity to use on a HPC facilities. We have designed PATO to work 
+with most common files such us GFF (General Feature Format), FNA (FASTA 
+Nucleotide ), FFN (FASTA Feature Nucleotide) or FAA (FASTA Aminoacid). PATO is 
+able to perform the common genomic analysis of phylogenetic, annotation or 
+population structure. Moreover, PATO implements some functions of quality 
+control and dataset manipulation.
 
 PATO uses S3 class objects to exchange information among functions in order to 
 
@@ -56,7 +56,8 @@ Some times some dependencies require system packages as *libcurl* *libssl* or
 *libxml2* (this example is for Ubuntu/Debian based systems):
 
 ```{bash eval=FALSE, include =TRUE}
-sudo apt install libcurl4-openssl-dev libssl-dev libxml2-dev libmagick++-dev libv8-dev 
+sudo apt install libcurl4-openssl-dev libssl-dev 
+ >libxml2-dev libmagick++-dev libv8-dev 
 ```
 
 To install \emph{devtool} type:
@@ -65,7 +66,8 @@ To install \emph{devtool} type:
 install.packages("devtools")
 ```
  
-Once you have installed \emph{devtools} you should activated Bioconductor repository 
+Once you have installed \emph{devtools} you should activated Bioconductor
+repository 
 
 ```{r eval=FALSE, include=TRUE}
 setRepositories(ind = c(1,2))
@@ -76,7 +78,8 @@ setRepositories(ind = c(1,2))
 Now you can install PATO from GitHub.
 
 ```{r eval=FALSE, include=TRUE}
-devtools::install_github("https://github.com/irycisBioinfo/PATO.git", build_vignettes = TRUE)
+devtools::install_github("https://github.com/irycisBioinfo/PATO.git", 
+                         build_vignettes = TRUE)
 ```
 
 ## MacOS
@@ -88,7 +91,8 @@ In MacOS systems you should install first \emph{devtools} package
 install.packages("devtools")
 ```
  
-Once you have installed \emph{devtools} you should activated Bioconductor repository 
+Once you have installed \emph{devtools} you should activated Bioconductor 
+repository 
 
 ```{r eval=FALSE, include=TRUE}
 setRepositories(ind = c(1,2))
@@ -99,7 +103,8 @@ setRepositories(ind = c(1,2))
 Now you can install PATO from GitHub.
 
 ```{r eval=FALSE, include=TRUE}
-devtools::install_github("https://github.com/irycisBioinfo/PATO.git", build_vignettes = TRUE)
+devtools::install_github("https://github.com/irycisBioinfo/PATO.git", 
+                         build_vignettes = TRUE)
 ```
 
 
@@ -196,7 +201,8 @@ for its cluster. Finally, `cluster` has the membership of the `Source` genome.
 
 A `gff_list` is an object that store the results of `load_gff_list()` output. 
 It store the path to the GFF, FNA, FFN and FAA files. A `gff_list` object can 
-be used as input for `classifier`, `mash`, `mmseq`, `core_snp_genome` and `snps_pairwaise`.
+be used as input for `classifier`, `mash`, `mmseq`, `core_snp_genome` and 
+`snps_pairwaise`.
 
 ### `core_genome` and `core_snps_genome`
 
@@ -242,12 +248,12 @@ gffs <- load_gff_list(gff_files)
 
 `mash()` functions is a wrapper of [Mash](https://github.com/marbl/Mash)
 
-Mash is a method for "Fast genome and metagenome distance estimation using MinHash"(). 
-MASH accept nucleotide or aminoacid fasta files and estimated a similarity distance. 
-To extend the information we recommend to read the main paper *Mash: fast genome 
-and metagenome distance estimation using MinHash. Ondov BD, Treangen TJ, Melsted 
-P, Mallonee AB, Bergman NH, Koren S, Phillippy AM. Genome Biol. 2016 Jun 20;17(1)
-:132. doi: 10.1186/s13059-016-0997-x*
+Mash is a method for "Fast genome and metagenome distance estimation using 
+MinHash"(). MASH accept nucleotide or aminoacid fasta files and estimated a 
+similarity distance. To extend the information we recommend to read the main 
+paper *Mash: fast genome and metagenome distance estimation using MinHash. 
+Ondov BD, Treangen TJ, Melsted P, Mallonee AB, Bergman NH, Koren S, Phillippy 
+AM. Genome Biol. 2016 Jun 20;17(1):132. doi: 10.1186/s13059-016-0997-x*
 
 To create a `mash` object you need to supplie a list (a vector indeed) of files 
 or a `gff_list` object. By default `mash` use Amino Acids fasta files but you 
@@ -265,7 +271,8 @@ my_mash <- mash(my_list, n_cores = 20, sketch = 1000, kmer = 21, type = "prot")
 
 #### `mmseqs()`
 
-`mmseqs()` is a wrapper of [MMSeqs2](https://github.com/soedinglab/MMseqs2) software.
+`mmseqs()` is a wrapper of [MMSeqs2](https://github.com/soedinglab/MMseqs2) 
+software.
 
 Creators of MMSeqs define their software as:
   
@@ -291,7 +298,8 @@ You can change default parameter as `coverage`, `identity` or `evalue` among
 protein families and orthologous). These parameters are `cov_mode` and 
 `cluster_mode`.
 ```{r eval=FALSE}
-my_mmseq <- mmseqs(my_list, coverage = 0.8, identity = 0.8, evalue = 1e-6, n_cores = 20, cov_mode = 0, cluster_mode = 0)
+my_mmseq <- mmseqs(my_list, coverage = 0.8, identity = 0.8, evalue = 1e-6, 
+                   n_cores = 20, cov_mode = 0, cluster_mode = 0)
 
 ```
 
@@ -379,51 +387,59 @@ my_accnet <- mmseqs(my_files) %>% accnet(threshold = 0.8)
 
 #### `pangenomes_from_files()`
 
-This function perform a clustering using a designated maximun distance among samples and creates
-a set of pangenomes using it. Pan-genomes can be filtered by genome frequency (i.e. the number of
-genomes that belong to the pangenome). pangenomes_from_files() builds a new accnet object that
-relates the pangenome with the genes/proteins. The user can filter the proteins that are included by
+This function perform a clustering using a designated maximun distance among 
+samples and creates a set of pangenomes using it. Pan-genomes can be filtered 
+by genome frequency (i.e. the number of genomes that belong to the pangenome). 
+pangenomes_from_files() builds a new accnet object that relates the pangenome 
+with the genes/proteins. The user can filter the proteins that are included by
 the presence frequency in the set.
 
-This functions has been designed to work with large datasets (>5.000 genomes). It performs a tailored
-pipeline to produce an `accnet` object but in a faster way.
+This functions has been designed to work with large datasets (>5.000 genomes). 
+It performs a tailored pipeline to produce an `accnet` object but in a faster 
+way.
 
 ####  `pangenomes_from_mmseqs()`
 
-Creates clusters of genomes (pan-genome) using a list of pre-defined clusters. The list of cluster can
-be from external source (e.g. mlst or BAPS) or from an internal function (e.g clustering function).
-Moreover, pan-genomes can be filtered by genome frequency (i.e. the number of genomes that
-belong to the pangenome). `pangenomes_from_mmseqs()` builds a new accnet object that relates the pangenome with
-the genes/proteins. The user can filter the proteins that are included by the presence frequency.
-We do not recommend to use in datasets largers than 5.000 genomes.
+Creates clusters of genomes (pan-genome) using a list of pre-defined clusters. 
+The list of cluster can be from external source (e.g. mlst or BAPS) or from an 
+internal function (e.g clustering function). Moreover, pan-genomes can be 
+filtered by genome frequency (i.e. the number of genomes that belong to the 
+pangenome). `pangenomes_from_mmseqs()` builds a new accnet object that relates 
+the pangenome with the genes/proteins. The user can filter the proteins that are
+included by the presence frequency. We do not recommend to use in datasets 
+largers than 5.000 genomes.
 
 
 #### `core_genome()`
 
-Find and creates a core-genome alignment. Unlike core_plots() this function find the hard 
-coregenome (genes presence in 100% of genomes and without repetitions). The function takes 
-a `mmseqs()` output, so the deffinition of the paralogous genes of the core-genome 
-(similarity, coverage and/or e-value) depends on the `mmseqs()` parameters.
+Find and creates a core-genome alignment. Unlike core_plots() this function find
+the hard coregenome (genes presence in 100% of genomes and without repetitions). 
+The function takes a `mmseqs()` output, so the deffinition of the paralogous 
+genes of the core-genome (similarity, coverage and/or e-value) depends on the 
+`mmseqs()` parameters.
 
-The function perform a pseudo-msa per each paralog using the function `result2msa` of [mmseqs2](https://github.com/soedinglab/MMseqs2)
-in the proteins case and a mapping with blast (you need to have it installed and in the PATH).
-This approach is much faster than classical MSA (clutal, mafft or muscle) but is less accurate.
-Taking into account that most of the phylogenetic inference software only takes variant 
-columns with no insertions or deletion, there are not to many difference in the final 
-phylogenetic trees. `core_genome()` can build a core-genome alingment of thusands of 
-genomes in minutes (see Benchmarking section).
+The function perform a pseudo-msa per each paralog using the function 
+`result2msa` of [mmseqs2](https://github.com/soedinglab/MMseqs2) in the proteins
+case and a mapping with blast (you need to have it installed and in the PATH).
+This approach is much faster than classical MSA (clutal, mafft or muscle) but is
+less accurate. Taking into account that most of the phylogenetic inference 
+software only takes variant columns with no insertions or deletion, there are 
+not to many difference in the final phylogenetic trees. `core_genome()` can 
+build a core-genome alingment of thusands of genomes in minutes 
+(see Benchmarking section).
 
 #### `core_snp_genome()`
 
 This function find the core snp genome. Citing Torsten Seemann : 
 
 >If you call SNPs for multiple
-isolates from the same reference, you can produce an alignment of "core SNPs" which can be used
-to build a high-resolution phylogeny (ignoring possible recombination). A "core site" is a genomic
-position that is present in all the samples. A core site can have the same nucleotide in every sample
-("monomorphic") or some samples can be different ("polymorphic" or "variant"). If we ignore
-the complications of "ins", "del" variant types, and just use variant sites, these are the "core SNP
-genome".
+isolates from the same reference, you can produce an alignment of "core SNPs" 
+which can be used to build a high-resolution phylogeny (ignoring possible 
+recombination). A "core site" is a genomic position that is present in all the 
+samples. A core site can have the same nucleotide in every sample 
+("monomorphic") or some samples can be different ("polymorphic" or "variant"). 
+If we ignore the complications of "ins", "del" variant types, and just use 
+variant sites, these are the "core SNP genome".
 
 This function uses [minimap2](https://github.com/lh3/minimap2) to align all the 
 genomes to a reference genome. If reference genome is not specified then 
@@ -431,37 +447,42 @@ genomes to a reference genome. If reference genome is not specified then
 look for the conserved regions between all the genomes. Then, we call for the 
 variants using the tool provided with minimap2: [paftools](https://github.com/lh3/minimap2/blob/master/misc/README.md).
 
-Finally the SNPs are filtered by the common regions to produce the final core SNP genome.
+Finally the SNPs are filtered by the common regions to produce the final core 
+SNP genome.
 
 ### Analysis Functions
 
 #### `accnet_enrichment_analysis()`
 
-Perform a statistical test (Hypergeometric test: phyper) of the genes/proteins. It takes the cluster
-definition from the cluster table and compute the statistical test assuming the frequency of the
-gene/protein in the cluster vs the frequency of the gene/protein in the population.
+Perform a statistical test (Hypergeometric test: phyper) of the genes/proteins. 
+It takes the cluster definition from the cluster table and compute the 
+statistical test assuming the frequency of the gene/protein in the cluster vs 
+the frequency of the gene/protein in the population.
 
 #### `accnet_with_padj()`
 
-Creates and improved network using the adjusted p-value as edge-weight. The network could be
-export to gephi (export_to_gephi) for a correct visualitation
+Creates and improved network using the adjusted p-value as edge-weight. The 
+network could be export to gephi (export_to_gephi) for a correct visualitation
 
 #### `annotate()`
 
-This function annotate virulence factors and the antibiotic resitance genes of the genomes (files).
-The annotation is performed using mmseqs2 software and the databases [Virulence Factor DataBase](http://www.mgc.ac.cn/cgi-bin/VFs/v5/main.cgi)
-and [ResFinder](https://cge.cbs.dtu.dk/services/ResFinder/). The function can re-use the previous
-computational steps of `mmseqs` or create a new index database from the files. Re-use option shorten
-the computational time. This method use the algorithm *search* of mmseqs2 so it olny return high
-identity matchs.
+This function annotate virulence factors and the antibiotic resitance genes of 
+the genomes (files). The annotation is performed using mmseqs2 software and the 
+databases [Virulence Factor DataBase](http://www.mgc.ac.cn/cgi-bin/VFs/v5/main.cgi)
+and [ResFinder](https://cge.cbs.dtu.dk/services/ResFinder/). The function can 
+re-use the previous computational steps of `mmseqs` or create a new index 
+database from the files. Re-use option shorten the computational time. This 
+method use the algorithm *search* of mmseqs2 so it olny return high identity 
+matchs.
 
 #### `clustering()`
 
-This function cluster the genomes using mash data, accnet data or igraph data. The 
-object produced by accnet function, mash function and/or knnn data could be 
+This function cluster the genomes using mash data, accnet data or igraph data. 
+The object produced by accnet function, mash function and/or knnn data could be 
 clustered. accnet objects are clustered using jaccard distance from 
 presence/absence gene/proteins data. mash object uses the mash distances value 
-as similarity. igraph objects could be clustered using the methods availables in igraph.
+as similarity. igraph objects could be clustered using the methods availables in
+igraph.
 
 + for accnet objects:
 
@@ -469,45 +490,50 @@ as similarity. igraph objects could be clustered using the methods availables in
 could be combine with d_reduction. This method uses Mclust package. 
 It has been implemented to find the optimal cluster number
 
-  + upgma: It perform a Hierarchical Clustering using UPGMA algorithm. n_cluster must be provided
+  + upgma: It perform a Hierarchical Clustering using UPGMA algorithm. 
+  n_cluster must be provided
 
-  + ward.D2 It perform a Hierarchical Clustering using Ward algorithm. n_cluster must be provided
+  + ward.D2 It perform a Hierarchical Clustering using Ward algorithm. 
+  n_cluster must be provided
 
   + hdbscan: It perform a Density-based spatial clustering of applications
-with noise using DBSCAN package. It find the optimal number of
-cluster.
+  with noise using DBSCAN package. It find the optimal number of
+  cluster.
 
 + for mash objects:
 
   + mclust: It perform clustering using Gaussian Finite Mixture Models. It
-could be combine with d_reduction. This method uses Mclust pack-
-age. It has been implemented to find the optimal cluster number
+  could be combine with d_reduction. This method uses Mclust pack-
+  age. It has been implemented to find the optimal cluster number
 
   + upgma: It perform a Hierarchical Clustering using UPGMA algorithm.
-n_cluster must be provided
+  n_cluster must be provided
 
   + ward.D2: It perform a Hierarchical Clustering using Ward algorithm.
-n_cluster must be provided
+  n_cluster must be provided
 
   + hdbscan: It perform a Density-based spatial clustering of applications
-with noise using DBSCAN package. It find the optimal number of
-cluster.
+  with noise using DBSCAN package. It find the optimal number of
+  cluster.
 
 + for igraph objects
   + greedy: Community structure via greedy optimization of modularity
-  + louvain: This method implements the multi-level modularity optimization algorithm for finding community structure
+  + louvain: This method implements the multi-level modularity optimization 
+  algorithm for finding community structure
   + walktrap: Community structure via short random walks
 
-Clustering of igraph objects depends of the network building (see knnn function) and the number
-of cluster may variate between different setting of the k-nn network. Network based-methods are
-faster than distance based methods.
-Dimensional reduction tries to overcome "the curse of dimensionality" (more variables than samples: https://en.wikipedia.org/wiki/Curse_of_dimensionality). Using `umap` from `uwot` package we
-reduce to two the dimensionality of the dataset. Note that methods based on HDBSCAN always
-perform the dimensional reduction.
-There is not a universal criteria to select the number of clusters and the best configuration for one
-dataset may be not be the best one for others.
-If you desire to know more about clustering we recommend the book "Practical Guide To Clus-
-ter Analysis in R" from Alboukadel Kassambara (STHDA ed.)
+Clustering of igraph objects depends of the network building (see knnn function) 
+and the number of cluster may variate between different setting of the k-nn 
+network. Network based-methods are faster than distance based methods.
+
+Dimensional reduction tries to overcome "the curse of dimensionality" (more 
+variables than samples: [https://en.wikipedia.org/wiki/Curse_of_dimensionality).](https://en.wikipedia.org/wiki/Curse_of_dimensionality)) 
+Using `umap` from `uwot` package we reduce to two the dimensionality of the 
+dataset. Note that methods based on HDBSCAN always perform the dimensional 
+reduction. There is not a universal criteria to select the number of clusters 
+and the best configuration for one dataset may be not be the best one for others.
+If you desire to know more about clustering we recommend the book "Practical 
+Guide To Clus-ter Analysis in R" from Alboukadel Kassambara (STHDA ed.)
 
 #### `coincidents()`
 
@@ -518,13 +544,13 @@ umap and then find clusters with hdbscan.
 
 #### `core_snps_matrix()`
 
-This function calculates the number of SNPs among samples in core genome and returns
-a SNP matrix.
+This function calculates the number of SNPs among samples in core genome and 
+returns a SNP matrix.
 
 #### `export_accnet_aln()`
 
-This function write the presence/abscence matrix into a fasta alignment (1 = A, 0 = C) 
-file that can be use with any external software.
+This function write the presence/abscence matrix into a fasta alignment 
+(1 = A, 0 = C) file that can be use with any external software.
 
 #### `export_core_to_fasta()`
 
@@ -542,36 +568,40 @@ associate the protein with the genome.
 
 #### `knnn()`
 
-This function creates a network with the k best neighbors of each genome (or pangenome). The
-network can be build with the best neighbors with or without repetitions. The option repeats establish
-if the best k neighbors includes bi-directional links or not. Let be G_i and G_j two genomes, if
-G_i is one of the best k-neighbors of G_j and G_j is one of the best k-neighbors of G_i if the
-repeats option is TRUE then G_i is removed from the k-neighbor and substituted be the next best
-neighbor in other case G_i keeps in the list.
+This function creates a network with the k best neighbors of each genome 
+(or pangenome). The network can be build with the best neighbors with or without
+repetitions. The option repeats establish if the best k neighbors includes 
+bi-directional links or not. Let be G_i and G_j two genomes, if G_i is one of 
+the best k-neighbors of G_j and G_j is one of the best k-neighbors of G_i if the
+repeats option is TRUE then G_i is removed from the k-neighbor and substituted 
+be the next best neighbor in other case G_i keeps in the list.
 
 #### `plamidome()`
 
-This function uses mlplasmids to find the contigs belong to plasmids. The package mlplasmids
-must be installed in your computer. Nowadays mlplasmdis only process 
-*Enterococcus faecium*, *Escherichia coli* or *Klebsiella pneumoniae* genomes
+This function uses mlplasmids to find the contigs belong to plasmids. The 
+package mlplasmids must be installed in your computer. Nowadays mlplasmdis only 
+process *Enterococcus faecium*, *Escherichia coli* or *Klebsiella pneumoniae* 
+genomes
 
-The input genomes must be in gff_list format (see load_gff_list() function) Plasmidome find the
-contigs that belong to plasmids and creates a new GFF structure with all the features information
-(FAA, FNA, FFN and GFF).
-By default PATO does not install `mlplasmids` because it is deposits in its own gitlab repository
-(https://gitlab.com/sirarredondo/mlplasmids).
+The input genomes must be in gff_list format (see load_gff_list() function). 
+Plasmidome find the contigs that belong to plasmids and creates a new GFF 
+structure with all the features information (FAA, FNA, FFN and GFF).
+By default PATO does not install `mlplasmids` because it is deposits in its own 
+gitlab repository (https://gitlab.com/sirarredondo/mlplasmids).
 The authors define mlplasmids as:
 
->mlplasmids consists of binary classifiers to predict contigs either as plasmid-derived or chromosome-derived.
-It currently classifies short-read contigs as chromosomes and plasmids for Enterococcus faecium, Escherichia coli 
-and Klebsiella pneumoniae. Further species will be added in the future. The provided 
-classifiers are Support Vector Machines which were previously optimized and selected
-versus other existing machine-learning techniques (Logistic regression, Random Forest..., 
-see also Reference). The classifiers use pentamer frequencies (n = 1,024) to 
-infer whether a particular contig is plasmid- or chromosome- derived. 
+>mlplasmids consists of binary classifiers to predict contigs either as 
+plasmid-derived or chromosome-derived. It currently classifies short-read 
+contigs as chromosomes and plasmids for Enterococcus faecium, Escherichia coli 
+and Klebsiella pneumoniae. Further species will be added in the future. The 
+provided classifiers are Support Vector Machines which were previously optimized 
+and selected versus other existing machine-learning techniques (Logistic 
+regression, Random Forest..., see also Reference). The classifiers use pentamer 
+frequencies (n = 1,024) to infer whether a particular contig is plasmid- or 
+chromosome- derived. 
 
-To install `mlplasmids` you must have installed devtools (usually you have because PATO requires
-that you have devtools installed too). Then type:
+To install `mlplasmids` you must have installed devtools (usually you have 
+because PATO requires that you have devtools installed too). Then type:
 ```{r eval=F, include=T}
 devtools::install_git("https://gitlab.com/sirarredondo/mlplasmids")
 ```
@@ -583,19 +613,21 @@ Creates a matrix with the count of shared genes/proteins among samples.
 
 #### `singles()`
 
-Returns the genes/proteins that are only present in each genome or cluster of genomes.
+Returns the genes/proteins that are only present in each genome or cluster of 
+genomes.
 
 #### `snps_pairwaise()`
 
-This function calculates All-vs-All SNPs number. At different of core_snps_matrix this function
-calculates the raw number of SNPs among each pair of sequences avoiding the bias of the core
-genome size and/or reference. However, this function is an ${O(N^2)}$ so can be very slow for large
-datasets.
+This function calculates All-vs-All SNPs number. At different of 
+`core_snps_matrix` this function calculates the raw number of SNPs among each 
+pair of sequences avoiding the bias of the core genome size and/or reference. 
+However, this function is an ${O(N^2)}$ so can be very slow for large datasets.
 
 #### `twins()`
 
-Twins nodes are those nodes that share exactly the same edges. In the case of an accnet object twin
-are those genes/proteins that you can find in the exactly the same set of genomes/samples.
+Twins nodes are those nodes that share exactly the same edges. In the case of an 
+accnet object twin are those genes/proteins that you can find in the exactly the 
+same set of genomes/samples.
 
 ### Quality Control
 
@@ -611,15 +643,18 @@ best hit for each genome file in the input list.
 
 #### `extract_non_redundant()`
 
-This function creates a non-redundant representation of the input object (accnet or mash).
+This function creates a non-redundant representation of the input object (accnet
+or mash).
 
 #### `non_redundant()`
 
-Creates a non-redundant sub-set of samples. The function accept an accnet or mash object and re-
-turns a nr_list object. The sub-set can be created using a certain distance (mash o jaccard distance),
-a specific number of elements or a fraction of the whole sample set. The function performes an
-iterative seach so sometimes the exact number of returned elements could be not the same that the
-specified in the input. This difference can be defined with the threshold parameter.
+Creates a non-redundant sub-set of samples. The function accept an accnet or 
+mash object and re-turns a nr_list object. The sub-set can be created using a 
+certain distance (mash o jaccard distance),a specific number of elements or a 
+fraction of the whole sample set. The function performs an iterative serach so 
+sometimes the exact number of returned elements could be not the same that the
+specified in the input. This difference can be defined with the threshold 
+parameter.
 
 
 #### `non_redundant_hier()`
@@ -644,9 +679,9 @@ threshold and has been designed to remove similar sequences in large datasets.
 
 #### `outliers()`
 
-Find outliers in the dataset using a threshold distance (mash o jaccard distance) or by standard
-deviation times. This function also plot a manhattan plot to visualize the structure of the distance
-distribution of the input object.
+Find outliers in the dataset using a threshold distance (mash o jaccard distance)
+or by standard deviation times. This function also plot a manhattan plot to 
+visualize the structure of the distance distribution of the input object.
 
 #### `remove_outliers()`
 
@@ -701,8 +736,8 @@ if `pheatmap` is installed.
 
 #### `network_of_annotation()`
 
-This function builds a igraph object with the results from annotate function. Allows to filter the
-results by identity and/or Evalue.
+This function builds a igraph object with the results from annotate function. 
+Allows to filter the results by identity and/or Evalue.
 
 #### `plot_knnn_network()`
 
@@ -788,7 +823,9 @@ Now we can create a new list of files with the output of classifier. Using the
 tidyverse style we filter the unwanted sequences
 
 ```{r eval=FALSE, include=TRUE}
-files = species %>% filter(!grepl("Citrobacter",organism_name)) %>% filter(!grepl("marmotae",organism_name)) 
+files = species %>% 
+  filter(!grepl("Citrobacter",organism_name)) %>% 
+  filter(!grepl("marmotae",organism_name)) 
 ```
 
 
@@ -797,7 +834,8 @@ families with 80% of identity, 80% of coverage and a maximun of 1e-6 of Evalue.
 
 ```{r eval=FALSE, include=TRUE}
 ecoli_mash_all <- mash(files, n_cores = 20, type = 'prot')
-ecoli_mm<- mmseqs(files, coverage = 0.8, identity = 0.8, evalue = 1e-6, n_cores = 20)
+ecoli_mm<- mmseqs(files, coverage = 0.8, identity = 0.8, evalue = 1e-6, 
+                  n_cores = 20)
 ```
 In my case, I have 20 cores in my computer.
 Finally we can create an `accnet` object:
@@ -927,8 +965,14 @@ Some time, when you are using public data, core-genome can be smaller than you
 expect. Citating **Andrew Page**, creator of Roary 
 (https://sanger-pathogens.github.io/Roary/)  
 
->**_I downloaded a load of random assemblies from GenBank. Why am I seeing crazy results?_**  
->_Gene prediction software rarely completely agrees, with differing opinions on the actual start of a gene, or which of the overlapping open reading frames is actually the correct one, etc. As a result, if you mix these together you can get crazy results. The solution is to reannotate all of the genomes with a single method (like PROKKA). Otherwise you will waste vast amounts of time looking at noise, errors, and the batch effect._
+>**_I downloaded a load of random assemblies from GenBank. Why am I seeing 
+crazy results?_**  
+>_Gene prediction software rarely completely agrees, with differing opinions on 
+the actual start of a gene, or which of the overlapping open reading frames is 
+actually the correct one, etc. As a result, if you mix these together you can 
+get crazy results. The solution is to reannotate all of the genomes with a 
+single method (like PROKKA). Otherwise you will waste vast amounts of time 
+looking at noise, errors, and the batch effect._
 
 other times you can have a problem of *outliers*
 
@@ -950,9 +994,11 @@ annot_tree = species %>%
   filter(!grepl("Citrobacter",organism_name)) %>% 
   filter(!grepl("marmotae",organism_name)) %>% 
   select(Target,organism_name) %>% distinct()
-core_tree %>% midpoint %>% ggtree(layout = "circular") %<+% annot_tree + geom_tippoint(aes(color = organism_name))
+core_tree %>% midpoint %>% ggtree(layout = "circular") %<+% 
+  annot_tree + geom_tippoint(aes(color = organism_name))
 ```
 In this case we have added the species information extracted above.
+
 ![ML Core-genome phylogenetic tree](./Core_tree.png)
 
 You must take into account that Maximun Likelyhood tree can take long 
@@ -1018,7 +1064,8 @@ export_to_gephi(ecoli_accnet_nr, "accnet800", cluster = ec_800_cl)
 
 To perform the enrichment analysis we use:
 ```{r eval=FALSE, include=TRUE}
-accnet_enr_result <- accnet_enrichment_analysis(ecoli_accnet_nr, cluster = ef_800_cl)
+accnet_enr_result <- accnet_enrichment_analysis(ecoli_accnet_nr, 
+                                                cluster = ef_800_cl)
 
 # A tibble: 1,149,041 x 14
    Target             Source                   Cluster perClusterFreq ClusterFreq ClusterGenomeSize perTotalFreq TotalFreq OdsRatio   pvalue    padj AccnetGenomeSize AccnetProteinSi… Annot
@@ -1040,7 +1087,8 @@ accnet_enr_result <- accnet_enrichment_analysis(ecoli_accnet_nr, cluster = ef_80
 Now, we can export a new network with the *adjusted p-values* as edge-weigth.
 
 ```{r eval=FALSE, include=TRUE}
-accnet_with_padj(accnet_enr_result) %>% export_to_gephi("accnet800.padj", cluster = ec_800_cl)
+accnet_with_padj(accnet_enr_result) %>% 
+  export_to_gephi("accnet800.padj", cluster = ec_800_cl)
 ```
 
 ![Accnet network with enrichment analysis add. Edge color are proportional to the p-value (adjusted)](./Accnet_800_enr.png)
@@ -1052,8 +1100,10 @@ PATO also include some functions to study the genes/proteins distribution:
 
 * `singles()` finds those genes/proteins that are only present in a sample 
 (genome, pangenome...).
-* `twins()` finds those genes/proteins that have the same connections (i.e. genes/proteins present in the same genomes).
-* `coincidents()` finds those genes/proteins with similar connections (i.e. genes/proteins that usually are together)
+* `twins()` finds those genes/proteins that have the same connections 
+(i.e. genes/proteins present in the same genomes).
+* `coincidents()` finds those genes/proteins with similar connections 
+(i.e. genes/proteins that usually are together)
 
 The differencies between `twins()` and `concidents()` are that `coincidents()` 
 is more flexible and therefore less sensitive to outliers. `twins()` is faster 
@@ -1086,7 +1136,8 @@ accnet_tree_upgma <- similarity_tree(ecoli_accnet,method = "UPGMA")
 The output has a `phylo` format, so can be visualize with external packages as 
 `ggtree`.
 ```{r eval=FALSE, include=TRUE}
-mash_tree_fastme %>% midpoint %>% ggtree(layout = "circular") %<+% annot_tree + geom_tippoint(aes(color = organism_name))
+mash_tree_fastme %>% midpoint %>% ggtree(layout = "circular") %<+% 
+  annot_tree + geom_tippoint(aes(color = organism_name))
 ```
 ![Neighbor Joining tree](./tree_mash.png)
 
@@ -1094,7 +1145,8 @@ Using others external packages, we can compare the arragement of the pangenom
 (`mash` data) against the accessory genome (`accnet`)
 ```{r eval=FALSE, include=TRUE}
 library(dendextend)
-tanglegram(ladderize(mash_tree_upgma), ladderize(accnet_tree_upgma), fast = TRUE, main = "Mash vs AccNET UPGMA")
+tanglegram(ladderize(mash_tree_upgma), ladderize(accnet_tree_upgma), 
+           fast = TRUE, main = "Mash vs AccNET UPGMA")
 
 ```
 
@@ -1199,7 +1251,8 @@ kind of MDS combine better with the clustering algorithms due to clustering
 process try to find local structures.
 
 ```{r eval=FALSE, include=TRUE}
-ec_cl_mclust_umap <- clustering(ecoli_mash, method = "mclust",d_reduction = TRUE)
+ec_cl_mclust_umap <- clustering(ecoli_mash, method = "mclust",
+                                d_reduction = TRUE)
 ```
 On other hand, `clustering()` can handle `knnn` networks as input. In this caso,
 PATO uses network clustering algorithms such us:
@@ -1265,15 +1318,21 @@ library(tidyverse)
 annotation <- annotate(files, type = "prot",database = c("AbR","VF_A"))
 
 annotation %>% 
-  filter(pident > 0.95 ) %>% #remove all hits with identity lower than 95%
-  filter(evalue < 1e-6) %>%  #remove all hits with E-Value greater than 1e-6
-  group_by(Genome,Protein) %>% arrange(desc(bits)) %>% slice_head() #select only the best hit for each protein-genome.
+   #remove all hits with identity lower than 95%
+  filter(pident > 0.95 ) %>%
+  #remove all hits with E-Value greater than 1e-6
+  filter(evalue < 1e-6) %>%  
+  #select only the best hit for each protein-genome.
+  group_by(Genome,Protein) %>% 
+  arrange(desc(bits)) %>%
+  slice_head() 
   
 ```
 
 PATO includes also a function to create a heapmap with the annotation:
 ```{r eval=FALSE, include=TRUE}
-heatmap_of_annotation(annotation %>% filter(DataBase =="AbR"), #We select only "AbR" results
+heatmap_of_annotation(annotation %>% 
+                        filter(DataBase =="AbR"), #We select only "AbR" results
                       min_identity = 0.99)
 ```
 
@@ -1282,7 +1341,9 @@ heatmap_of_annotation(annotation %>% filter(DataBase =="AbR"), #We select only "
 Or to visualizae as a network.
 
 ```{r eval=FALSE, include=TRUE}
-network_of_annotation(annotation %>% filter(DataBase =="AbR"), min_identity = 0.99) %>% export_to_gephi("annotation_Network")
+network_of_annotation(annotation %>% 
+                        filter(DataBase =="AbR"), min_identity = 0.99) %>% 
+  export_to_gephi("annotation_Network")
 ```
 
 ![Gephi visualization of the network of AbR genes](./annotation_network.png)
@@ -1326,9 +1387,10 @@ sequence in FASTA format. We load the genomes into PATO.
 
 
 ```{r eval=FALSE, include=TRUE}
-
-gff_files <- dir("~/examplesPATO/", pattern = "\\.gff", full.names =T)  ##Creates a file-list
-gffs <- load_gff_list(gff_files)                                        ##Load the genomes
+##Creates a file-list
+gff_files <- dir("~/examplesPATO/", pattern = "\\.gff", full.names =T)  
+##Load the genomes
+gffs <- load_gff_list(gff_files)                                        
 
 ```
 
@@ -1336,17 +1398,26 @@ We also creates a file with the real names of each sample.
 Using *bash* command line we going to extract the names of each sample.
 
 ```{bash eval=FALSE, include=TRUE}
-grep -m 1 'strain' *.gff | sed 's/;/\t/g' | sed 's/:/\t/g' | cut -f1,22,23 | sed 's/nat-host=.*\t//' | sed 's/strain=//' > names.txt
+grep -m 1 'strain' *.gff 
+  >| sed 's/;/\t/g' | sed 's/:/\t/g' 
+  >| cut -f1,22,23 | sed 's/nat-host=.*\t//' 
+  >| sed 's/strain=//' > names.txt
 ```
 
 Now we load the names into R.
 ```{r eval=FALSE, include=TRUE}
-strain_names <- read.table("names.txt")%>%                #Load the files
-  rename(Genome = V1, Name = V2) %>%                      #Rename the columns
-  mutate(Name = gsub("-","",Name)) %>%                    #delete the '-' character
-  mutate(Sample = str_sub(Name,1,4)) %>%                  #Extract the first 4 character as Sample name
-  mutate(Source = str_sub(Name,5)) %>%                    #Extract the final characters as Source
-  mutate(Genome = str_replace(Genome,"_genomic.gff",""))  #delete the final part of the filename
+#Load the files
+strain_names <- read.table("names.txt")%>%                
+  #Rename the columns
+  rename(Genome = V1, Name = V2) %>%                      
+  #delete the '-' character
+  mutate(Name = gsub("-","",Name)) %>%                    
+  #Extract the first 4 character as Sample name
+  mutate(Sample = str_sub(Name,1,4)) %>%       
+  #Extract the final characters as Source
+  mutate(Source = str_sub(Name,5)) %>%         
+  #remove the final part of the filename
+  mutate(Genome = str_replace(Genome,"_genomic.gff",""))  
 ```
 
 The samples has named with the name of the household number and the source (H: Human, C: Cattle, CH: Chicken, S: Soil)
@@ -1357,7 +1428,8 @@ The fastest (and easy way) to find high similarities is use MASH distance.
 
 ```{r eval=FALSE, include=TRUE}
 mash <- mash(gffs, type ="wgs", n_cores = 20)
-mash_tree <- similarity_tree(mash,method = "fastme") %>% phangorn::midpoint()
+mash_tree <- similarity_tree(mash,method = "fastme") %>% 
+  phangorn::midpoint()
 
 ```
 Now using _ggtree_ we can add the names info into the tree.
@@ -1365,29 +1437,40 @@ Now using _ggtree_ we can add the names info into the tree.
 ```{r eval=FALSE, include=TRUE}
 # remove '_genomic.fna' from the tip.labels to fix with the strain_names table
 mash_tree$tip.label <- gsub("_genomic.fna","",mash_tree$tip.label) 
-ggtree(mash_tree) %<+% strain_names + geom_tippoint(aes(color=Source)) + geom_tiplab(aes(label = Sample))
+ggtree(mash_tree) %<+% 
+  strain_names + 
+  geom_tippoint(aes(color=Source)) + 
+  geom_tiplab(aes(label = Sample))
 
 ```
 
 ![Mash Similarity Tree](./TransmissionTreeMash.png)
-We can inspect the similarity values. Remember that the MASH distance is equivalent to $D_{mash} = {1-\frac{ANI}{100}}$
+We can inspect the similarity values. Remember that the MASH distance is 
+equivalent to $D_{mash} = {1-\frac{ANI}{100}}$
 
 ```{r eval=F, include=T}
 mash$table %>% 
-  mutate(Source = gsub("_genomic.fna","",Source)) %>%   #Remove extra characters
+  #Remove extra characters
+  mutate(Source = gsub("_genomic.fna","",Source)) %>%   
   mutate(Target = gsub("_genomic.fna","",Target)) %>% 
-  inner_join(strain_names %>%                           #Add real names to Source
+  #Add real names to Source
+  inner_join(strain_names %>%                           
                rename(Source2 = Name) %>% 
                select(Genome,Source2), 
              by= c("Source" = "Genome")) %>%
-  inner_join(strain_names %>%                           #Add real names to Target
+  #Add real names to Target
+  inner_join(strain_names %>%                           
                rename(Target2 = Name) %>% 
                select(Genome,Target2), 
              by= c("Target" = "Genome")) %>%
-  filter(Source != Target) %>%                          #Remove diagonal
-  mutate(ANI = (1-Dist)*100) %>%                        #Compute the ANI
-  filter(ANI > 99.9) %>%                                #Filter hits higher than 99.9% identity
-  as.data.frame()                                       #Transform to data.frame to show all digits of ANI
+  #Remove diagonal
+  filter(Source != Target) %>%                          
+  #Compute the ANI
+  mutate(ANI = (1-Dist)*100) %>%
+  #Filter hits higher than 99.9% identity
+  filter(ANI > 99.9) %>%                                
+  #Transform to data.frame to show all digits of ANI
+  as.data.frame()                                       
 
   Source2 Target2      ANI
 1   HH08H   HH29S 99.94674
@@ -1419,23 +1502,29 @@ export_core_to_fasta(core,file = "pato_roary_like.fasta")
 system("fasttreeMP -nt -gtr pato_roary_like.fasta > pato_roary_like.tree")
 
 #Import and rooting the tree
-pato_roary_tree <- ape::read.tree("pato_roary_like.tree") %>% phangorn::midpoint()
+pato_roary_tree <- ape::read.tree("pato_roary_like.tree") %>% 
+  phangorn::midpoint()
 #Fix the tip labels
 pato_roary_tree$tip.label <- gsub("_genomic.ffn","",pato_roary_tree$tip.label)
 
 #Draw the tree with the annotation.
-ggtree(pato_roary_tree) %<+% strain_names + geom_tippoint(aes(color=Source)) + geom_tiplab(aes(label = Sample))
+ggtree(pato_roary_tree) %<+% 
+  strain_names + 
+  geom_tippoint(aes(color=Source)) + 
+  geom_tiplab(aes(label = Sample))
 ```
 
 ![Phylogenetic tree of the Core-genome](./TransmissionTreeCore.png)
 Now we can compute the SNPs matrix
 ```{r eval=F, include=T}
-
-pato_roary_m = core_snps_matrix(core, norm = T, rm.gaps = T) #compute the SNP matrix removing columns with gaps
+#compute the SNP matrix removing columns with gaps
+pato_roary_m = core_snps_matrix(core, norm = T, rm.gaps = T) 
 
 #Fix the colnames and rownames to put the real names.
 
-colnames(pato_roary_m) <- rownames(pato_roary_m) <- gsub("_genomic.ffn","",rownames(pato_roary_m))
+colnames(pato_roary_m) <- 
+  rownames(pato_roary_m) <- 
+  gsub("_genomic.ffn","",rownames(pato_roary_m))
 tmp = pato_roary_m %>% 
   as.data.frame() %>% 
   rownames_to_column("Genome") %>% 
@@ -1447,10 +1536,15 @@ colnames(tmp) = rownames(tmp)
 
 #Plot the matrix as a heatmap
 pheatmap::pheatmap(tmp, 
-         display_numbers = matrix(ifelse(tmp < 200,tmp,""), nrow(tmp)), #To Display only values lower than 200 SNPs
+         #To Display only values lower than 200 SNPs
+         display_numbers = matrix(ifelse(tmp < 200,tmp,""), nrow(tmp)), 
          number_format = '%i',
-         annotation_row = strain_names %>% select(-Genome,-Sample) %>% column_to_rownames("Name"),
-         annotation_col = strain_names %>% select(-Genome,-Sample) %>% column_to_rownames("Name"), 
+         annotation_row = strain_names %>% 
+           select(-Genome,-Sample) %>% 
+           column_to_rownames("Name"),
+         annotation_col = strain_names %>% 
+           select(-Genome,-Sample) %>% 
+           column_to_rownames("Name"), 
          show_rownames = T, 
          show_colnames = T,
 )
@@ -1502,12 +1596,16 @@ export_core_to_fasta(core_s,file = "pato_snippy_like.fasta")
 system("fasttreeMP -nt -gtr pato_snippy_like.fasta > pato_snippy_like.tree")
 
 #Import and rooting the tree
-pato_snippy_tree <- ape::read.tree("pato_snippy_like.tree") %>% phangorn::midpoint()
+pato_snippy_tree <- ape::read.tree("pato_snippy_like.tree") %>% 
+  phangorn::midpoint()
 #Fix the tip labels
 pato_snippy_tree$tip.label <- gsub("_genomic.fna","",pato_snippy_tree$tip.label)
 
 #Draw the tree with the annotation.
-ggtree(pato_snippy_tree) %<+% strain_names + geom_tippoint(aes(color=Source)) + geom_tiplab(aes(label = Sample))
+ggtree(pato_snippy_tree) %<+% 
+  strain_names +
+  geom_tippoint(aes(color=Source)) + 
+  geom_tiplab(aes(label = Sample))
 
 ```
 
@@ -1518,7 +1616,9 @@ Now the SNPs matrix
 
 ```{r eval = F, include=T}
 
-colnames(pato_snippy_m) <- rownames(pato_snippy_m) <- gsub("_genomic.fna","",rownames(pato_snippy_m))
+colnames(pato_snippy_m) <- 
+  rownames(pato_snippy_m) <- 
+  gsub("_genomic.fna","",rownames(pato_snippy_m))
 tmp = pato_snippy_m %>% 
   as.data.frame() %>% 
   rownames_to_column("Genome") %>% 
@@ -1534,8 +1634,12 @@ colnames(tmp) = rownames(tmp)
 pheatmap(tmp, 
          display_numbers = matrix(ifelse(tmp < 200,tmp,""), nrow(tmp)),
          number_format = '%i',
-         annotation_row = strain_names %>% select(-Genome,-Sample) %>% column_to_rownames("Name"),
-         annotation_col = strain_names %>% select(-Genome,-Sample) %>% column_to_rownames("Name"), 
+         annotation_row = strain_names %>% 
+           select(-Genome,-Sample) %>%
+           column_to_rownames("Name"),
+         annotation_col = strain_names %>% 
+           select(-Genome,-Sample) %>% 
+           column_to_rownames("Name"), 
          show_rownames = T, 
          show_colnames = T,
          )
@@ -1600,8 +1704,12 @@ colnames(tmp) = rownames(tmp)
 pheatmap(tmp, 
          display_numbers = matrix(ifelse(tmp < 200,tmp,""), nrow(tmp)),
          number_format = '%i',
-         annotation_row = strain_names %>% select(-Genome,-Sample) %>% column_to_rownames("Name"),
-         annotation_col = strain_names %>% select(-Genome,-Sample) %>% column_to_rownames("Name"), 
+         annotation_row = strain_names %>% 
+           select(-Genome,-Sample) %>% 
+           column_to_rownames("Name"),
+         annotation_col = strain_names %>% 
+           select(-Genome,-Sample) %>% 
+           column_to_rownames("Name"), 
          show_rownames = T, 
          show_colnames = T,
 )
@@ -1663,7 +1771,8 @@ genomes to consider a pangenome and the minimum frequency of a protein/gene
 family to be included in a pangenome.
 
 ```{r eval=FALSE, include=TRUE}
-res <- pangenomes_from_files(files,distance = 0.03,min_pange_size = 10,min_prot_freq = 2)
+res <- pangenomes_from_files(files,distance = 0.03,min_pange_size = 10,
+                             min_prot_freq = 2)
 
 export_to_gephi(res,"/storage/tryPATO/firmicutes/pangenomes_gephi")
 ```
@@ -1673,7 +1782,10 @@ dataset. To annotate the network we use the NCBI assembly table and takes the
 species name of each pangenome cluster.
 
 ```{r eval=FALSE, include=TRUE}
-assembly = data.table::fread("ftp://ftp.ncbi.nlm.nih.gov/genomes/refseq/bacteria/assembly_summary.txt",sep = "\t",skip = 1, quote = "")
+assembly <- data.table::fread("ftp://ftp.ncbi.nlm.nih.gov/genomes/refseq/bacteria/assembly_summary.txt",
+                             sep = "\t",
+                             skip = 1, 
+                             quote = "")
 
 colnames(assembly) = gsub("# ","",colnames(assembly))
 
@@ -1688,7 +1800,8 @@ annot = res$members %>%
   distinct() %>% ungroup() %>% 
   group_by(pangenome) %>% 
   slice_head() %>% 
-  mutate(ID = paste("pangenome_",pangenome,"_rep_seq.fasta", sep = "",collapse = "")) 
+  mutate(ID = paste("pangenome_",pangenome,"_rep_seq.fasta", 
+                    sep = "",collapse = "")) 
 
 annot <- annot %>% 
   mutate(genus = gsub("\\[","",genus)) %>%
@@ -1697,7 +1810,8 @@ annot <- annot %>%
   mutate(specie = gsub("\\]","",specie)) %>%
   unite("Label",genus,specie, remove = F)
 
-write_delim(annot,"../pangenomes_gephi_extra_annot.tsv",delim = "\t", col_names = TRUE)
+write_delim(annot,"../pangenomes_gephi_extra_annot.tsv",delim = "\t", 
+            col_names = TRUE)
 ```
 We chose as species name the specie most frequent in each cluster. Then usin 
 Gephi we visualiza the network.
@@ -1774,21 +1888,24 @@ bench <- microbenchmark(
   "pato_like_snippy_time" = {
     unlink(gffs$path,recursive = T)
     gffs <- load_gff_list(gff_files)
-    core_s <- core_snp_genome(gffs,type = "wgs", ref = "~/examplesPATO/fna/GCF_009820385.1_ASM982038v1_genomic.fna")
+    core_s <- core_snp_genome(gffs,type = "wgs", 
+            ref = "~/examplesPATO/fna/GCF_009820385.1_ASM982038v1_genomic.fna")
     export_core_to_fasta(core_s,file = "pato_snippy_like.fasta")
   },
   
   "snippy_time" = {
     setwd("~/examplesPATO/fna")
     
-    # That is my $PATH. Do not try to execute. To execute Snippy from R you need to define the $PATH
-    Sys.setenv(PATH ="/usr/local/bin:/usr/bin:/bin:/home/val/bioinfo/snippy/bin/:/home/val/bioinfo/ ....")  
+    # That is my $PATH. Do not try to execute. 
+    #To execute Snippy from R you need to define the $PATH
+    Sys.setenv(PATH ="/usr/local/bin:/usr/bin:/bin: ....")  
     
     system("ls *.fna > tmp2")
     system("ls $PWD/*.fna > tmp")
     system("sed -i 's/_genomic.fna//' tmp")
     system("paste tmp tmp2 > list_snippy.txt")
-    system("snippy-multi list_snippy.txt --ref GCF_009820385.1_ASM982038v1_genomic.fna --cpus 24 > snp.sh")
+    system("snippy-multi list_snippy.txt --ref 
+           GCF_009820385.1_ASM982038v1_genomic.fna --cpus 24 > snp.sh")
     system("sh ./snp.sh")
   }, 
   times = 1
@@ -1850,9 +1967,16 @@ mash_tree <- similarity_tree(mash,method = "fastme") %>% midpoint()
 
 mash_tree$tip.label = gsub("_genomic.fna","",mash_tree$tip.label)
 
-trees <- c(random_tree = rand_tree, snippy_tree = snippy_tree,roary_tree = roary_tree,pato_core = pato_roary_tree, pato_core_snp = pato_snippy_tree, mash = mash_tree)
+trees <- c(random_tree = rand_tree, 
+           snippy_tree = snippy_tree,
+           roary_tree = roary_tree,
+           pato_core = pato_roary_tree, 
+           pato_core_snp = pato_snippy_tree, 
+           mash = mash_tree)
 
-CompareAll(trees,RobinsonFoulds)%>% as.matrix() %>% pheatmap::pheatmap(.,display_numbers = T)
+CompareAll(trees,RobinsonFoulds)%>% 
+  as.matrix() %>% 
+  pheatmap::pheatmap(.,display_numbers = T)
 
 ```
 ![](./TreeComparison.png)
