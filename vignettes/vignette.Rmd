@@ -4,7 +4,7 @@ author: "Val F. Lanza"
 date: "`r Sys.Date()`"
 output:
   html_document:
-    number_section: yes
+    number_section: no
     theme: simplex
     toc: yes
     toc_float:
@@ -68,7 +68,7 @@ install.packages("devtools")
 Once you have installed \emph{devtools} you should activated Bioconductor repository 
 
 ```{r eval=FALSE, include=TRUE}
-setRepositories()
+setRepositories(ind = c(1,2))
 ## Select options 1 (CRAN) and 2 (Bioconductor Software)
 ```
 
@@ -91,7 +91,7 @@ install.packages("devtools")
 Once you have installed \emph{devtools} you should activated Bioconductor repository 
 
 ```{r eval=FALSE, include=TRUE}
-setRepositories()
+setRepositories(ind = c(1,2))
 ## Select options 1 (CRAN) and 2 (Bioconductor Software)
 ```
 
@@ -103,158 +103,28 @@ devtools::install_github("https://github.com/irycisBioinfo/PATO.git", build_vign
 ```
 
 
-# Main Functions
+# Functions and Classes
 
-PATO has two main data classes, `mash` and `mmseq`. MASH is a whole-genome 
-comparison tool that can compare thousands of genomes in a few minutes (even seconds).
+PATO implements different wrapper functions to use external software. PATO includes
+[`MMSeqs2`](https://github.com/soedinglab/MMseqs2), [`Mash`](https://github.com/marbl/Mash) 
+and [`Minimap2`](https://github.com/lh3/minimap2) binaries and other extra 
+software such us [`bedtools`](https://bedtools.readthedocs.io/en/latest/), 
+[`k8`](https://github.com/attractivechaos/k8) and perl and javascript scripts.
 
-On other hand, MMSeq2 is a ultra fast software for sensitive search and clustering 
-genes or proteins. Since last versions of MMSeq2 it include *lin-clust* method 
-that allow to cluster huge data sets in linear time (most of the method are 
-quadratic time or log(n)²) but with high identities.
-
-Both MASH and MMSeq2 allow multi-threading to accelerate the processing.
-
-## MASH
-
-Mash is a method for "Fast genome and metagenome distance estimation using MinHash"(). 
-MASH accept nucleotide or aminoacid fasta files and estimated a similarity distance. 
-To extend the information we recommend to read the main paper *Mash: fast genome 
-and metagenome distance estimation using MinHash. Ondov BD, Treangen TJ, Melsted 
-P, Mallonee AB, Bergman NH, Koren S, Phillippy AM. Genome Biol. 2016 Jun 20;17(1)
-:132. doi: 10.1186/s13059-016-0997-x*
-
-To create a `mash` object you need to supplie a list (a vector indeed) of files. By default `mash` use Amino Acids fasta files.
-
-```{r eval=FALSE}
-my_mash <- mash(my_list, type ="prot")
-```
-
-Besides, you can change some parameter as `n_cores`,	`sketch`, `kmer` and `type`.
-```{r eval=FALSE, include=TRUE}
-my_mash <- mash(my_list, n_cores = 20, sketch = 1000, kmer = 21, type = "prot")
-```
-
-
-## MMSeqs2
-Creators of MMSeqs define their software as:
-  
->MMseqs2 (Many-against-Many sequence searching) is a software suite to search and 
-cluster huge protein and nucleotide sequence sets. MMseqs2 is open source 
-GPL-licensed software implemented in C++ for Linux, MacOS, and (as beta version, 
-via cygwin) Windows. The software is designed to run on multiple cores and 
-servers and exhibits very good scalability. MMseqs2 can run 10000 times 
-faster than BLAST. At 100 times its speed it achieves almost the same 
-sensitivity. It can perform profile searches with the same sensitivity as 
-PSI-BLAST at over 400 times its speed.
-
-To create a `mmseq` object you just have to run:
-```{r eval = FALSE, include=TRUE}
-my_mmseq <- mmseqs(my_list)
-```
-
-You can change default parameter as `coverage`, `identity` or `evalue` among 
-`n_cores`. Also you can set especifict parameters of clustering (searching for 
-protein families and orthologous). These parameters are `cov_mode` and 
-`cluster_mode`.
-```{r eval=FALSE}
-my_mmseq <- mmseqs(my_list, coverage = 0.8, identity = 0.8, evalue = 1e-6, n_cores = 20, cov_mode = 0, cluster_mode = 0)
-
-```
-
-The `mmseq` object is key in the analysis of the pangenome definition (core, 
-accessory, pangenome) as well as other process such us annotation or population 
-structure (if you are using accessory to defined it).
-
-### Coverage Mode
-(this section has been extracted from https://github.com/soedinglab/MMseqs2/wiki)
-
-MMseqs2 has three modes to control the sequence length overlap "coverage": (0) 
-bidirectional, (1) target coverage, (2) query coverage and (3) target-in-query 
-length coverage. In the context of cluster or linclust, the query is seen 
-representative sequence and target is a member sequence. The `-cov-mode` flag 
-also automatically sets the `cluster_mode`.
-![Coverage Mode](./cov_mode.png){width=100%}
-
-### Clustering modes
-All clustering modes transform the alignment results into an undirected graph. 
-In this graph notation, each vertex (i.e. node) represents a sequence, which is 
-connected to other sequences by edges. An edge between a pair of sequences is 
-introduced if the alignment criteria (e.g. `identity`, `coverage` and `evalur`) 
-are fulfilled.
-
-The Greedy Set cover (`cluster-mode = 0`) algorithm is an approximation for 
-the NP-complete optimization problem called set cover. 
-
-![Set Cover clustering](./cluster-mode-setcover.png){width=70%}
-
-Greedy set cover works by interactively selecting the node with most connections 
-and all its connected nodes to form a cluster and repeating until all nodes are 
-in a cluster.
-
-The greedy set cover is followed by a reassignment step. A Cluster member is 
-assigned to another cluster centroid if their alignment score was higher. 
-
-Connected component (`cluster_mode = 1`) uses transitive connection to cover 
-more remote homologous.
-
-![Connected component clustering](./cluster-mode-connectedcomp.png){width=70%}
-
-In connected component clustering starting at the mostly connected vertex, all 
-vertices that are reachable in a breadth-first search are members of the cluster.
-
-Greedy incremental (`cluster_mode = 2`) works analogous to CD-HIT clustering 
-algorithm. 
-
-![Greedy incremental clustering](./cluster-mode-greedyincremental.png){width=70%}
-
-Greedy incremental clustering takes the longest sequence (indicated by the size 
-of the node) and puts all connected sequences in that cluster, then repeatedly 
-the longest sequence of the remaining set forms the next cluster.
-
-
-## AccNET
-
-
-Accnet is a representation of the "accessory genome" using a bipartite network. 
-(see more in *Lanza, V. F., Baquero, F., de la Cruz, F. & Coque, T. M. AcCNET 
-(Accessory Genome Constellation Network): comparative genomics software for 
-accessory genome analysis using bipartite networks. Bioinformatics 33, 283–285 
-(2017)*). Accnet creates a graph using two kind of nodes: genomes and 
-proteins/gene. One genome is connected to one proteins if the genome has this 
-protein (i.e. a protein that belong to this protein family/cluster). The 
-`accnet` object is other of the main data type in PATO. PATO can create some 
-representations of the accessory genome (dendrograms, networks, plots....) and 
-has some functions to analyze the accessory genome properly. The function 
-`accnet()` builds an `accnet` object taking into account the maximun frequency 
-of each protein/gene to be considered as part of accessory genome. Moreover, 
-the user can decide to include single protein/genes or not (those which are 
-only present in one sample).
-
-Accnet depends of the definition of protein families so the input of the 
-`accnet()` function is a `mmseqs` object. The definition of the homologous 
-cluster is critical to define the accessory genome.  
-`accnet()` can be called as:
-```{r eval=FALSE, include=TRUE}
-my_accnet <- accnet(my_mmseq, threshold = 0.8, singles = TRUE)
-```
-
-or piping the `mmseqs()` function
-
-```{r eval=FALSE, include= TRUE}
-my_accnet <- mmseqs(my_files) %>% accnet(threshold = 0.8)
-```
-## Classes
 PATO has been designed as a toolkit. Most of the functions use as input other 
 outputs functions, creating a complete workflow to analysis large genome 
 datasets. As R package, PATO can interact with other packages as `ape`, `vegan`,
 `igraph` or `pheatmap`. We have tried to developed PATO compatible with 
 `tidyverse` packages in order to use `%>%` pipe command and to be compatible 
-with `ggplot2` and extensions (as `ggtree`).
+with `ggplot2` and extensions (for example, `ggtree`).
+
+
+## Classes
 
 In order to create a robust environment PATO uses specific data classes 
-(S3 objects) to assure the compatibility among functions. PATO has 4 object 
-classes:
+(S3 objects) to assure the compatibility among functions. Most of the clases are 
+list of other kind of object (data.frame, character vector, matrix...)PATO has 
+8 object classes:
 
   * `mash` object
   * `mmseq` object
@@ -265,7 +135,7 @@ classes:
   * `core_snps_genome` object
   * `accnet_enr` object
 
-Other outputs take external objects as `igraph` or `ggplot`.
+Other outputs take external objects such as `igraph` or `ggplot`.
 
 The idea to have these object is to share a structured data among functions. 
 These objects can be inspected and some of their data can be used with external 
@@ -340,7 +210,509 @@ This object is a `data.frame` with the result of `accnet_enrichment_analysis()`.
 That object can be exported as a `gephi` file with the p-values (adjusted) as a 
 edge-weight.
 
+## Functions
 
+PATO includes internal functions and other wrap functions that calls external
+binaries. We split the functions into 4 categories: *Main Functions*, 
+*Analysis Functions*, *Quality Control* and *Visualization*.
+
+### Main Functions
+
+#### `load_gff_list()`
+
+There are several kind of sequence files: whole genome, CDS or Aminoacid files.
+PATO can handle all of them (not in all functions). One way to have all the 
+information together is use GFF files. This files *MUST* contain the sequence in
+fasta format at the end of the file as [PROKKA](https://github.com/tseemann/prokka)
+does. `load_gff_list()` parse the files and creates different folder to store all
+type of files FNA (whole genome sequence), FFN (CDS sequence) and FAA 
+(aminoacid sequence). You can specified what kind of file do you want to use in
+most of the main functions.
+
+The objects created by `load_gff_list()` can be re-used in other R sessions.
+
+```{r eval=F, include=T}
+
+gff_files <- dir("./examplePATO", pattern = ".gff", full.names = T)
+gffs <- load_gff_list(gff_files)
+```
+
+
+#### `mash()`
+
+`mash()` functions is a wrapper of [Mash](https://github.com/marbl/Mash)
+
+Mash is a method for "Fast genome and metagenome distance estimation using MinHash"(). 
+MASH accept nucleotide or aminoacid fasta files and estimated a similarity distance. 
+To extend the information we recommend to read the main paper *Mash: fast genome 
+and metagenome distance estimation using MinHash. Ondov BD, Treangen TJ, Melsted 
+P, Mallonee AB, Bergman NH, Koren S, Phillippy AM. Genome Biol. 2016 Jun 20;17(1)
+:132. doi: 10.1186/s13059-016-0997-x*
+
+To create a `mash` object you need to supplie a list (a vector indeed) of files 
+or a `gff_list` object. By default `mash` use Amino Acids fasta files but you 
+can provided Nucleotide FASTA files (CDS or WGS).
+
+```{r eval=FALSE}
+my_mash <- mash(my_list, type ="prot")
+```
+
+Besides, you can change some parameter as `n_cores`,	`sketch`, `kmer` and `type`.
+```{r eval=FALSE, include=TRUE}
+my_mash <- mash(my_list, n_cores = 20, sketch = 1000, kmer = 21, type = "prot")
+```
+
+
+#### `mmseqs()`
+
+`mmseqs()` is a wrapper of [MMSeqs2](https://github.com/soedinglab/MMseqs2) software.
+
+Creators of MMSeqs define their software as:
+  
+>MMseqs2 (Many-against-Many sequence searching) is a software suite to search and 
+cluster huge protein and nucleotide sequence sets. MMseqs2 is open source 
+GPL-licensed software implemented in C++ for Linux, MacOS, and (as beta version, 
+via cygwin) Windows. The software is designed to run on multiple cores and 
+servers and exhibits very good scalability. MMseqs2 can run 10000 times 
+faster than BLAST. At 100 times its speed it achieves almost the same 
+sensitivity. It can perform profile searches with the same sensitivity as 
+PSI-BLAST at over 400 times its speed.
+
+`mmseqs()` can handle a list of files or a `gff_list` object but in this case you
+only can use feature files it means genes (FFN) or proteins (FAA).
+
+To create a `mmseq` object you just have to run:
+```{r eval = FALSE, include=TRUE}
+my_mmseq <- mmseqs(my_list)
+```
+
+You can change default parameter as `coverage`, `identity` or `evalue` among 
+`n_cores`. Also you can set especifict parameters of clustering (searching for 
+protein families and orthologous). These parameters are `cov_mode` and 
+`cluster_mode`.
+```{r eval=FALSE}
+my_mmseq <- mmseqs(my_list, coverage = 0.8, identity = 0.8, evalue = 1e-6, n_cores = 20, cov_mode = 0, cluster_mode = 0)
+
+```
+
+The `mmseq` object is key in the analysis of the pangenome definition (core, 
+accessory, pangenome) as well as other process such us annotation or population 
+structure (if you are using accessory to defined it).
+
+##### Coverage Mode
+(this section has been extracted from https://github.com/soedinglab/MMseqs2/wiki)
+
+MMseqs2 has three modes to control the sequence length overlap "coverage": (0) 
+bidirectional, (1) target coverage, (2) query coverage and (3) target-in-query 
+length coverage. In the context of cluster or linclust, the query is seen 
+representative sequence and target is a member sequence. The `-cov-mode` flag 
+also automatically sets the `cluster_mode`.
+![Coverage Mode](./cov_mode.png){width=100%}
+
+##### Clustering modes
+All clustering modes transform the alignment results into an undirected graph. 
+In this graph notation, each vertex (i.e. node) represents a sequence, which is 
+connected to other sequences by edges. An edge between a pair of sequences is 
+introduced if the alignment criteria (e.g. `identity`, `coverage` and `evalur`) 
+are fulfilled.
+
+The Greedy Set cover (`cluster-mode = 0`) algorithm is an approximation for 
+the NP-complete optimization problem called set cover. 
+
+![Set Cover clustering](./cluster-mode-setcover.png){width=70%}
+
+Greedy set cover works by interactively selecting the node with most connections 
+and all its connected nodes to form a cluster and repeating until all nodes are 
+in a cluster.
+
+The greedy set cover is followed by a reassignment step. A Cluster member is 
+assigned to another cluster centroid if their alignment score was higher. 
+
+Connected component (`cluster_mode = 1`) uses transitive connection to cover 
+more remote homologous.
+
+![Connected component clustering](./cluster-mode-connectedcomp.png){width=70%}
+
+In connected component clustering starting at the mostly connected vertex, all 
+vertices that are reachable in a breadth-first search are members of the cluster.
+
+Greedy incremental (`cluster_mode = 2`) works analogous to CD-HIT clustering 
+algorithm. 
+
+![Greedy incremental clustering](./cluster-mode-greedyincremental.png){width=70%}
+
+Greedy incremental clustering takes the longest sequence (indicated by the size 
+of the node) and puts all connected sequences in that cluster, then repeatedly 
+the longest sequence of the remaining set forms the next cluster.
+
+
+#### `accnet()`
+
+Accnet is a representation of the "accessory genome" using a bipartite network. 
+(see more in *Lanza, V. F., Baquero, F., de la Cruz, F. & Coque, T. M. AcCNET 
+(Accessory Genome Constellation Network): comparative genomics software for 
+accessory genome analysis using bipartite networks. Bioinformatics 33, 283–285 
+(2017)*). Accnet creates a graph using two kind of nodes: genomes and 
+proteins/gene. One genome is connected to one proteins if the genome has this 
+protein (i.e. a protein that belong to this protein family/cluster). The 
+`accnet` object is other of the main data type in PATO. PATO can create some 
+representations of the accessory genome (dendrograms, networks, plots....) and 
+has some functions to analyze the accessory genome properly. The function 
+`accnet()` builds an `accnet` object taking into account the maximun frequency 
+of each protein/gene to be considered as part of accessory genome. Moreover, 
+the user can decide to include single protein/genes or not (those which are 
+only present in one sample).
+
+Accnet depends of the definition of protein families so the input of the 
+`accnet()` function is a `mmseqs` object. The definition of the homologous 
+cluster is critical to define the accessory genome.  
+`accnet()` can be called as:
+```{r eval=FALSE, include=TRUE}
+my_accnet <- accnet(my_mmseq, threshold = 0.8, singles = TRUE)
+```
+
+or piping the `mmseqs()` function
+
+```{r eval=FALSE, include= TRUE}
+my_accnet <- mmseqs(my_files) %>% accnet(threshold = 0.8)
+```
+
+#### `pangenomes_from_files()`
+
+This function perform a clustering using a designated maximun distance among samples and creates
+a set of pangenomes using it. Pan-genomes can be filtered by genome frequency (i.e. the number of
+genomes that belong to the pangenome). pangenomes_from_files() builds a new accnet object that
+relates the pangenome with the genes/proteins. The user can filter the proteins that are included by
+the presence frequency in the set.
+
+This functions has been designed to work with large datasets (>5.000 genomes). It performs a tailored
+pipeline to produce an `accnet` object but in a faster way.
+
+####  `pangenomes_from_mmseqs()`
+
+Creates clusters of genomes (pan-genome) using a list of pre-defined clusters. The list of cluster can
+be from external source (e.g. mlst or BAPS) or from an internal function (e.g clustering function).
+Moreover, pan-genomes can be filtered by genome frequency (i.e. the number of genomes that
+belong to the pangenome). `pangenomes_from_mmseqs()` builds a new accnet object that relates the pangenome with
+the genes/proteins. The user can filter the proteins that are included by the presence frequency.
+We do not recommend to use in datasets largers than 5.000 genomes.
+
+
+#### `core_genome()`
+
+Find and creates a core-genome alignment. Unlike core_plots() this function find the hard 
+coregenome (genes presence in 100% of genomes and without repetitions). The function takes 
+a `mmseqs()` output, so the deffinition of the paralogous genes of the core-genome 
+(similarity, coverage and/or e-value) depends on the `mmseqs()` parameters.
+
+The function perform a pseudo-msa per each paralog using the function `result2msa` of [mmseqs2](https://github.com/soedinglab/MMseqs2)
+in the proteins case and a mapping with blast (you need to have it installed and in the PATH).
+This approach is much faster than classical MSA (clutal, mafft or muscle) but is less accurate.
+Taking into account that most of the phylogenetic inference software only takes variant 
+columns with no insertions or deletion, there are not to many difference in the final 
+phylogenetic trees. `core_genome()` can build a core-genome alingment of thusands of 
+genomes in minutes (see Benchmarking section).
+
+#### `core_snp_genome()`
+
+This function find the core snp genome. Citing Torsten Seemann : 
+
+>If you call SNPs for multiple
+isolates from the same reference, you can produce an alignment of "core SNPs" which can be used
+to build a high-resolution phylogeny (ignoring possible recombination). A "core site" is a genomic
+position that is present in all the samples. A core site can have the same nucleotide in every sample
+("monomorphic") or some samples can be different ("polymorphic" or "variant"). If we ignore
+the complications of "ins", "del" variant types, and just use variant sites, these are the "core SNP
+genome".
+
+This function uses [minimap2](https://github.com/lh3/minimap2) to align all the 
+genomes to a reference genome. If reference genome is not specified then 
+`core_snp_genome()` takes one ramdomly. Once we have all the genomes aligned we 
+look for the conserved regions between all the genomes. Then, we call for the 
+variants using the tool provided with minimap2: [paftools](https://github.com/lh3/minimap2/blob/master/misc/README.md).
+
+Finally the SNPs are filtered by the common regions to produce the final core SNP genome.
+
+### Analysis Functions
+
+#### `accnet_enrichment_analysis()`
+
+Perform a statistical test (Hypergeometric test: phyper) of the genes/proteins. It takes the cluster
+definition from the cluster table and compute the statistical test assuming the frequency of the
+gene/protein in the cluster vs the frequency of the gene/protein in the population.
+
+#### `accnet_with_padj()`
+
+Creates and improved network using the adjusted p-value as edge-weight. The network could be
+export to gephi (export_to_gephi) for a correct visualitation
+
+#### `annotate()`
+
+This function annotate virulence factors and the antibiotic resitance genes of the genomes (files).
+The annotation is performed using mmseqs2 software and the databases [Virulence Factor DataBase](http://www.mgc.ac.cn/cgi-bin/VFs/v5/main.cgi)
+and [ResFinder](https://cge.cbs.dtu.dk/services/ResFinder/). The function can re-use the previous
+computational steps of `mmseqs` or create a new index database from the files. Re-use option shorten
+the computational time. This method use the algorithm *search* of mmseqs2 so it olny return high
+identity matchs.
+
+#### `clustering()`
+
+This function cluster the genomes using mash data, accnet data or igraph data. The 
+object produced by accnet function, mash function and/or knnn data could be 
+clustered. accnet objects are clustered using jaccard distance from 
+presence/absence gene/proteins data. mash object uses the mash distances value 
+as similarity. igraph objects could be clustered using the methods availables in igraph.
+
++ for accnet objects:
+
+  + mclust: It perform clustering using Gaussian Finite Mixture Models. It
+could be combine with d_reduction. This method uses Mclust package. 
+It has been implemented to find the optimal cluster number
+
+  + upgma: It perform a Hierarchical Clustering using UPGMA algorithm. n_cluster must be provided
+
+  + ward.D2 It perform a Hierarchical Clustering using Ward algorithm. n_cluster must be provided
+
+  + hdbscan: It perform a Density-based spatial clustering of applications
+with noise using DBSCAN package. It find the optimal number of
+cluster.
+
++ for mash objects:
+
+  + mclust: It perform clustering using Gaussian Finite Mixture Models. It
+could be combine with d_reduction. This method uses Mclust pack-
+age. It has been implemented to find the optimal cluster number
+
+  + upgma: It perform a Hierarchical Clustering using UPGMA algorithm.
+n_cluster must be provided
+
+  + ward.D2: It perform a Hierarchical Clustering using Ward algorithm.
+n_cluster must be provided
+
+  + hdbscan: It perform a Density-based spatial clustering of applications
+with noise using DBSCAN package. It find the optimal number of
+cluster.
+
++ for igraph objects
+  + greedy: Community structure via greedy optimization of modularity
+  + louvain: This method implements the multi-level modularity optimization algorithm for finding community structure
+  + walktrap: Community structure via short random walks
+
+Clustering of igraph objects depends of the network building (see knnn function) and the number
+of cluster may variate between different setting of the k-nn network. Network based-methods are
+faster than distance based methods.
+Dimensional reduction tries to overcome "the curse of dimensionality" (more variables than samples: https://en.wikipedia.org/wiki/Curse_of_dimensionality). Using `umap` from `uwot` package we
+reduce to two the dimensionality of the dataset. Note that methods based on HDBSCAN always
+perform the dimensional reduction.
+There is not a universal criteria to select the number of clusters and the best configuration for one
+dataset may be not be the best one for others.
+If you desire to know more about clustering we recommend the book "Practical Guide To Clus-
+ter Analysis in R" from Alboukadel Kassambara (STHDA ed.)
+
+#### `coincidents()`
+
+This function find groups of coincidents genes/proteins in an accnet object. 
+Unlike `accnet_enrichment_analysis()` concidents does not need to define 
+genome/pangenome clusters. The methods perform a multi-dimensional scaling using 
+umap and then find clusters with hdbscan.
+
+#### `core_snps_matrix()`
+
+This function calculates the number of SNPs among samples in core genome and returns
+a SNP matrix.
+
+#### `export_accnet_aln()`
+
+This function write the presence/abscence matrix into a fasta alignment (1 = A, 0 = C) 
+file that can be use with any external software.
+
+#### `export_core_to_fasta()`
+
+Export core-genome alignment to Multi-alignment FASTA file.
+
+#### `export_to_gephi()`
+
+This function export a network (`accnet` or `igraph`) to universal format graphml.
+Big networks (especially `accnet` networks) can not be visualized in R enviroment. 
+We recommend to use external software such as Gephi or Cytoscape. Gephi can manage 
+bigger networks and the ForceAtlas2 layout can arrange accnet networks up to 
+1.000 genomes. If accnet object comes from `accnet_with_padj()` function, the 
+graph files will include the edges-weight proportional to the p-value that 
+associate the protein with the genome.
+
+#### `knnn()`
+
+This function creates a network with the k best neighbors of each genome (or pangenome). The
+network can be build with the best neighbors with or without repetitions. The option repeats establish
+if the best k neighbors includes bi-directional links or not. Let be G_i and G_j two genomes, if
+G_i is one of the best k-neighbors of G_j and G_j is one of the best k-neighbors of G_i if the
+repeats option is TRUE then G_i is removed from the k-neighbor and substituted be the next best
+neighbor in other case G_i keeps in the list.
+
+#### `plamidome()`
+
+This function uses mlplasmids to find the contigs belong to plasmids. The package mlplasmids
+must be installed in your computer. Nowadays mlplasmdis only process 
+*Enterococcus faecium*, *Escherichia coli* or *Klebsiella pneumoniae* genomes
+
+The input genomes must be in gff_list format (see load_gff_list() function) Plasmidome find the
+contigs that belong to plasmids and creates a new GFF structure with all the features information
+(FAA, FNA, FFN and GFF).
+By default PATO does not install `mlplasmids` because it is deposits in its own gitlab repository
+(https://gitlab.com/sirarredondo/mlplasmids).
+The authors define mlplasmids as:
+
+>mlplasmids consists of binary classifiers to predict contigs either as plasmid-derived or chromosome-derived.
+It currently classifies short-read contigs as chromosomes and plasmids for Enterococcus faecium, Escherichia coli 
+and Klebsiella pneumoniae. Further species will be added in the future. The provided 
+classifiers are Support Vector Machines which were previously optimized and selected
+versus other existing machine-learning techniques (Logistic regression, Random Forest..., 
+see also Reference). The classifiers use pentamer frequencies (n = 1,024) to 
+infer whether a particular contig is plasmid- or chromosome- derived. 
+
+To install `mlplasmids` you must have installed devtools (usually you have because PATO requires
+that you have devtools installed too). Then type:
+```{r eval=F, include=T}
+devtools::install_git("https://gitlab.com/sirarredondo/mlplasmids")
+```
+
+
+#### `sharedness()`
+
+Creates a matrix with the count of shared genes/proteins among samples.
+
+#### `singles()`
+
+Returns the genes/proteins that are only present in each genome or cluster of genomes.
+
+#### `snps_pairwaise()`
+
+This function calculates All-vs-All SNPs number. At different of core_snps_matrix this function
+calculates the raw number of SNPs among each pair of sequences avoiding the bias of the core
+genome size and/or reference. However, this function is an ${O(N^2)}$ so can be very slow for large
+datasets.
+
+#### `twins()`
+
+Twins nodes are those nodes that share exactly the same edges. In the case of an accnet object twin
+are those genes/proteins that you can find in the exactly the same set of genomes/samples.
+
+### Quality Control
+
+PATO implements a set of functions to find and remove non desire samples such us
+other specie, outliers or very similar (redundant) samples.
+
+#### `classifier()`
+
+Classifier take a list of genome files (nucleotide o protein) and identify the 
+most similar specie to each file. Classsifier uses all reference and 
+representative genomes from NCBI Refseq database and search, using mash, the 
+best hit for each genome file in the input list.
+
+#### `extract_non_redundant()`
+
+This function creates a non-redundant representation of the input object (accnet or mash).
+
+#### `non_redundant()`
+
+Creates a non-redundant sub-set of samples. The function accept an accnet or mash object and re-
+turns a nr_list object. The sub-set can be created using a certain distance (mash o jaccard distance),
+a specific number of elements or a fraction of the whole sample set. The function performes an
+iterative seach so sometimes the exact number of returned elements could be not the same that the
+specified in the input. This difference can be defined with the threshold parameter.
+
+
+#### `non_redundant_hier()`
+
+Creates a non-redundant sub-set of samples. The function accept an accnet or 
+mash object and returns a nr_list object. The sub-set can be created using a 
+certain distance (mash o jaccard distance), a specific number of elements or a 
+fraction of the whole sample set. The function performes an iterative seach so 
+sometimes the exact number of returned elements could be not the same that the
+specified in the input. This difference can be defined with the threshold 
+parameter. This function perform a hierarchical search. For small datasets 
+(<2000) non_redundant() could be faster. This function comsume less memory than 
+the original so it is better for large datasets.
+
+#### `non_redundant_pangenomes()`
+
+Remove redundant sequences from a file list of sequences (nucleotide or protein).
+This function has been designed to remove redundant sequences from a dataset.
+Unlike other non-redundant functions, this function only accept a distance 
+threshold and has been designed to remove similar sequences in large datasets.
+
+
+#### `outliers()`
+
+Find outliers in the dataset using a threshold distance (mash o jaccard distance) or by standard
+deviation times. This function also plot a manhattan plot to visualize the structure of the distance
+distribution of the input object.
+
+#### `remove_outliers()`
+
+Remove the outliers (or any desire element) of an accnet or mash object.
+
+### Visualization
+
+One of the point to use R as a language to develop PATO is the power of R in 
+terms of visualization. Because of that we have implemented several functions to
+visualize results but most of the PATO objects can be use with all the 
+visualization packages the are available in R.
+
+#### `core_plots()`
+
+Takes the a `mmseq` object and plot the size of core, accessory and pan-genome 
+data in the specified points and with the specified number of replicates.
+It’s supposed a gene/protein of the core-genome must be present in all the 
+genomes of the dataset. Nevertheless, by random selection and/or errors in 
+sequencing process (sequencing, assembly, ORF finding etc..) some genes/proteins
+could be missing. For that reason `core_plots()` implements a bootstrapping to 
+creates a distribution in each point.
+
+#### `similarity_network()`
+
+The function creates a similarity network connecting genomes with ’distances’ 
+lower than the specified threshold.
+The distance must to be suitable for the type of data. MASH values ranging 
+between 0-0.05 intra-specie mean while `accnet` distances could be higher.
+
+#### `similarity_tree()`
+
+Build a similarity tree (pseudo-phylogenetic) of the samples, using whole-genome 
+(`mash`) or accessory genome (`accnet`).
+
+#### `snps_map()`
+
+`snps_map` is a function that makes a similar plot to manhattan plots. This 
+function plot the cumulative number of snps per each contig-position pair.
+
+#### `umap_plot()`
+
+UMAP (Uniform Manifold Approximation and Projection for Dimension Reduction) is 
+a dimension reduction technique that can be used for visualisation similarly to 
+t-SNE, but also for general non-linear dimension reduction. This function uses 
+UMAP to represent the population structure of the data set (`accnet` or `mash`)
+
+#### `heatmap_of_annotation()`
+
+Creates a heatmap with the annotation results. User can filter the results by 
+identity and/or evalue. This function uses `pheatmap` instead of heatmap function 
+if `pheatmap` is installed.
+
+#### `network_of_annotation()`
+
+This function builds a igraph object with the results from annotate function. Allows to filter the
+results by identity and/or Evalue.
+
+#### `plot_knnn_network()`
+
+This function uses three.js javascript library [https://threejs.org/](https://threejs.org/) 
+(R package -> threejs: 
+[https://bwlewis.github.io/rthreejs](https://bwlewis.github.io/rthreejs) to draw
+the k-nnn. You can select the layout algorithm to arrange the network. Moreover,
+the network can visualize any kind of clustering (internal or external) an color
+the nodes by cluster. Finally the funtion return a list with the network, the 
+layout and the colors (to use with other functions)
 
 
 # Quality Control and DataSet manipulation
@@ -353,9 +725,9 @@ protein multi-fasta files (i.e. *.faa).
 PATO can handle both nucleotide or aminoacid multi-fasta files or GFF files that 
 include the FASTA sequence (as PROKKA output does). PATO can use whole-genome 
 sequence files but it's restricted for some functions. For small datasets we
-recomment to use GFF files that contains all possible formats. For large datasets
-we recomment to use FAA or FFN files. If you are using NCBI, EBI or other 
-public database note that there are especific files for multi-fasta genes file 
+recommend to use GFF files that contains all possible formats. For large datasets
+we recommend to use FAA or FFN files. If you are using NCBI, EBI or other 
+public database note that there are specific files for multi-fasta genes file 
 or multi-fasta protein files. GFF of these database DOES NOT have FASTA sequence
 so they can not used in `load_gff_list()` function. It is important to know that
 PATO take as annotation the headers of the fasta sequence, and usually, protein 
@@ -703,7 +1075,7 @@ visualize both `mash` and `accnet` data as a tree. In the caso of `accnet`
 data, first PATO calculate a distance matrix using the presence/absence matrix 
 in combination with Jaccard distance. The function `similarity_tree()` implement
 different methods to build the dendrogram. Phylogenetic aproaches such as 
-Neighbour Joining, FastME:Minimun Evolution and  hierarchical clustering method 
+Neighbor Joining, FastME:Minimun Evolution and  hierarchical clustering method 
 such us complete linkage, UPGMA, Ward's mininum variance, and WPGMC.
 ```{r eval=FALSE, include=TRUE}
 mash_tree_fastme <- similarity_tree(ecoli_mash)
@@ -716,7 +1088,7 @@ The output has a `phylo` format, so can be visualize with external packages as
 ```{r eval=FALSE, include=TRUE}
 mash_tree_fastme %>% midpoint %>% ggtree(layout = "circular") %<+% annot_tree + geom_tippoint(aes(color = organism_name))
 ```
-![Neighbour Joining tree](./tree_mash.png)
+![Neighbor Joining tree](./tree_mash.png)
 
 Using others external packages, we can compare the arragement of the pangenom 
 (`mash` data) against the accessory genome (`accnet`)
@@ -764,20 +1136,20 @@ the alingment length and improves computational times.
 
 PATO has a set of function to visualize data. We have saw the tree but algo 
 implements methods to visualize as networks the relationships among genomes. 
-**K-Nearest Neighbour Networks** is a representation of the realtionship of the 
+**K-Nearest Neighbor Networks** is a representation of the realtionship of the 
 data in a network plot. This function (`knnn()`) builds a network linking each 
-genome with their *K* best neighbours instead of chose a distance threshold. 
+genome with their *K* best neighbors instead of chose a distance threshold. 
 This approach minimize the clutering of the network and tries to create a 
-connected network. The method can chose the *K* best neighbours with or without 
+connected network. The method can chose the *K* best neighbors with or without 
 repetitions. That means that if **`repeats=FALSE`** each node are linked with 
-the best *K* neighbours that **does be not linked yet** with the node.
+the best *K* neighbors that **does be not linked yet** with the node.
 ```{r eval=FALSE, include=TRUE}
 
-# K-NNN with 10 neighbours and with repetitions
+# K-NNN with 10 neighbors and with repetitions
 knnn_mash_10_w_r <- knnn(ecoli_mash,n=10, repeats = TRUE)
-# K-NNN with 25 neighbours and with repetitions
+# K-NNN with 25 neighbors and with repetitions
 knnn_mash_25_w_r <- knnn(ecoli_mash,n=25, repeats = TRUE)
-# K-NNN with 50 neighbours and with repetitions
+# K-NNN with 50 neighbors and with repetitions
 knnn_mash_50_w_r <- knnn(ecoli_mash,n=50, repeats = TRUE)
 
 ```
@@ -792,7 +1164,7 @@ use the external software Gephi (https://gephi.org/). You can use the function
 ```{r eval=FALSE, include=TRUE}
 export_to_gephi(knnn_mash_50_w_r,file = "knnn_50_w_r.tsv")
 ```
-![Gephi visualization of the K-NNN with 50 neighbours](./gephi.png)
+![Gephi visualization of the K-NNN with 50 neighbors](./gephi.png)
 
 If you want, you can use the internal function `plot_knnn_network()` to 
 visualize the network. This funtion uses `igraph` layouts algorith to arrange 
@@ -802,7 +1174,7 @@ the network and `threejs` package to draw and explore the network.
 plot_knnn_network(knnn_mash_50_w_r)
 ```
 
-![Threejs visualization of the K-NNN with 50 neighbours](./knnn_plot.png)
+![Threejs visualization of the K-NNN with 50 neighbors](./knnn_plot.png)
 
 
 PATO includes a different clustering methods for different kind of data 

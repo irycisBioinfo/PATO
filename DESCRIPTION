@@ -10,7 +10,7 @@ Maintainer: Val F. Lanza <valfernandez.vf@gmail.com>
 Description: PATO is a R package designed to analyze pangenomes (set of genomes)
 	intra or inter species. It allows to analyze the core-genome, accessory 
 	genome and whole genome, the population structure, and the horizontal 
-	gene transfer dynamics. PATO uses, as core software MASH, MMSeq2 and R.
+	gene transfer dynamics. PATO uses, as core software MASH, MMSeq2, Minimap2 and R.
 License: CC0
 Encoding: UTF-8
 LazyData: true

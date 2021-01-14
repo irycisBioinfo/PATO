@@ -1,7 +1,10 @@
+bedtools
+k8
 mash
-mmseqs.avx2
-mmseqs.ssr41
 mash.macos
+minimap2
+mmseqs.avx2
 mmseqs.macos.avx2
-mmseqs.macos.ssr41
+mmseqs.macos.sse41
+mmseqs.sse41
 
