@@ -222,6 +222,8 @@ PATO includes internal functions and other wrap functions that calls external
 binaries. We split the functions into 4 categories: *Main Functions*, 
 *Analysis Functions*, *Quality Control* and *Visualization*.
 
+![](./FunctionsTable.png)
+
 ### Main Functions
 
 #### `load_gff_list()`
@@ -450,7 +452,7 @@ variants using the tool provided with minimap2: [paftools](https://github.com/lh
 Finally the SNPs are filtered by the common regions to produce the final core 
 SNP genome.
 
-### Analysis Functions
+### Analysis
 
 #### `accnet_enrichment_analysis()`
 
@@ -571,9 +573,9 @@ associate the protein with the genome.
 This function creates a network with the k best neighbors of each genome 
 (or pangenome). The network can be build with the best neighbors with or without
 repetitions. The option repeats establish if the best k neighbors includes 
-bi-directional links or not. Let be G_i and G_j two genomes, if G_i is one of 
-the best k-neighbors of G_j and G_j is one of the best k-neighbors of G_i if the
-repeats option is TRUE then G_i is removed from the k-neighbor and substituted 
+bi-directional links or not. Let be $G_i$ and $G_j$ two genomes, if $G_i$ is one of 
+the best k-neighbors of $G_j$ and $G_j$ is one of the best k-neighbors of G_i if the
+repeats option is TRUE then $G_i$ is removed from the k-neighbor and substituted 
 be the next best neighbor in other case G_i keeps in the list.
 
 #### `plamidome()`

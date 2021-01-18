@@ -14,20 +14,22 @@ foreach $l (@txt)
 	chomp $l;
 
 
-	if($l =~ /Query/)
+	if($l =~ /(Query_1\s+1\s+)/)
 	{
-		next;
+		
+		$offset = length($1)
 	}
 	if($l =~ /Subject_(\d+)\s+/)
 	{
 		$tmp = "$header[$1-1]";
 		chomp $tmp;
 		print $tmp;
+		
+		chomp $l;
+		$seq = substr($l,$offset,length($l));
+		$seq =~ s/\s+\d+//;
+		print "\t$seq\n";
+		
 	}
-	if($l =~ /Subject.{13}(.*)\s+\d+/)
-	{
-		$aln =$1;
-		$aln =~ s/\s/-/g;
-		print "\t$aln\n";
-	}
+	
 }
