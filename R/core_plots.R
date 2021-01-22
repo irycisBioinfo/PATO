@@ -35,23 +35,13 @@ core_plots <- function(data, steps = 10, reps = 10, threshold = 0.98, type = "pa
     stop("datamust be a 'mmseq' object")
   }
 
-  if(missing(n_cores))
-  {
-    n_cores = detectCores()-1
-  }
-
-
-  # cl <- makeCluster(n_cores)
-  # registerDoParallel(cl)
-
-
   results = data.frame(Data="Core",N=0,Iter=0,Value=0)
   results = results[-1,]
   results$Data = as.character(results$Data)
 
-  data_plots <- data$table %>% lazy_dt()
-  genomes <- data_plots %>% distinct(Genome_genome) %>% as_tibble()
-  nGenomes  <-  data_plots %>% distinct(Genome_genome) %>% count() %>% as_tibble()
+  data_plots <- data$table %>% as_tibble()
+  genomes <- data_plots %>% distinct(Genome_genome)
+  nGenomes  <-  data_plots %>% distinct(Genome_genome) %>% dplyr::count()
   data_plots <-  data_plots %>% select(Prot_prot, Genome_genome) %>% distinct()
 
   if(length(steps) <=1)
@@ -72,10 +62,9 @@ core_plots <- function(data, steps = 10, reps = 10, threshold = 0.98, type = "pa
           group_by(Prot_prot) %>%
           summarise(freq = n())
         core <-  tmp %>%
-          filter(freq >= i * threshold) %>% count() %>% as_tibble()
+          filter(freq >= i * threshold) %>%dplyr::count()
 
-        pange <-  tmp %>% filter(freq > 1) %>% count()%>% as_tibble()
-
+        pange <-  tmp %>% filter(freq > 1) %>% dplyr::count()
         acc <-  pange$n - core$n
 
 
@@ -96,10 +85,10 @@ core_plots <- function(data, steps = 10, reps = 10, threshold = 0.98, type = "pa
           summarise(freq = n())
 
 
-        core <-  tmp %>% filter(freq >= i * 0.99) %>% count()%>% as_tibble()
-        softcore <-  tmp %>% filter(freq >= i * 0.95) %>% filter(freq < i * 0.99) %>% count()%>% as_tibble()
-        shellgenes <- tmp %>% filter(freq >= i * 0.15) %>% filter(freq < i * 0.95) %>% count()%>% as_tibble()
-        cloudgenes <- tmp %>% filter(freq < i * 0.15) %>% count()%>% as_tibble()
+        core <-  tmp %>% filter(freq >= i * 0.99) %>% dplyr::count()
+        softcore <-  tmp %>% filter(freq >= i * 0.95) %>% filter(freq < i * 0.99) %>% dplyr::count()
+        shellgenes <- tmp %>% filter(freq >= i * 0.15) %>% filter(freq < i * 0.95) %>% dplyr::count()
+        cloudgenes <- tmp %>% filter(freq < i * 0.15) %>% dplyr::count()
 
 
 
@@ -113,7 +102,7 @@ core_plots <- function(data, steps = 10, reps = 10, threshold = 0.98, type = "pa
     }
   }
 
-  data = results %>% group_by(N, Data) %>% summarise(n_mean = mean(Value), sd = sd(Value))%>% as_tibble()
+  data = results %>% group_by(N, Data) %>% summarise(n_mean = mean(Value), sd = sd(Value))
   p <- data %>% ggplot(aes(x = N,y = n_mean,group = Data,color = Data)) +
     geom_line() +
     geom_point() + geom_errorbar(aes(ymin = n_mean-sd, ymax = n_mean+sd)) +
@@ -121,7 +110,6 @@ core_plots <- function(data, steps = 10, reps = 10, threshold = 0.98, type = "pa
     xlab("Number of Genomes") +
     ylab("Number of Proteins")
 
-  #stopCluster(cl)
   print(p)
   return(list(plot = p, data = data))
 }
