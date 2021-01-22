@@ -1,22 +1,42 @@
-#' Title
+#' dN/dS Average Ratio
+#' This function perform the dN/dS ratios for each gene family of the pangenome.
+#' It uses the \emph{dnds()} function of \emph{ape} package. \emph{dnds()} returns
+#' a \emph{dist} object. That object if transformed to matrix. Diagonal values,
+#' and negative values are remove. Infinity values are transformed to a max value
+#' not infinite. Finally it obtains the mean of the matrix.
 #'
-#' @param mmseq
-#' @param accnet
-#' @param min_size
+#' This function needs mafft and/or blastn intalled in you system and available
+#' in the PATH.
+#'
+#' @param mmseq A \emph{mmseq} object
+#' @param accnet The resulting \emph{accnet} object of the \emph{mmseq} object
+#' @param min_size Gene families smaller than this value are ingnored
+#' @param n_cores Number of cores to paralyse.
+#' @param mode Alignment mode c("fast",accurate")
 #'
 #' @return
 #' @export
 #'
 #' @examples
-dn_ds <- function(mmseq,accnet,min_size,n_cores,mode)
+dn_ds <- function(mmseq,accnet,min_size =5 ,n_cores,mode = "fast")
 {
   if(Sys.which("perl")=="")
   {
     stop("This function needs perl to work. Please check that Perl is installed and in the PATH")
   }
-  if(Sys.which("blastn")=="")
+  if(mode =="fast")
   {
-    stop("This function needs NCBI blastn to work. Please check that NCBI blast+ is installed and in the PATH")
+    if(Sys.which("blastn")=="")
+    {
+      stop("This function needs NCBI blastn to work. Please check that NCBI blast+ is installed and in the PATH")
+    }
+  }
+  if(mode =="accurate")
+  {
+    if(Sys.which("mafft")=="")
+    {
+      stop("This function needs mafft to work. Please check that mafft is installed and in the PATH")
+    }
   }
 
   if(!is(mmseq,"mmseq"))
