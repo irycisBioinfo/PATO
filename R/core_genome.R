@@ -79,7 +79,7 @@ core_genome <- function(data, type, n_cores)
     stop("Error, OS not supported.")
   }
   blastParser = system.file("blast_parser.pl", package = "pato")
-  msaParser = system.file("parse_msa_result.pl", package = "pato")
+
   msa2table = system.file("msa2table.pl", package = "pato")
 
   origin_path = getwd()
