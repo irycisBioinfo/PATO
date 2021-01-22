@@ -27,6 +27,8 @@
 #' @import dtplyr
 #' @import ggplot2
 #' @import data.table
+#' @import doParallel
+#' @import foreach
 #'
 core_plots <- function(data, steps = 10, reps = 10, threshold = 0.98, type = "pato", n_cores)
 {
@@ -51,13 +53,21 @@ core_plots <- function(data, steps = 10, reps = 10, threshold = 0.98, type = "pa
     intervals <- steps
   }
 
+  if(missing(n_cores))
+  {
+    n_cores <- detectCores()
+  }
+
+  cl <- makeCluster(n_cores)
+  registerDoParallel(cl)
+  on.exit(stopCluster(cl))
 
   if(type == "pato")
   {
 
-    for(i in intervals){
-      for(j  in 1:reps){
-        tmp <-  data_plots %>%
+    results <- foreach(i = intervals, .combine ="rbind") %:%
+      foreach(j = 1:reps, .combine = "rbind") %dopar% {
+          tmp <-  data_plots %>%
           inner_join(genomes %>% sample_n(i), by = "Genome_genome") %>%
           group_by(Prot_prot) %>%
           summarise(freq = n())
@@ -68,17 +78,17 @@ core_plots <- function(data, steps = 10, reps = 10, threshold = 0.98, type = "pa
         acc <-  pange$n - core$n
 
 
-        results = bind_rows(data.frame(Data = "Core",N = i,Iter = j,Value = core$n),
+        bind_rows(data.frame(Data = "Core",N = i,Iter = j,Value = core$n),
                   data.frame(Data = "Pangenome",N = i,Iter = j,Value = pange$n),
-                  data.frame(Data = "Accessory",N = i,Iter = j,Value = acc)) %>% bind_rows(results)
-      }
+                  data.frame(Data = "Accessory",N = i,Iter = j,Value = acc))
+
     }
 
 
   }else if (type =="roary")
   {
-    for(i in intervals){
-      for(j in 1:reps){
+    results <- foreach(i = intervals, .combine ="rbind") %:%
+      foreach(j = 1:reps, .combine = "rbind") %dopar% {
         tmp <-  data_plots %>%
           inner_join(genomes %>% sample_n(i), by = "Genome_genome") %>%
           group_by(Prot_prot) %>%
@@ -93,12 +103,12 @@ core_plots <- function(data, steps = 10, reps = 10, threshold = 0.98, type = "pa
 
 
 
-        results = bind_rows(data.frame(Data = "Core",N = i,Iter = j,Value = core$n),
+        bind_rows(data.frame(Data = "Core",N = i,Iter = j,Value = core$n),
                   data.frame(Data = "SoftCore",N = i,Iter = j,Value = softcore$n),
                   data.frame(Data = "ShellGenes",N = i,Iter = j,Value = shellgenes$n),
-                  data.frame(Data = "CloudGenes",N = i,Iter = j,Value = cloudgenes$n)) %>% bind_rows(results)
+                  data.frame(Data = "CloudGenes",N = i,Iter = j,Value = cloudgenes$n))
 
-      }
+
     }
   }
 
