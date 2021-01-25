@@ -55,14 +55,14 @@ export_to_gephi <- function(data, file, cluster)
          replace_na(list(Cluster =0))
     }
 
-    annotation %>% ungroup() %>%
+    annotation %>% ungroup() %>% distinct() %>%
       write.table(file =file.annot,sep = "\t",row.names = FALSE, col.names = TRUE, quote = FALSE)
 
   }else if(is(data,"igraph"))
   {
     file.net = paste(file,".net.tsv",collapse = "",sep="")
     file.annot = paste(file,".table.tsv",collapse = "",sep="")
-    igraph::as_data_frame(data) %>% rename(Source = from, Target = to) %>%
+    igraph::as_data_frame(data) %>% rename(Source = from, Target = to) %>% ungroup() %>%
       write.table(file =file.net,sep = "\t",row.names = FALSE, col.names = TRUE, quote = FALSE)
 
 

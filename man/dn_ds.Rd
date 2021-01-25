@@ -2,16 +2,34 @@
 % Please edit documentation in R/dn_ds.R
 \name{dn_ds}
 \alias{dn_ds}
-\title{Title}
+\title{dN/dS Average Ratio
+This function perform the dN/dS ratios for each gene family of the pangenome.
+It uses the \emph{dnds()} function of \emph{ape} package. \emph{dnds()} returns
+a \emph{dist} object. That object if transformed to matrix. Diagonal values,
+and negative values are remove. Infinity values are transformed to a max value
+not infinite. Finally it obtains the mean of the matrix.}
 \usage{
-dn_ds(mmseq, accnet, min_size, n_cores, mode)
+dn_ds(mmseq, accnet, min_size = 5, n_cores, mode = "fast")
 }
 \arguments{
-\item{min_size}{}
+\item{mmseq}{A \emph{mmseq} object}
+
+\item{accnet}{The resulting \emph{accnet} object of the \emph{mmseq} object}
+
+\item{min_size}{Gene families smaller than this value are ingnored}
+
+\item{n_cores}{Number of cores to paralyse.}
+
+\item{mode}{Alignment mode c("fast",accurate")}
 }
 \value{
 
 }
 \description{
-Title
+This function needs \emph{mafft} and/or \emph{blastn} intalled in you system
+and available in the PATH.
+}
+\examples{
+
+
 }

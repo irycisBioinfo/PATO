@@ -27,23 +27,26 @@ while($l = <A>)
 		mkdir $folder
 	}
 
-	if($l =~ />/ && $l eq $prev)
+	if($l =~ />/ && $prev =~ />/)
 	{
+	  {
 
-		$file = "family_".$i;
-		$i++;
-		$j++;
-		close O;
-		open(O,">$folder/$file");
+  		$file = "family_".$i;
+  		$i++;
+  		$j++;
+  		close O;
+  		open(O,">$folder/$file");
 
-		$index = $l;
-		chomp $index;
-		$index =~ s/>//;
-		print T "$index\t$folder/$file\n";
+  		$index = $l;
+  		chomp $index;
+  		$index =~ s/>//;
+  		print T "$index\t$folder/$file\n";
+	  }
 
 	}
 
 	$prev = $l;
+
 
 	if($i ==0)   ##For the first line
 	{

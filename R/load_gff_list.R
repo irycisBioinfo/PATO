@@ -71,6 +71,33 @@ load_gff_list <- function(input_files, n_cores)
 
     ffn_faa <- gff2fasta(gff %>% filter(Type == "CDS"),fasta)
 
+    gff <- gff %>%
+      filter(Type == "CDS") %>%
+      separate_rows(Attributes, sep = ";") %>%
+      separate(Attributes, c("variable","value"), sep = "=") %>%
+      pivot_wider(names_from = variable, values_from = value, values_fill = "") %>%
+      unite(col=Annot,Seqid,Start,End,Strand,sep = "|",remove = F)
+    if("gene" %in% colnames(gff))
+    {
+      gff <- gff %>% unite(col=Annot,Annot,gene, sep = " ")
+    }
+    if("product" %in% colnames(gff))
+    {
+      gff <- gff %>% unite(col=Annot,Annot,product,sep = " ")
+    }
+    gff <- gff %>% unite(Header,Seqid,Start,End,Strand,sep = "|")
+
+
+    ffn_faa <- ffn_faa %>%
+      mutate(Header = gsub(";","|",Header)) %>%
+      mutate(Header = gsub("Seqid=","",Header)) %>%
+      mutate(Header = gsub("Start=","",Header)) %>%
+      mutate(Header = gsub("End=","",Header)) %>%
+      mutate(Header = gsub("Strand=","",Header))
+
+
+    ffn_faa <- inner_join(ffn_faa,gff) %>% select(Annot,Sequence) %>% rename(Header = Annot)
+
     writeFasta(ffn_faa, paste(folderName,"/ffn/",pathName,".ffn",sep = "",collapse = "")) ## Write the ffn file
     ffn_faa <- ffn_faa %>% mutate(Sequence = translate(Sequence))
     writeFasta(ffn_faa , paste(folderName,"/faa/",pathName,".faa",sep = "",collapse = "")) ## Write the faa file

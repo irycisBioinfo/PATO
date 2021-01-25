@@ -51,6 +51,8 @@ mash <- function(file_list, n_cores =4, sketch = 1000, kmer = 21, type = "prot")
     }else if(type =="wgs"){
       file_list = dir(paste(file_list$path,"/fna",sep = "", collapse = ""),full.names = T) %>% as_tibble()
     }
+  }else{
+    file_list <- as.data.frame(file_list)
   }
 
   if(grepl('linux',Sys.getenv("R_PLATFORM"))) ## Linux

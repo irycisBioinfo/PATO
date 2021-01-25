@@ -5,8 +5,8 @@
 #' and negative values are remove. Infinity values are transformed to a max value
 #' not infinite. Finally it obtains the mean of the matrix.
 #'
-#' This function needs mafft and/or blastn intalled in you system and available
-#' in the PATH.
+#' This function needs \emph{mafft} and/or \emph{blastn} intalled in you system
+#' and available in the PATH.
 #'
 #' @param mmseq A \emph{mmseq} object
 #' @param accnet The resulting \emph{accnet} object of the \emph{mmseq} object
@@ -18,6 +18,8 @@
 #' @export
 #'
 #' @examples
+#'
+#'
 dn_ds <- function(mmseq,accnet,min_size =5 ,n_cores,mode = "fast")
 {
   if(Sys.which("perl")=="")
@@ -50,7 +52,7 @@ dn_ds <- function(mmseq,accnet,min_size =5 ,n_cores,mode = "fast")
 
   if(missing(n_cores))
   {
-    n_cores = detectCores()-1
+    n_cores = detectCores()
   }
 
   if(grepl('linux',Sys.getenv("R_PLATFORM"))) ## Linux
@@ -110,17 +112,21 @@ dn_ds <- function(mmseq,accnet,min_size =5 ,n_cores,mode = "fast")
     sizes <- read.table("sizes.tsv", sep = "\t", header = F)
     sizes <- sizes %>% rename(Family = 1, Size = 2) %>% filter(Size > min_size)
 
+    print(f)
     if(mode =="fast"){
-      dnds_ratios <- foreach( i = 1:nrow(sizes), .combine = "rbind") %dopar%
-        {
+      if(nrow(sizes>0))
+      {
+        dnds_ratios <- foreach( i = 1:nrow(sizes), .combine = "rbind") %dopar%
+          {
 
           name = system(paste0("head -1 ",f,"/",sizes$Family[i]), intern = T)
-          system(paste0("sed -i '$ d' ",f,"/",sizes$Family[i]))
+          system(paste0("sed -i '$ d' ",f,"/",sizes$Family[i]))       ##Remove last line
           system(paste("head -2 ",f,"/",sizes$Family[i]," > ",f,"/",sizes$Family[i],".ref.fasta",sep = "",collapse = ""))
           l = system(paste("head -2 ",f,"/",sizes$Family[i],"| tail -1 |wc -m ",sep = "",collapse = ""), intern =T)
           system(paste("grep '>' ",f,"/",sizes$Family[i]," > ",f,"/headers_",sizes$Family[i],sep = "",collapse = ""))
           l = as.numeric(l)*10
-          paste("blastn -task blastn -query ",f,"/",sizes$Family[i],".ref.fasta -subject ",f,"/",sizes$Family[i]," -outfmt 4 -max_hsps 1 -line_length ",
+          paste("blastn -task blastn -query ",f,"/",sizes$Family[i],".ref.fasta -subject ",f,"/",sizes$Family[i],
+                " -outfmt 4 -max_hsps 1 -line_length ",
                 l+10,
                 " -num_alignments ",
                 sizes$Size[i]," > ",f,"/",sizes$Family[i],".blast",
@@ -146,14 +152,17 @@ dn_ds <- function(mmseq,accnet,min_size =5 ,n_cores,mode = "fast")
             data.frame(Target = name, av_dnds = NaN)
           }
 
-        }
+          }
+      }
 
     }else if(mode =="accurate")
     {
-      dnds_ratios <- foreach( i = 1:nrow(sizes), .combine = "rbind") %dopar%
+      if(nrow(sizes>0))
+      {
+        dnds_ratios <- foreach( i = 1:nrow(sizes), .combine = "rbind") %dopar%
         {
           name = system(paste0("head -1 ",f,"/",sizes$Family[i]), intern = T)
-          system(paste0("sed -i '$ d' ",f,"/",sizes$Family[i]))
+          system(paste0("sed -i '$ d' ",f,"/",sizes$Family[i]))                 ## remove last line
           options(warn = -1)
           system(paste0("mafft --quiet --thread 1 ",f,"/",sizes$Family[i]," > ",f,"/",sizes$Family[i],".aln"))
           options(warn = 0)
@@ -175,17 +184,26 @@ dn_ds <- function(mmseq,accnet,min_size =5 ,n_cores,mode = "fast")
             data.frame(Target = name, av_dnds = NaN)
           }
         }
+      }
     }
     results <- bind_rows(results,dnds_ratios)
     setwd(mmseq$path)
 
   }
 
-  accnet$annot <- results  %>%
-    separate(Target,c("Genome","ID"), sep = "#") %>%
-    select(ID,av_dnds) %>%
-    right_join(accnet$annot)
+  if(missing(accnet))
+  {
+    return(results)
+  }else{
+    accnet$annot <- results  %>%
+      separate(Target,c("Genome","ID"), sep = "#") %>%
+      mutate(ID = sub(" ","#",ID)) %>%
+      separate(ID,c("ID","Annot"), sep = "#") %>%
+      select(ID,av_dnds) %>%
+      right_join(accnet$annot)
+    return(accnet)
+  }
 
-  return(accnet)
+
 
 }

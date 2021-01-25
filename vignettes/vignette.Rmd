@@ -3,7 +3,7 @@ title: 'PATO: Pangenome Analysis Toolkit'
 author: "Val F. Lanza"
 date: "`r Sys.Date()`"
 output:
-  pdf_document:
+  word_document:
     toc: yes
   github_document: null
   html_document:
@@ -13,6 +13,8 @@ output:
     toc_float:
       collapsed: yes
       smooth_scroll: no
+  pdf_document:
+    toc: yes
 vignette: |
   %\VignetteIndexEntry{PATO: Pangenome Analysis Toolkit} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
 ---

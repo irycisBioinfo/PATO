@@ -55,7 +55,8 @@ knnn <- function(data, n_neigh, repeats = TRUE)
   {
     gr <- igraph::graph_from_data_frame(List %>%
                                   group_by(Source) %>%
-                                  top_n(-n_neigh,Dist) %>%
+                                  #top_n(-n_neigh,Dist) %>%
+                                    slice_min(Dist, n= n_neigh,with_ties =F) %>%
                                   mutate(weight = 2-Dist) %>%
                                   select(-Dist))
     gr <- igraph::as.undirected(gr)
@@ -74,7 +75,8 @@ knnn <- function(data, n_neigh, repeats = TRUE)
 
     gr <- igraph::graph_from_data_frame(List.U %>%
                                   group_by(Source) %>%
-                                  top_n(-n_neigh,Dist)%>%
+                                  #top_n(-n_neigh,Dist)%>%
+                                    slice_min(Dist, n= n_neigh,with_ties =F) %>%
                                   mutate(weight = 2-Dist) %>%
                                   select(-Dist), directed = FALSE)
     gr <- igraph::simplify(gr,remove.multiple = TRUE,remove.loops = TRUE)

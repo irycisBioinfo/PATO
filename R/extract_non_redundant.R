@@ -24,7 +24,7 @@ extract_non_redundant <- function(data, nr_list)
   if (is(nr_list,"nr_list"))
   {
     members = as.data.frame(nr_list)
-    members <- members %>% group_by(cluster) %>% top_n(1, centrality)
+    members <- members %>% group_by(cluster) %>% slice_max(centrality, n = 1, with_ties = FALSE)
 
     if (is(data,"accnet"))
     {
