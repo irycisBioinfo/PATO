@@ -102,7 +102,7 @@ accnet_enrichment_analysis <- function(data,cluster, padj_method = "BY")
     ) %>%
     distinct() %>%
     mutate(
-      OdsRatio =  perClusterFreq / perTotalFreq ,
+      OddsRatio =  perClusterFreq / perTotalFreq ,
       pvalue = phyper(
         ClusterFreq,
         TotalFreq,
@@ -125,7 +125,7 @@ accnet_enrichment_analysis <- function(data,cluster, padj_method = "BY")
     ClusterGenomeSize,
     perTotalFreq,
     TotalFreq,
-    OdsRatio,
+    OddsRatio,
     pvalue,
     padj,
     AccnetGenomeSize,

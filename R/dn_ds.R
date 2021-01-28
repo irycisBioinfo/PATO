@@ -121,7 +121,7 @@ dn_ds <- function(mmseq,accnet,min_size =5 ,n_cores,mode = "fast")
 
           name = system(paste0("head -1 ",f,"/",sizes$Family[i]), intern = T)
           system(paste0("sed -i '$ d' ",f,"/",sizes$Family[i]))       ##Remove last line
-          system(paste("head -2 ",f,"/",sizes$Family[i]," > ",f,"/",sizes$Family[i],".ref.fasta",sep = "",collapse = ""))
+          system(paste("head -2 ",f,"/",sizes$Family[i]," > ",f,"/",sizes$Family[i],".ref.fasta",sep = "",collapse = ""))    #### El problema esta por aqui.
           l = system(paste("head -2 ",f,"/",sizes$Family[i],"| tail -1 |wc -m ",sep = "",collapse = ""), intern =T)
           system(paste("grep '>' ",f,"/",sizes$Family[i]," > ",f,"/headers_",sizes$Family[i],sep = "",collapse = ""))
           l = as.numeric(l)*10
@@ -185,6 +185,9 @@ dn_ds <- function(mmseq,accnet,min_size =5 ,n_cores,mode = "fast")
           }
         }
       }
+    }
+    else{
+      stop(paste0("Error. Unrecognise mode: ",mode))
     }
     results <- bind_rows(results,dnds_ratios)
     setwd(mmseq$path)
