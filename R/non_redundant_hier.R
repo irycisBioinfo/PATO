@@ -24,13 +24,13 @@
 #'
 #' @seealso \code{\link{extract_non_redundant}}
 #'
-#' @examples
+#' 
 #' @import dplyr
 #' @import tidyr
 #' @import tibble
 #' @import dtplyr
 #' @import igraph
-#' @import data.table
+#' @importFrom data.table fread
 #' @import parallelDist
 #'
 non_redundant_hier <- function(data, number, fraction, distance, tolerance = 0.05, partitions = 10,max_iter = 10000, fast =FALSE, snps)

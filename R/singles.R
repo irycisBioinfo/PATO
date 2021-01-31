@@ -13,12 +13,12 @@
 #' Genome/Cluster and its annotation.
 #' @export
 #'
-#' @examples
+#' 
 #' @import dplyr
 #' @import tidyr
 #' @import tibble
 #' @import dtplyr
-#' @import data.table
+#' @importFrom data.table fread
 #'
 singles <- function(data, cluster)
 {

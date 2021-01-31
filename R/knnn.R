@@ -17,12 +17,12 @@
 #' @return Returns an \emph{igraph} object.
 #' @export
 #'
-#' @examples
+#' 
 #' @import dplyr
 #' @import tidyr
 #' @import tibble
 #' @import dtplyr
-#' @import data.table
+#' @importFrom data.table fread
 #' @import igraph
 #' @import parallelDist
 

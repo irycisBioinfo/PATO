@@ -28,7 +28,7 @@
 #' @return core_snp_genome object
 #' @export
 #'
-#' @examples
+#' 
 core_snp_genome <- function(file_list, n_cores, ref, type)
 {
   if(grepl('linux',Sys.getenv("R_PLATFORM"))) ## Linux

@@ -13,14 +13,14 @@
 #' @export
 #'
 #' @seealso \code{\link{remove_outliers}}
-#' @examples
+#' 
 #' @import dplyr
 #' @import tidyr
 #' @import tibble
 #' @import dtplyr
 #' @import ggplot2
 #' @import magrittr
-#' @import data.table
+#' @importFrom data.table fread
 #' @import parallelDist
 #'
 #'

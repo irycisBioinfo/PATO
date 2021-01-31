@@ -10,7 +10,7 @@
 #' @return \emph{igraph} object
 #' @export
 #'
-#' @examples
+#' 
 #' @seealso \code{\link{annotate}}
 #'
 #' @import dplyr
@@ -18,7 +18,7 @@
 #' @import tibble
 #' @import dtplyr
 #' @import igraph
-#' @import data.table
+#' @importFrom data.table fread
 #'
 network_of_annotation <- function(data, min_identity = 0.95, max_evalue = 1e-25)
 {

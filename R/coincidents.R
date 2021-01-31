@@ -12,12 +12,12 @@
 #' @return A data.frame with the protein/gene ID ("Target") and the membership (cluster number)
 #' @export
 #'
-#' @examples
+#' 
 #' @import dplyr
 #' @import tidyr
 #' @import tibble
 #' @import dtplyr
-#' @import data.table
+#' @importFrom data.table fread
 #' @import uwot
 #' @import dbscan
 #'

@@ -17,7 +17,7 @@
 #' @import igraph
 #' @import parallelDist
 #'
-#' @examples
+#' 
 similarity_network <- function(data, threshold)
 {
   if(is(data,"mash"))

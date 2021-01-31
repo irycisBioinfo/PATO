@@ -15,12 +15,12 @@
 #' @return A \emph{list} with two tables, the membership of the pangenome,
 #' and the gene/protein frequency.
 #'
-#' @examples
+#' 
 #' @import dplyr
 #' @import tidyr
 #' @import tibble
 #' @import dtplyr
-#' @import data.table
+#' @importFrom data.table fread
 #'
 pangenomes_from_files_mmseqs <- function(file_list,i, coverage, identity, evalue, n_cores, cov_mode,cluster_mode,folder)
 {

@@ -10,12 +10,12 @@
 #' @export
 #'
 #' @seealso \code{\link{outliers}}
-#' @examples
+#' 
 #' @import dplyr
 #' @import tidyr
 #' @import tibble
 #' @import dtplyr
-#' @import data.table
+#' @importFrom data.table fread
 #'
 remove_outliers <- function(data,outliers)
 {

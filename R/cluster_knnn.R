@@ -9,7 +9,7 @@
 #' @import dplyr
 #' @import tidyr
 #' @import tibble
-#' @import data.table
+#' @importFrom data.table fread
 cluster_knnn <- function(data,method)
 {
 

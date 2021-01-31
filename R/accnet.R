@@ -30,9 +30,8 @@
 #'
 #' @import dplyr
 #' @import tidyr
-#' @import tibble
 #' @import dtplyr
-#' @import data.table
+#'
 #'
 accnet <- function(mmseqs,threshold = 0.8, singles = TRUE)
 {

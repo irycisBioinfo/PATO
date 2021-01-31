@@ -17,7 +17,7 @@
 #' @return
 #' @export
 #'
-#' @examples
+#' 
 #'
 #'
 dn_ds <- function(mmseq,accnet,min_size =5 ,n_cores,mode = "fast")

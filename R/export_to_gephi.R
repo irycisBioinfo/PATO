@@ -22,7 +22,7 @@
 #' @import tibble
 #' @import dtplyr
 #' @import igraph
-#' @import data.table
+#' @importFrom data.table fread
 export_to_gephi <- function(data, file, cluster)
 {
   if(is(data,"accnet"))

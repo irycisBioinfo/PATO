@@ -17,7 +17,7 @@
 #' @import tidyr
 #' @import tibble
 #' @import dtplyr
-#' @import data.table
+#' @importFrom data.table fread
 #'
 extract_non_redundant <- function(data, nr_list)
 {

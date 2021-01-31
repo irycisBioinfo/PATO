@@ -19,6 +19,3 @@ filter the results by identity and/or evalue. This function
 uses \emph{pheatmap} instead of \emph{heatmap} funtion if
 \emph{pheatmap} is installed.
 }
-\examples{
-
-}

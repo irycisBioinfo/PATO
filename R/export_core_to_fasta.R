@@ -5,7 +5,7 @@
 #'
 #' @export
 #'
-#' @examples
+#' 
 export_core_to_fasta <- function(core_data,file)
 {
 

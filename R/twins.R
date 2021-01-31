@@ -14,12 +14,12 @@
 #' }
 #' @export
 #'
-#' @examples
+#' 
 #' @import dplyr
 #' @import tidyr
 #' @import tibble
 #' @import dtplyr
-#' @import data.table
+#' @importFrom data.table fread
 #'
 twins <- function(data)
 {

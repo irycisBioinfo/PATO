@@ -14,14 +14,14 @@
 #' @return
 #' @export
 #'
-#' @examples
+#' 
 #'
 #' @import foreach
 #' @import doParallel
 #' @import dplyr
 #' @import tidyr
 #' @import stringr
-#' @import data.table
+#' @importFrom data.table fread
 #'
 snps_pairwaise <- function(file_list,type,n_cores, norm =T)
 {

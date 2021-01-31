@@ -26,7 +26,7 @@
 #' @import tibble
 #' @import dtplyr
 #' @import ggplot2
-#' @import data.table
+#' @importFrom data.table fread
 #' @import doParallel
 #' @import foreach
 #'

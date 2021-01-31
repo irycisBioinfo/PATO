@@ -13,9 +13,11 @@
 #' @import tibble
 #' @import uwot
 #' @import mclust
-#' @import data.table
+#' @importFrom data.table fread
 #' @import dbscan
 #' @import parallelDist
+#'
+#'
 cluster_accnet <- function(data, method, n_cluster, d_reduction, ...)
 {
   Dist <-

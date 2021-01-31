@@ -21,6 +21,3 @@ that can be use with RaxML or iqtree to build a phylogenetic tree.
 Some phylogenetic tree inference tool allow as input binary aligments. We recommend
 to use RAxML-NG or iQtree to inference an accessory genome tree.
 }
-\examples{
-
-}

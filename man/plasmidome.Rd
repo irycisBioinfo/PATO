@@ -46,10 +46,6 @@ you have because PATO requires that you have devtools installed too). Then type:
 
 \code{devtools::install_git("https://gitlab.com/sirarredondo/mlplasmids")}
 }
-\examples{
-
-
-}
 \references{
 Arredondo-Alonso et al., Microbial Genomics 2018;4 DOI 10.1099/mgen.0.000224
 }

@@ -17,13 +17,13 @@
 #' @import tidyr
 #' @import tibble
 #' @import dtplyr
-#' @import data.table
+#' @importFrom data.table fread
 #' @import igraph
 #
 #' @return
 #' @export
 #'
-#' @examples
+#' 
 non_redundant_pangenomes <- function(file_list, distance, type = "prot", n_cores,sketch = 1000, kmer = 21)
 {
 

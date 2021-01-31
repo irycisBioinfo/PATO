@@ -30,13 +30,13 @@
 #'
 #' @seealso \code{\link{igraph}}
 #'
-#' @examples
+#' 
 #' @import dplyr
 #' @import tidyr
 #' @import tibble
 #' @import dtplyr
 #' @import threejs
-#' @import data.table
+#' @importFrom data.table fread
 #' @import manipulateWidget
 #' @import htmltools
 #' @importFrom randomcoloR distinctColorPalette

@@ -13,12 +13,12 @@
 #' @return Classifier returns a data.frame with the best hit for each input genome.
 #' @export
 #'
-#' @examples
+#'
 #' @import dplyr
 #' @import tidyr
 #' @import tibble
 #' @import dtplyr
-#' @import data.table
+#' @importFrom  data.table fread
 
 classifier <- function(file_list, n_cores, type ="nucl", max_dist = 0.06)
 {

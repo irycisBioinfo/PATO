@@ -13,7 +13,7 @@
 #' @import dplyr
 #' @import tidyr
 #'
-#' @examples
+#' 
 snps_map <- function(core_snp_genome)
 {
 

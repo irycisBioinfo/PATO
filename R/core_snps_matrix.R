@@ -9,7 +9,7 @@
 #' @return A square matrix
 #' @export
 #'
-#' @examples
+#' 
 #' @import stringdist
 #' @import magrittr
 #'

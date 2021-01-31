@@ -1,10 +1,12 @@
 ---
 title: 'PATO: Pangenome Analysis Toolkit'
-author: "Val F. Lanza"
+author: "Miguel D. Fernández-de-Bobadilla & Val F. Lanza"
 date: "`r Sys.Date()`"
 output:
   pdf_document:
     toc: yes
+    toc_depth: 3
+    fig_crop: false
   github_document: null
   html_document:
     number_section: no
@@ -244,7 +246,7 @@ PATO includes internal functions and other wrap functions that calls external
 binaries. We split the functions into 4 categories: *Main Functions*,
 *Analysis Functions*, *Quality Control* and *Visualization*.
 
-![](./FunctionsTable.png){height=70%}
+![Table of the PATO functions](./FunctionsTable.png){height=70%}
 
 ### Main Functions
 
@@ -269,10 +271,8 @@ gffs <- load_gff_list(gff_files)
 
 #### `mash()`
 
-`mash()` functions is a wrapper of [Mash](https://github.com/marbl/Mash)
 
-Mash is a method for "Fast genome and metagenome distance estimation using
-MinHash"(). MASH accept nucleotide or aminoacid fasta files and estimates a
+It is a wrapper of [Mash](https://github.com/marbl/Mash). Mash is a method for "Fast genome and metagenome distance estimation using MinHash"(). MASH accept nucleotide or aminoacid fasta files and estimates a
 similarity distance. To extend the information we recommend to read the main
 paper *Mash: fast genome and metagenome distance estimation using MinHash.
 Ondov BD, Treangen TJ, Melsted P, Mallonee AB, Bergman NH, Koren S, Phillippy
@@ -297,19 +297,18 @@ sketch = 1000, kmer = 21, type = "prot")
 
 #### `mmseqs()`
 
-`mmseqs()` is a wrapper of [MMSeqs2](https://github.com/soedinglab/MMseqs2)
+It is a wrapper of [MMSeqs2](https://github.com/soedinglab/MMseqs2)
 software.
-
 Creators of MMSeqs define their software as:
  
->MMseqs2 (Many-against-Many sequence searching) is a software suite to search and
+>_MMseqs2 (Many-against-Many sequence searching) is a software suite to search and
 cluster huge protein and nucleotide sequence sets. MMseqs2 is an open source
 GPL-licensed software implemented in C++ for Linux, MacOS, and (as beta version,
 via cygwin) Windows. The software is designed to run on multiple cores and
 servers and exhibits a very good scalability. MMseqs2 can run 10000 times
 faster than BLAST. At 100 times its speed achieves almost the same
 sensitivity. It can perform profile searches with the same sensitivity as
-PSI-BLAST at over 400 times its speed.
+PSI-BLAST at over 400 times its speed._
 
 The algorithm renames all the files first, creating a new unique header for each gene/protein. Then the algorithm clusters all the sequences using the `mmseqs linclust` pipeline. Then the clustering results are loaded in R and parse to create the `mmseq` object.
 
@@ -343,7 +342,8 @@ bidirectional, (1) target coverage, (2) query coverage and (3) target-in-query
 length coverage. In the context of cluster or linclust, the query is seen
 representative sequence and target is a member sequence. The `-cov-mode` flag
 also automatically sets the `cluster_mode`.
-![Coverage Mode](./cov_mode.png){width=100%}
+
+![Coverage Mode](./cov_mode.png)
 
 ##### Clustering modes
 All clustering modes transform the alignment results into an undirected graph.
@@ -942,7 +942,7 @@ We can inspect the Pangenome composition of our dataset with:
 cp <- core_plots(ecoli_mm,reps = 10, threshold = 0.95, steps = 10)
 ```
 
-![Core Plots](./core_plot.png)
+![Plots of the pangenome composition](./core_plot.png)
 
 
 
@@ -1027,7 +1027,7 @@ the genome (in magabases) or can be a raw number of variants.
 var_matrix = core_snps_matrix(core, norm = TRUE)
 pheatmap::pheatmap(var_matrix,show_rownames = F, show_colnames = F)
 ```
-![SNPs matrix heatmap](./snp_heatmap.png)
+![HeatMap of the _core-snp-genome_ SNP matrix](./snp_heatmap.png)
 
 
 ### Accessory Genome Analysis
@@ -1167,7 +1167,7 @@ The output has a `phylo` format, so can be visualized with external packages as
 mash_tree_fastme %>% midpoint %>% ggtree(layout = "circular") %<+%
   annot_tree + geom_tippoint(aes(color = organism_name))
 ```
-![Neighbor Joining tree](./tree_mash.png)
+![Neighbor Joining tree of MASH distances](./tree_mash.png)
 
 Using other external packages, we can compare the arrangement of the pangenome
 (`mash` data) against the accessory genome (`accnet`)
@@ -1178,7 +1178,7 @@ tanglegram(ladderize(mash_tree_upgma), ladderize(accnet_tree_upgma),
 
 ```
 
-![](./tanglegram.png)
+![Tanglegram between Mash and AccNET dendrograms](./tanglegram.png)
 
 Some Maximum Likelihood inference trees software accept, as input, binary data
 (0-1) alignments. So, we can use accessory data (*accnet*) to infer a tree
@@ -1570,7 +1570,7 @@ pheatmap::pheatmap(tmp,
 )
 
 ```
-![](./SnpMatrixRoaryLike.png)
+![Matrix of SNPs of the _core-genome_](./SnpMatrixRoaryLike.png)
 We can manually  inspect the matrix in the console.
 ```{r eval=F, include=T, tidy=T}
 tmp %>%
@@ -1664,7 +1664,7 @@ pheatmap(tmp,
          )
 
 ```
-![SNPs matrix](./SnpMatrixRoaryLike.png)
+![HeatMap of the _core-snp-genome_ SNPs matrix](./SnpMatrixSnippyLike.png)
 
 And a manual inspection
 ```{r eval = F, include=T, tidy=TRUE}
@@ -1735,7 +1735,7 @@ pheatmap(tmp,
 
 
 ```
-![](./SnpMatrixPairwise.png)
+![HeatMap of the pairwaise SNP Matrix](./SnpMatrixPairwise.png)
 
 And the manual inspection reveals that
 ```{r eval=F, include=T, tidy=T}
@@ -1995,7 +1995,7 @@ CompareAll(trees,RobinsonFoulds)%>%
   pheatmap::pheatmap(.,display_numbers = T)
 
 ```
-![](./TreeComparison.png)
+![HeatMap of the Robinson Foulds distances](./TreeComparison.png)
 
 
 We compare the trees using [_TreeDist_](https://doi.org/10.1093/bioinformatics/btaa614)

@@ -50,8 +50,6 @@
 #' @import dplyr
 #' @import tidyr
 #' @import tibble
-#' @import dtplyr
-#' @import data.table
 #'
 annotate <- function(data, type = "nucl", database =c("AbR","VF_A","VF_B"), query = "all")
 {

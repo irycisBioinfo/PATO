@@ -11,7 +11,7 @@
 #'
 #' @export
 #'
-#' @examples
+#' 
 #'
 #' @import dplyr
 #' @import tidyr

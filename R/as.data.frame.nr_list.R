@@ -5,7 +5,7 @@
 #' @return A `data.frame`
 #' @export
 #'
-#' @examples
+#' 
 as.data.frame.nr_list <- function(data)
 {
   return(data.frame(

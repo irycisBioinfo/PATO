@@ -35,8 +35,6 @@
 #' @return
 #' @export
 #'
-#' @examples
-#'
 #'
 #' @references Arredondo-Alonso et al., Microbial Genomics 2018;4 DOI 10.1099/mgen.0.000224
 #'
@@ -44,10 +42,11 @@
 #' @import tidyr
 #' @import tibble
 #' @import dtplyr
-#' @import data.table
-#' @import Biostrings
+#' @importFrom data.table fread
 #' @import openssl
 #' @import microseq
+#'
+#' @value return a \emph{gff_list} object
 
 
 #'
@@ -120,7 +119,7 @@ plasmidome <- function(gff_list, specie)
       ffn_faa <- gff2fasta(gff %>% filter(Type == "CDS"),fasta)
 
       writeFasta(ffn_faa, paste(folderName,"/ffn/",pathName,".ffn",sep = "",collapse = "")) ## Write the ffn file
-      ffn_faa <- ffn_faa %>% mutate(Sequence = translate(Sequence))
+      ffn_faa <- ffn_faa %>% mutate(Sequence = microseq::translate(Sequence))
       writeFasta(ffn_faa , paste(folderName,"/faa/",pathName,".faa",sep = "",collapse = "")) ## Write the faa file
     }
   }

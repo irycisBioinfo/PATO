@@ -29,7 +29,3 @@ dn_ds(mmseq, accnet, min_size = 5, n_cores, mode = "fast")
 This function needs \emph{mafft} and/or \emph{blastn} intalled in you system
 and available in the PATH.
 }
-\examples{
-
-
-}

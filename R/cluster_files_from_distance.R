@@ -13,7 +13,7 @@
 #' @import dtplyr
 #' @import tidyr
 #' @import tibble
-#' @import data.table
+#' @importFrom data.table fread
 #' @import igraph
 #'
 cluster_files_from_distance <- function(files, file_type, distance, n_cores, folder)

@@ -2,9 +2,11 @@ Package: pato
 Type: Package
 Title: Pangenome Analysis Toolkit
 Version: 1.0.2
-Author: Alba Talavera Rodríguez
-	Miguel Diez Fernandez de Bobadilla
+Author: Miguel Diez Fernandez de Bobadilla
+	Alba Talavera Rodríguez
 	Lucia Chacon Vargas
+	Fernando Baquero
+	Teresa M. Coque
 	Val F. Lanza <valfernandez.vf@gmail.com>
 Maintainer: Val F. Lanza <valfernandez.vf@gmail.com>
 Description: PATO is a R package designed to analyze pangenomes (set of genomes)

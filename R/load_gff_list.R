@@ -13,13 +13,12 @@
 #' The function returns a \code{gff_list} object the can be used as input for other functions (mmseqs, mash)
 #' @export
 #'
-#' @examples
+#'
 #' @import dplyr
 #' @import tidyr
 #' @import tibble
 #' @import dtplyr
-#' @import data.table
-#' @import Biostrings
+#' @importFrom data.table fread
 #' @import openssl
 #' @import microseq
 #' @import foreach
@@ -35,6 +34,9 @@ load_gff_list <- function(input_files, n_cores)
 
   cl <- makeCluster(n_cores)
   registerDoParallel(cl)
+
+  on.exit(file.remove(list.files(pattern = "gffTMP")))
+  on.exit(stopCluster(cl), add = T)
 
   input_files <- as_tibble(input_files) %>% rename(File = 1)
   folderName <- paste(getwd(),"/",md5(paste(input_files$File, sep = "",collapse = "")),"_gffList",sep = "",collapse = "")
@@ -99,13 +101,12 @@ load_gff_list <- function(input_files, n_cores)
     ffn_faa <- inner_join(ffn_faa,gff) %>% select(Annot,Sequence) %>% rename(Header = Annot)
 
     writeFasta(ffn_faa, paste(folderName,"/ffn/",pathName,".ffn",sep = "",collapse = "")) ## Write the ffn file
-    ffn_faa <- ffn_faa %>% mutate(Sequence = translate(Sequence))
+    ffn_faa <- ffn_faa %>% mutate(Sequence = microseq::translate(Sequence))
     writeFasta(ffn_faa , paste(folderName,"/faa/",pathName,".faa",sep = "",collapse = "")) ## Write the faa file
   }
 
 
-  on.exit(file.remove(list.files(pattern = "gffTMP")))
-  on.exit(stopCluster(cl), add = T)
+
 
   results <-  list(path = folderName, files = input_files)
   class(results) <- append(class(results),"gff_list")

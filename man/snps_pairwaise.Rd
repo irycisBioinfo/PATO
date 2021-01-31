@@ -25,6 +25,3 @@ calculates the raw number of SNPs among each pair of sequences avoiding the bias
 reference.
 However, this function is an \emph{O(N²)} so can be very slow for large datasets.
 }
-\examples{
-
-}

@@ -14,8 +14,6 @@
 #' @import dplyr
 #' @import tidyr
 #' @import tibble
-#' @import dtplyr
-#' @import data.table
 #'
 accnet_with_padj <- function(data)
 {

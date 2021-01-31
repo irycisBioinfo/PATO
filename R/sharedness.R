@@ -8,7 +8,7 @@
 #' each pair of samples.
 #' @export
 #'
-#' @examples
+#' 
 sharedness <- function(data)
 {
   if(is(data,"accnet"))

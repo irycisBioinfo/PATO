@@ -21,11 +21,11 @@
 #' @return An object of class \emph{phylo}
 #' @export
 #'
-#' @examples
+#' 
 #' @import dplyr
 #' @import tidyr
 #' @import tibble
-#' @import data.table
+#' @importFrom data.table fread
 #' @import ape
 #' @import parallelDist
 

@@ -37,8 +37,6 @@
 #' @import dplyr
 #' @import tidyr
 #' @import tibble
-#' @import dtplyr
-#' @import data.table
 #'
 accnet_enrichment_analysis <- function(data,cluster, padj_method = "BY")
 {

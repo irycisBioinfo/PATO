@@ -21,12 +21,12 @@
 #'
 #' @seealso \code{\link{clustering}}
 #'
-#' @examples
+#' 
 #' @import dplyr
 #' @import tidyr
 #' @import tibble
 #' @import dtplyr
-#' @import data.table
+#' @importFrom data.table fread
 #'
 
 pangenomes_from_mmseqs <-function(data,cluster,min_freq = 0,max_freq = 1,min_pangenome_size = 1)

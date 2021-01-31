@@ -20,12 +20,12 @@
 #' @return A core_genome object (a data.frame with two columns: fasta header and sequence)
 #' @export
 #'
-#' @examples
+#' 
 #' @import dplyr
 #' @import tidyr
 #' @import tibble
 #' @import dtplyr
-#' @import data.table
+#' @importFrom data.table fread
 #' @import foreach
 #' @import doParallel
 #' @import parallel

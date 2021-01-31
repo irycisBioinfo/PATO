@@ -12,7 +12,7 @@
 #'
 #' @export
 #'
-#' @examples
+#' 
 #'
 export_accnet_aln <- function(accnet,file, min_freq =3)
 {
