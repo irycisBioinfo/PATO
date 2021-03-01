@@ -28,7 +28,7 @@
 #' @return core_snp_genome object
 #' @export
 #'
-#' 
+#'
 core_snp_genome <- function(file_list, n_cores, ref, type)
 {
   if(grepl('linux',Sys.getenv("R_PLATFORM"))) ## Linux
@@ -83,7 +83,7 @@ core_snp_genome <- function(file_list, n_cores, ref, type)
   {
     n_cores <- detectCores()/2
   }else{
-    n_cores <- ncores/2
+    n_cores <- n_cores/2
   }
 
   cl <- makeCluster(n_cores)
