@@ -26,6 +26,12 @@
 #'
 load_gff_list <- function(input_files, n_cores)
 {
+  if(Sys.which("perl")=="")
+  {
+    stop("This function needs perl to work. Please check that Perl is installed and in the PATH")
+  }
+
+  gff_split = system.file("gff_split.pl", package = "pato")
 
   if(missing(n_cores)){
 
@@ -60,14 +66,16 @@ load_gff_list <- function(input_files, n_cores)
 
     tempFile = tempfile(pattern = "gffTMP")
     print(as.character(input_files$File[i]))
-    system(paste("csplit ",as.character(input_files$File[i])," -f ",tempFile," /#FASTA/"),ignore.stdout = T)
+
+    #system(paste("csplit ",as.character(input_files$File[i])," -f ",tempFile," /#FASTA/"),ignore.stdout = T)
+    system(paste0(gff_split," ",tempFile," ",as.character(input_files$File[i])))
 
     pathName<- gsub(".gff","",basename(as.character(input_files$File[i])))
 
-    gff <- readGFF(paste(tempFile,"00",sep = "",collapse = ""))
+    gff <- readGFF(paste(tempFile,"gff",sep = "",collapse = ""))
     writeGFF(gff,paste(folderName,"/gff/",pathName,".gff",sep = "",collapse = "") )                         ##Write the gff file
 
-    fasta <- readFasta(paste(tempFile,"01",sep = "",collapse = ""))
+    fasta <- readFasta(paste(tempFile,"fasta",sep = "",collapse = ""))
     writeFasta(fasta,paste(folderName,"/fna/",pathName,".fna",sep = "",collapse = ""))                      ## Write the fna file
 
 

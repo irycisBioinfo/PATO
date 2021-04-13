@@ -14,7 +14,7 @@
 #' @return
 #' @export
 #'
-#' 
+#'
 #'
 #' @import foreach
 #' @import doParallel
@@ -89,7 +89,7 @@ snps_pairwaise <- function(file_list,type,n_cores, norm =T)
 
       system(paste(minimap2," -cx asm20 -t 20 --cs ",ref," ",query," > ",output,collapse = "", sep = ""), ignore.stderr = T)
       system(paste("sort -k6,6 -k8,8n ",output," > ",output,".srt", sep = "", collapse = ""),ignore.stderr = T)
-      system(paste(k8," ",paftools," call ",output,".srt > ",output,".vcf",collapse = "",sep = ""),ignore.stderr = T)
+      system(paste(k8," ",paftools," call ",output,".srt > ",output,".vcf",collapse = "",sep = ""),ignore.stderr = T)  ### añadir parametros calling
       system(paste(k8," ",paftools," splice2bed ",output," > ",output,".bed",collapse = "",sep = ""),ignore.stderr = T)
     }
   }
