@@ -1,11 +1,11 @@
 #!/usr/bin/perl
 
-$output = $ARGV[0]
-open A $ARGV[1]
+$output = $ARGV[0];
+open(A,$ARGV[1]);
 
 open(OUT,">$output.gff");
 
-while($l = A)
+while($l = <A>)
 {
 	if($l =~ "#FASTA")
 	{

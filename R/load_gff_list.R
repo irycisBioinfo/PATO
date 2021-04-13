@@ -41,10 +41,11 @@ load_gff_list <- function(input_files, n_cores)
   cl <- makeCluster(n_cores)
   registerDoParallel(cl)
 
-  on.exit(file.remove(list.files(pattern = "gffTMP")))
+  #on.exit(file.remove(list.files(pattern = "gffTMP")))
   on.exit(stopCluster(cl), add = T)
 
   input_files <- as_tibble(input_files) %>% rename(File = 1)
+
   folderName <- paste(getwd(),"/",md5(paste(input_files$File, sep = "",collapse = "")),"_gffList",sep = "",collapse = "")
 
   if(file.exists(paste(folderName,"/gffObject.Rdata", sep = "", collapse = "")))
@@ -65,17 +66,18 @@ load_gff_list <- function(input_files, n_cores)
   {
 
     tempFile = tempfile(pattern = "gffTMP")
-    print(as.character(input_files$File[i]))
+
 
     #system(paste("csplit ",as.character(input_files$File[i])," -f ",tempFile," /#FASTA/"),ignore.stdout = T)
-    system(paste0(gff_split," ",tempFile," ",as.character(input_files$File[i])))
+
+    paste("perl ",gff_split," ",tempFile," ",as.character(input_files$File[i]),sep = "",collapse = "") %>% system()
 
     pathName<- gsub(".gff","",basename(as.character(input_files$File[i])))
 
-    gff <- readGFF(paste(tempFile,"gff",sep = "",collapse = ""))
+    gff <- readGFF(paste(tempFile,".gff",sep = "",collapse = ""))
     writeGFF(gff,paste(folderName,"/gff/",pathName,".gff",sep = "",collapse = "") )                         ##Write the gff file
 
-    fasta <- readFasta(paste(tempFile,"fasta",sep = "",collapse = ""))
+    fasta <- readFasta(paste(tempFile,".fasta",sep = "",collapse = ""))
     writeFasta(fasta,paste(folderName,"/fna/",pathName,".fna",sep = "",collapse = ""))                      ## Write the fna file
 
 
@@ -112,10 +114,6 @@ load_gff_list <- function(input_files, n_cores)
     ffn_faa <- ffn_faa %>% mutate(Sequence = microseq::translate(Sequence))
     writeFasta(ffn_faa , paste(folderName,"/faa/",pathName,".faa",sep = "",collapse = "")) ## Write the faa file
   }
-
-
-
-
   results <-  list(path = folderName, files = input_files)
   class(results) <- append(class(results),"gff_list")
   saveRDS(results,file = paste(folderName,"/gffObject.Rdata",sep = "",collapse = ""))
