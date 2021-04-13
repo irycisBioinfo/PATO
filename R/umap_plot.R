@@ -18,7 +18,7 @@
 #' @references McInnes, L, Healy, J, UMAP: Uniform Manifold Approximation and Projection for Dimension Reduction, ArXiv e-prints 1802.03426, 2018
 #' @references James Melville (2019). uwot: The Uniform Manifold Approximation and Projection (UMAP) Method for
 #' Dimensionality Reduction. R package version 0.1.4. https://CRAN.R-project.org/package=uwot
-#' 
+#'
 #' @import dplyr
 #' @import tidyr
 #' @import tibble
@@ -64,8 +64,8 @@ umap_plot <- function(data, plot = TRUE, cluster,...)
               geom_point() +
               theme_bw() +
               xlab("umap_x") +
-              ylab("umap_y")) +
-              scale_color_manual(values = distinctColorPalette(length(unique(umap$Cluster))))
+              ylab("umap_y"))
+
     }
   }
 
