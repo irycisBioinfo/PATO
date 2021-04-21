@@ -22,6 +22,8 @@
 #' @param n_cores Number of cores to use.
 #' @param ref Reference genome (if missing, one is selected randomly)
 #' @param type Just for \emph{gff_list} objects. You must especified if you want to use whole genome sequences "wgs" or genes "nucl"
+#' @param min_call_length min alignment length to call variants and compute coverage (expert parameters)
+#' @param min_call_qual min mapping quality (expert parameters)
 #'
 #' @references Li, H. (2018). Minimap2: pairwise alignment for nucleotide sequences. Bioinformatics, 34:3094-3100. doi:10.1093/bioinformatics/bty191
 #'
@@ -29,7 +31,7 @@
 #' @export
 #'
 #'
-core_snp_genome <- function(file_list, n_cores, ref, type)
+core_snp_genome <- function(file_list, n_cores, ref, type, min_call_length, min_call_qual)
 {
   if(grepl('linux',Sys.getenv("R_PLATFORM"))) ## Linux
   {
@@ -86,6 +88,16 @@ core_snp_genome <- function(file_list, n_cores, ref, type)
     n_cores <- n_cores/2
   }
 
+  if(missing(min_call_length))
+  {
+    min_call_length = 1000
+  }
+
+  if(missing(min_call_qual))
+  {
+    min_call_qual = 5
+  }
+
   cl <- makeCluster(n_cores)
   registerDoParallel(cl)
 
@@ -101,7 +113,7 @@ core_snp_genome <- function(file_list, n_cores, ref, type)
 
     system(paste(minimap2," -cx asm20 -t 2 --cs=long ref.mmi ",i," > ",folderName,"/",basename(i),".paf",collapse = "", sep = ""), ignore.stderr = T)
     system(paste("sort -k6,6 -k8,8n ",folderName,"/",basename(i),".paf > ",folderName,"/",basename(i),".tmp.paf", sep = "", collapse = ""),ignore.stderr = T)
-    system(paste0(k8," ",paftools," call -L 100 ",folderName,"/",basename(i),".tmp.paf > ",folderName,"/",basename(i),".vcf",collapse = "",sep = ""),ignore.stderr = T)
+    system(paste0(k8," ",paftools," call -L ",min_call_length," -l ",min_call_length," -q ",min_call_qual," ",folderName,"/",basename(i),".tmp.paf > ",folderName,"/",basename(i),".vcf",collapse = "",sep = ""),ignore.stderr = T)
     system(paste(k8," ",paftools," splice2bed ",folderName,"/",basename(i),".paf"," > ",folderName,"/",basename(i),".tmp",collapse = "",sep = ""),ignore.stderr = T)
     system(paste0(bedtools," sort -i ",folderName,"/",basename(i),".tmp > ",folderName,"/",basename(i),".bed"))
   }
@@ -113,19 +125,26 @@ core_snp_genome <- function(file_list, n_cores, ref, type)
   beds <- dir(folderName, pattern = ".bed", full.names = T)
 
 
-  system(
-     paste(
-       "bedtools intersect -a ",
-       beds[1],
-       " -b ",
-       paste(beds[-1], sep = " ", collapse = " "),
-       " | sort -k1,1 -k2,2n | bedtools merge > final.bed",
-       sep = "",
-       collapse = ""
-     )
-   )
+  # system(
+  #    paste(
+  #      "bedtools intersect -a ",
+  #      beds[1],
+  #      " -b ",
+  #      paste(beds[-1], sep = " ", collapse = " "),
+  #      " | sort -k1,1 -k2,2n | bedtools merge > final.bed",
+  #      sep = "",
+  #      collapse = ""
+  #    )
+  #  )
+  system(paste0("cp ",beds[1]," ",folderName,"/final.bed"))
+  system(paste0("cp ",beds[1]," ",folderName,"/ini.bed"))
+  for(i in beds[-1])
+  {
+    system(paste0("bedtools intersect -a ",folderName,"/final.bed -b ",i," | sort -k1,1 -k2,2n | bedtools merge > ",folderName,"/tmp.bed"))
+    system(paste0("cp ",folderName,"/tmp.bed ",folderName,"/final.bed"))
+  }
   print("Reading Bed Files")
-   bed <- read.table("final.bed", stringsAsFactors = F)
+   bed <- read.table(paste0(folderName,"/final.bed"), stringsAsFactors = F)
    colnames(bed) <- c("CHROM","START","END")
 
 

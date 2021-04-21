@@ -15,12 +15,14 @@
 #' \emph{core_genome()} can build a core-genome alingment of thusands of genomes in minutes.
 #'
 #' @param data An \emph{mmseqs} object
-  #' @param type Type of sequence 'nucl' or 'prot'
+#' @param type Type of sequence 'nucl' or 'prot'
+#' @param n_cores Number of computer core to use
+#' @param methos \emph{fast (based on blast)} or \emph{accurate (based on mafft)}
 #'
 #' @return A core_genome object (a data.frame with two columns: fasta header and sequence)
 #' @export
 #'
-#' 
+#'
 #' @import dplyr
 #' @import tidyr
 #' @import tibble
@@ -30,15 +32,19 @@
 #' @import doParallel
 #' @import parallel
 #'
-core_genome <- function(data, type, n_cores)
+core_genome <- function(data, type, n_cores, method = "fast")
 {
   if(Sys.which("perl")=="")
   {
     stop("This function needs perl to work. Please check that Perl is installed and in the PATH")
   }
-  if(Sys.which("blastn")=="")
+  if(method == "fast" & Sys.which("blastn")=="")
   {
     stop("This function needs NCBI blastn to work. Please check that NCBI blast+ is installed and in the PATH")
+  }
+  if(method =="accurate" & Sys.which("mafft")=="")
+  {
+    stop("This function needs mafft to work. Please check that mafft is installed and in the PATH")
   }
 
   if(!is(data,"mmseq"))
@@ -136,8 +142,6 @@ core_genome <- function(data, type, n_cores)
 
   paste("split -a 4 --numeric-suffixes=1 -l ",(nGenomes$n*2)+1," subset.fasta core_") %>%
     system(.,intern = F,ignore.stdout = T, ignore.stderr = T)
-
-
   system("mv core* f_core")
   system("sed -i '1d' ./f_core/*",intern = F,ignore.stdout = T, ignore.stderr = T)
 
@@ -150,11 +154,13 @@ core_genome <- function(data, type, n_cores)
 
     seqs <- foreach( i = dir("./f_core"), .combine = "rbind") %dopar%
     {
+      if(method =="fast")
+      {
       system(paste("head -2 ./f_core/",i," > ./f_core/",i,".ref.fasta",sep = "",collapse = ""))
       system(paste("grep '>' ./f_core/",i," > ./f_core/headers_",i,sep = "",collapse = ""))
       l = system(paste("head -2 ./f_core/",i,"| tail -1 |wc -m ",sep = "",collapse = ""), intern =T)
-
       l = as.numeric(l)*10
+
       paste("blastn -task blastn -query ./f_core/",i,".ref.fasta -subject ./f_core/",
              i,
              " -outfmt 4 -max_hsps 1 -out ./f_core/",i,".blast -line_length ",
@@ -164,14 +170,19 @@ core_genome <- function(data, type, n_cores)
              sep = "", collapse = "") %>% system()
         paste("perl ",blastParser," ./f_core/",i,".blast ./f_core/headers_",i," > ./f_core/",i,".aln", sep = "", collapse = "") %>%
           system()
-        tmp <- data.table::fread(
-          paste("./f_core/", i, ".aln", sep = "", collapse = ""),
-          sep = "\t",
-          stringsAsFactors = F,
-          header = F,
-          colClasses = c("character", "character"),
-          col.names = c("Head", "Seq")
-        ) %>% as_tibble()
+        tmp <- microseq::readFasta(paste0("./f_core/",i,".aln"))
+        tmp <- tmp %>% mutate(Header = gsub("^",">",Header)) %>% mutate(Sequence = toupper(Sequence))
+
+      }else if(method =="accurate")
+      {
+
+        options(warn = -1)
+        system(paste0("mafft --quiet --thread 1 ./f_core/",i," > ./f_core/",i,".aln" ))
+        options(warn = 0)
+        tmp <- microseq::readFasta(paste0("./f_core/",i,".aln"))
+        tmp <- tmp %>% mutate(Header = gsub("^",">",Header)) %>% mutate(Sequence = toupper(Sequence))
+      }
+
     }
 
     stopCluster(cl)
@@ -200,7 +211,8 @@ core_genome <- function(data, type, n_cores)
 
 
   print(colnames(seqs))
-  seqs <- seqs %>%
+  colnames(seqs) <- c("Head","Seq")
+  seqs <- seqs %>% as_tibble() %>%
     separate(Head,c("Genomes","Prot"),sep="#") %>%
     group_by(Genomes) %>%
     summarise(Seq = paste(Seq,sep = "",collapse = ""))

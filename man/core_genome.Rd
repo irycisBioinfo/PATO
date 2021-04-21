@@ -4,12 +4,16 @@
 \alias{core_genome}
 \title{Core-Genome Alignment}
 \usage{
-core_genome(data, type, n_cores)
+core_genome(data, type, n_cores, method = "fast")
 }
 \arguments{
 \item{data}{An \emph{mmseqs} object}
 
 \item{type}{Type of sequence 'nucl' or 'prot'}
+
+\item{n_cores}{Number of computer core to use}
+
+\item{methos}{\emph{fast (based on blast)} or \emph{accurate (based on mafft)}}
 }
 \value{
 A core_genome object (a data.frame with two columns: fasta header and sequence)
