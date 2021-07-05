@@ -4,7 +4,7 @@
 \alias{core_snp_genome}
 \title{Core SNP Genome}
 \usage{
-core_snp_genome(file_list, n_cores, ref, type)
+core_snp_genome(file_list, n_cores, ref, type, min_call_length, min_call_qual)
 }
 \arguments{
 \item{file_list}{Data frame with the full path to the nucleotide genome files (gene or genomes) or a \emph{gff_list} object.}
@@ -14,6 +14,10 @@ core_snp_genome(file_list, n_cores, ref, type)
 \item{ref}{Reference genome (if missing, one is selected randomly)}
 
 \item{type}{Just for \emph{gff_list} objects. You must especified if you want to use whole genome sequences "wgs" or genes "nucl"}
+
+\item{min_call_length}{min alignment length to call variants and compute coverage (expert parameters)}
+
+\item{min_call_qual}{min mapping quality (expert parameters)}
 }
 \value{
 core_snp_genome object

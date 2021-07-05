@@ -21,7 +21,7 @@ cluster_mash <- function(data, method, n_cluster,d_reduction,...)
   Dist <-  as.dist(data$matrix)
   if (method == "mclust")
   {
-    if (d_reduction)
+    if (!d_reduction)
     {
       min <- 2
       max <- 9
