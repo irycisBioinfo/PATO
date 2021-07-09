@@ -5,7 +5,7 @@
 #'
 #' @export
 #'
-#' 
+#'
 export_core_to_fasta <- function(core_data,file)
 {
 
@@ -18,7 +18,7 @@ export_core_to_fasta <- function(core_data,file)
   {
     for(i in 1:length(core_data$core_genome$Genomes))
     {
-      write(core_data$core_genome$Genomes[i],file,append = TRUE)
+      write(paste(">",core_data$core_genome$Genomes[i],sep="",collapse = ""),file,append = TRUE)
       write(core_data$core_genome$Seq[i],file, append = TRUE)
     }
   }else if(is(core_data,"core_snp_genome")){
