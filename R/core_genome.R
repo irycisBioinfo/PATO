@@ -2,17 +2,21 @@
 #'
 #' Find and creates a core-genome alignment. Unlike \emph{core_plots()}
 #' this function find the hard core-genome (genes presence in 100% of genomes
-#' and without repetitions). The function takes a \emph{mmseqs()} output, so the deffinition of
-#' the paralogous genes of the core-genome (similarity, coverage and/or e-value)
-#' depends on the \emph{mmseqs()} parameters.
+#' and without repetitions (i.e. without paralougs)). The function takes a
+#' \emph{mmseqs()} output, so the definition of the orthologous genes of the
+#' core-genome (similarity, coverage and/or e-value)depends on the
+#' \emph{mmseqs()} parameters.
 #'
-#' The function perform a pseudo-msa per each paralog using the function
+#' The function can performs a pseudo-msa per each ortholog using the function
 #' \emph{result2msa} of \emph{mmseqs2}.This approach is much faster than
 #' classical MSA (clutal, mafft or muscle) but is less accurate. Taking into account
 #' that most of the phylogenetic inference software only takes variant columns with
 #' no insertions or deletion, there are not to many difference in the final phylogenetic trees.
 #'
-#' \emph{core_genome()} can build a core-genome alingment of thusands of genomes in minutes.
+#' However, \emph{core_genome} also implements an accurate method that use \emph{mafft}
+#' to build a MSA of each gene cluster.
+#'
+#' \emph{core_genome()} can build a core-genome alignment of thousands of genomes in minutes.
 #'
 #' @param data An \emph{mmseqs} object
 #' @param type Type of sequence 'nucl' or 'prot'
@@ -217,7 +221,7 @@ core_genome <- function(data, type, n_cores, method = "fast")
     group_by(Genomes) %>%
     summarise(Seq = paste(Seq,sep = "",collapse = ""))
 
-  print("Number of hard core-genes (100% presence split paralogous):")
+  print("Number of hard core-genes (100% non-paralogous genes):")
   print(table %>% select(Prot_prot) %>% distinct() %>% nrow())
 
   results <- list(core_genome = seqs,path = data$path)

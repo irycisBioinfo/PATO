@@ -21,16 +21,20 @@ A core_genome object (a data.frame with two columns: fasta header and sequence)
 \description{
 Find and creates a core-genome alignment. Unlike \emph{core_plots()}
 this function find the hard core-genome (genes presence in 100\% of genomes
-and without repetitions). The function takes a \emph{mmseqs()} output, so the deffinition of
-the paralogous genes of the core-genome (similarity, coverage and/or e-value)
-depends on the \emph{mmseqs()} parameters.
+and without repetitions (i.e. without paralougs)). The function takes a
+\emph{mmseqs()} output, so the definition of the orthologous genes of the
+core-genome (similarity, coverage and/or e-value)depends on the
+\emph{mmseqs()} parameters.
 }
 \details{
-The function perform a pseudo-msa per each paralog using the function
+The function can performs a pseudo-msa per each ortholog using the function
 \emph{result2msa} of \emph{mmseqs2}.This approach is much faster than
 classical MSA (clutal, mafft or muscle) but is less accurate. Taking into account
 that most of the phylogenetic inference software only takes variant columns with
 no insertions or deletion, there are not to many difference in the final phylogenetic trees.
+
+However, \emph{core_genome} also implements an accurate method that use \emph{mafft}
+to build a MSA of each gene cluster.
 
 \emph{core_genome()} can build a core-genome alingment of thusands of genomes in minutes.
 }

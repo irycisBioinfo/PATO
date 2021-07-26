@@ -3,11 +3,6 @@ title: 'PATO: Pangenome Analysis Toolkit'
 author: "Miguel D. Fernández-de-Bobadilla & Val F. Lanza"
 date: "`r Sys.Date()`"
 output:
-  pdf_document:
-    toc: yes
-    toc_depth: 3
-    fig_crop: false
-  github_document: null
   html_document:
     number_section: no
     theme: simplex
@@ -15,6 +10,11 @@ output:
     toc_float:
       collapsed: yes
       smooth_scroll: no
+  github_document: null
+  pdf_document:
+    toc: yes
+    toc_depth: 3
+    fig_crop: false
 vignette: |
   %\VignetteIndexEntry{PATO: Pangenome Analysis Toolkit} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
 ---
@@ -1869,6 +1869,54 @@ pheatmap::pheatmap(log2(sh+1),
 
 
 # Benchmarking
+
+## Performance.
+
+In order to compare PATO against the main pangenome analysis software we have analyzed
+a different sets of *E. coli* genomes (20, 50, 100, 200, 400, 800 and 1.600 genomes).
+We compared PATO against Panaroo v1.2.7 (), Peppan v1.0.5, PanX v1.5.1, 
+PIRATE v1.0.4 and Roary v3.12.0. All the software, including PATO, was executed 
+using default parameters. For the comparison we have used a workstation with 24 
+cores (Dual Xenon) and 48Gb of RAM memory
+
+In the case of PATO, as it is a set of functions, we create a script as close as
+possible to Roary's internal pipeline (loading of GFF files, orthologos 
+clustering, accessory genome definition, core-genome definition, core-genome 
+representation and accessory genome clustering).
+
+```{r, eval=FALSE, include=TRUE}
+library(tidyverse)
+library(pato)
+setwd("~/paperPATO/revision/benchmark/")
+gff_files <- dir("./sub_200/",pattern = "gff",full.names = T)
+gffs <- load_gff_list(gff_files,n_cores = 24)
+mm <- mmseqs(gffs, type = "nucl",n_cores = 24)
+acc <- accnet(mm)
+core <- core_genome(mm,type = "nucl", n_cores = 24)
+core_p <- core_plots(mm,steps = 10,reps = 5,n_cores = 24)
+export_accnet_aln(file = "accesory_aln.fa",acc)
+system("fasttreeMP -nt accesory_aln.fa > accessory_aln.tree")
+
+```
+
+
+
+![](./PATO_benchmarking.png)
+PATO is clearly faster than any other software. 
+
+Unlike the other software, 
+PATO does not implement any splitting paralog processing. This makes PATO much 
+faster than any of the other software. PATO was designed to analyze thousands 
+of genomes and therefore during its design it was decided to dispense with the 
+splitting paralogs proccess. These processes are time consuming and the results they 
+often offer do not justify the excess computational time invested. The main 
+incentive for the paralogo processing is to obtain a core-genome as accurate as 
+possible. However, we have opted for a more conservative approach. PATO removes 
+from the core-genome any gene that has a paralog in any genome. It is true that 
+this makes the core-genomes somewhat smaller, but it ensures that the genes 
+present in the core-genome are authentic and minimizes the effect of horizontal 
+transfers.
+
 
 Although there is not software or package that can be fully compared with PATO
 we have compared PATO with two of the most used software [Roary](https://sanger-pathogens.github.io/Roary/)
