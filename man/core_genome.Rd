@@ -36,5 +36,5 @@ no insertions or deletion, there are not to many difference in the final phyloge
 However, \emph{core_genome} also implements an accurate method that use \emph{mafft}
 to build a MSA of each gene cluster.
 
-\emph{core_genome()} can build a core-genome alingment of thusands of genomes in minutes.
+\emph{core_genome()} can build a core-genome alignment of thousands of genomes in minutes.
 }

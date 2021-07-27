@@ -4,7 +4,15 @@
 \alias{core_snp_genome}
 \title{Core SNP Genome}
 \usage{
-core_snp_genome(file_list, n_cores, ref, type, min_call_length, min_call_qual)
+core_snp_genome(
+  file_list,
+  n_cores,
+  ref,
+  type,
+  x,
+  min_call_length,
+  min_call_qual
+)
 }
 \arguments{
 \item{file_list}{Data frame with the full path to the nucleotide genome files (gene or genomes) or a \emph{gff_list} object.}
@@ -14,6 +22,8 @@ core_snp_genome(file_list, n_cores, ref, type, min_call_length, min_call_qual)
 \item{ref}{Reference genome (if missing, one is selected randomly)}
 
 \item{type}{Just for \emph{gff_list} objects. You must especified if you want to use whole genome sequences "wgs" or genes "nucl"}
+
+\item{x}{minimap preset (see details)}
 
 \item{min_call_length}{min alignment length to call variants and compute coverage (expert parameters)}
 
@@ -41,6 +51,21 @@ between all the genomes. Then, we call for the variants using the tool provided
 with \emph{minimap2}: \emph{paftools}.
 
 Finally the SNPs al filtered by the common regions to produce the final core SNP genome.
+
+Minimap has some preset setting to map different kind of sequences.
+\itemize{
+\item map-pb/map-ont: PacBio/Nanopore vs reference mapping
+\item ava-pb/ava-ont: PacBio/Nanopore read overlap
+\item asm5/asm10/asm20: asm-to-ref mapping, for ~0.1/1/5\% sequence divergence
+\item splice: long-read spliced alignment
+\item sr: genomic short-read mapping
+}
+
+We recommend to use \emph{map-bp} (maximum number of SNPs ~ less accuracy) or
+\emph{asm5} (lowest SNP max accuracy), \emph{asm10} (medium SNP, medium accuracy) or
+\emph{asm20} (high SNP, low accuracy)
+
+The rest of the presets are designed for other purposes
 }
 \references{
 Li, H. (2018). Minimap2: pairwise alignment for nucleotide sequences. Bioinformatics, 34:3094-3100. doi:10.1093/bioinformatics/bty191

@@ -22,8 +22,24 @@
 #' @param n_cores Number of cores to use.
 #' @param ref Reference genome (if missing, one is selected randomly)
 #' @param type Just for \emph{gff_list} objects. You must especified if you want to use whole genome sequences "wgs" or genes "nucl"
+#' @param x minimap preset (see details)
 #' @param min_call_length min alignment length to call variants and compute coverage (expert parameters)
 #' @param min_call_qual min mapping quality (expert parameters)
+#'
+#'
+#' @details
+#' Minimap has some preset setting to map different kind of sequences.
+#' - map-pb/map-ont: PacBio/Nanopore vs reference mapping
+#' - ava-pb/ava-ont: PacBio/Nanopore read overlap
+#' - asm5/asm10/asm20: asm-to-ref mapping, for ~0.1/1/5% sequence divergence
+#' - splice: long-read spliced alignment
+#' - sr: genomic short-read mapping
+#'
+#' We recommend to use *map-bp* (maximum number of SNPs ~ less accuracy) or
+#' *asm5* (lowest SNP max accuracy), *asm10* (medium SNP, medium accuracy) or
+#' *asm20* (high SNP, low accuracy)
+#'
+#' The rest of the presets are designed for other purposes
 #'
 #' @references Li, H. (2018). Minimap2: pairwise alignment for nucleotide sequences. Bioinformatics, 34:3094-3100. doi:10.1093/bioinformatics/bty191
 #'
@@ -31,7 +47,7 @@
 #' @export
 #'
 #'
-core_snp_genome <- function(file_list, n_cores, ref, type, min_call_length, min_call_qual)
+core_snp_genome <- function(file_list, n_cores, ref, type, x,min_call_length, min_call_qual)
 {
   if(grepl('linux',Sys.getenv("R_PLATFORM"))) ## Linux
   {
@@ -97,6 +113,10 @@ core_snp_genome <- function(file_list, n_cores, ref, type, min_call_length, min_
   {
     min_call_qual = 5
   }
+  if(missing(asm))
+  {
+    asm = "map-pb"
+  }
 
   cl <- makeCluster(n_cores)
   registerDoParallel(cl)
@@ -111,7 +131,8 @@ core_snp_genome <- function(file_list, n_cores, ref, type, min_call_length, min_
   print("Aligning genomes")
   foreach (i = file_list$File) %dopar%{
 
-    system(paste(minimap2," -cx asm20 -t 2 --cs=long ref.mmi ",i," > ",folderName,"/",basename(i),".paf",collapse = "", sep = ""), ignore.stderr = T)
+    system(paste(minimap2," -cx ",asm," -t 2 --cs=long ref.mmi ",i," > ",folderName,"/",basename(i),".paf",collapse = "", sep = ""), ignore.stderr = T)
+    #system(paste(minimap2," -c -t 2 --cs=long ref.mmi ",i," > ",folderName,"/",basename(i),".paf",collapse = "", sep = ""), ignore.stderr = T)
     system(paste("sort -k6,6 -k8,8n ",folderName,"/",basename(i),".paf > ",folderName,"/",basename(i),".tmp.paf", sep = "", collapse = ""),ignore.stderr = T)
     system(paste0(k8," ",paftools," call -L ",min_call_length," -l ",min_call_length," -q ",min_call_qual," ",folderName,"/",basename(i),".tmp.paf > ",folderName,"/",basename(i),".vcf",collapse = "",sep = ""),ignore.stderr = T)
     system(paste(k8," ",paftools," splice2bed ",folderName,"/",basename(i),".paf"," > ",folderName,"/",basename(i),".tmp",collapse = "",sep = ""),ignore.stderr = T)

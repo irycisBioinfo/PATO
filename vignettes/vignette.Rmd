@@ -1917,18 +1917,23 @@ this makes the core-genomes somewhat smaller, but it ensures that the genes
 present in the core-genome are authentic and minimizes the effect of horizontal 
 transfers.
 
+## Phylogenetics
 
-Although there is not software or package that can be fully compared with PATO
-we have compared PATO with two of the most used software [Roary](https://sanger-pathogens.github.io/Roary/)
-and [Snippy](https://github.com/tseemann/snippy). Both can be used to
-compute a core genome alignment. Roary computes a gene-by-gene core-genome
-alignment and Snippy uses a mapping approach to build a core snp genome.
+PATO has two different pipelines to obtain a phylogenetic tree. The first is the
+classical method of gene-to-gene alignment. That is, first the genes that belong
+to the core-genome are determined, then each group of orthologs are aligned and 
+finally all the genes are concatenated in a single alignment. This is the method
+used by most pangenome analysis programs (Roary, PIRATE, PanX ...). The second 
+pipeline consists of aligning all genomes against a reference genome and 
+obtaining all those mutations (SNPs) found in regions common to all genomes. 
+This method, for example, is what Snippy uses.
 
-We have compared the performance of both packages against PATO using the
-[montealegre et al.](https://doi.org/10.6084/m9.figshare.13482435.v1) dataset.
+We have compared the performance of both packages (PATO and Snippy) using the 
+[montealegre et al.](https://doi.org/10.6084/m9.figshare.13482435.v1)
+dataset.
 
 To measure the performance we used _microbenchmark_ package. We have tried to reproduce
-the same steps for each pipeline as PATO performs these actions using different
+the same steps of the Snippy pipeline as PATO performs these actions using different
 functions.
 
 ```{r eval=F, include=T, tidy=T}
@@ -1937,20 +1942,8 @@ library(microbenchmark)
 
 
 bench <- microbenchmark(
- 
-  "roary_time" = {system("roary -p 24 -o roary_ex -e --mafft *.gff")},
- 
-  "pato_like_roary_time"= {
-    gffs <- load_gff_list(gff_files)
-    mm <- mmseqs(gffs, type = "nucl")
-    acc <- accnet(mm)
-    core <- core_genome(mm,type = "nucl", n_cores = 24)
-    core_p <- core_plots(mm,steps = 10,reps = 5)
-    export_accnet_aln(file = "accesory_aln.fa",acc)
-    system("fasttreeMP -nt accesory_aln.fa > accessory_aln.tree")
-  },
- 
-  "pato_like_snippy_time" = {
+
+    "pato_like_snippy_time" = {
     unlink(gffs$path,recursive = T)
     gffs <- load_gff_list(gff_files)
     core_s <- core_snp_genome(gffs,type = "wgs",
@@ -1985,25 +1978,22 @@ Unit: *seconds*
 
 |                  expr|       min|        lq|      mean|    median|        uq|       max| neval |
 |----------------------|----------|----------|----------|----------|----------|----------|-------|
-|            roary_time| 6459.1894| 6459.1894| 6459.1894| 6459.1894| 6459.1894| 6459.1894|     1 |
-|  pato_like_roary_time|  185.4633|  185.4633|  185.4633|  185.4633|  185.4633|  185.4633|     1 |
 | pato_like_snippy_time|  149.9739|  149.9739|  149.9739|  149.9739|  149.9739|  149.9739|     1 |
 |           snippy_time| 3425.9932| 3425.9932| 3425.9932| 3425.9932| 3425.9932| 3425.9932|     1 |
 
-Therefore,  PATO (equivalent pipeline) is almost 35x faster than Roary and 23x faster than
-Snippy for a dataset of 60 genomes in a Dual Intel Xeon with 24 effective cores
+Therefore,  PATO (equivalent pipeline) is almost 23x faster than Snippy for a 
+dataset of 60 genomes in a Dual Intel Xeon with 24 effective cores
 (12 real cores) and 48 Gb RAM.
 
-If we compare the results of core alignments, Roary creates 2.649.299 bp alignment
-(including indels) and PATO 2.902.678 bp. If we compare against Snippy then,
-Snippy creates a 4.680.136 bp alignment and PATO 4.392.982 bp.
+If we compare the results of core alignments Snippy creates a 4.680.136 bp 
+alignment and PATO 4.392.982 bp. However Snippy finds 260.909 and PATO 155.300. 
+We think that difference can be caused by in _core_snps_genome()_ functions as 
+they do not count the multi-variant positions (changes of two or more 
+nucleotides in a row). We are working to fix it in future versions of PATO.
 
-Moreover, Roary finds 227.383 SNPs and PATO 253.654. Those SNPs are computed
-excluding indels. Snippy finds 260.909 and PATO 155.300.  We think that difference can be caused by in _core_snps_genome()_ functions as they do not count the multi-variant
-positions (changes of two or more nucleotides in a row). We are working to fix it
-in future versions of PATO.
-
-If we compare the phylogenetic tree obtained with the same software (Fasttree) we see that
+We compare the phylogenetic tree obtained with the same software (Fasttree) on 
+four different alignments from different pipelines (PATO core_genome, PATO 
+core_snp_genome, Roary and Snippy)
 
 ```{r eval=F, include=T, tidy=T}
 library(ape)
@@ -2054,8 +2044,197 @@ While Roary and Snippy obtain the same phylogenetic tree, PATO roary-like
 obtain a very similar tree and PATO snippy-like obtain an accurate tree but
 not exactly the same. In comparison to the MASH tree, the alignment of all these methods are quite similar among them. We also include a random tree as a reference to an unrelated tree.
 
+## Population Structure.
+
+PATO includes a series of tools to determine the population structure of a set 
+of genomes. These tools are basically the implementation of several clustering 
+algorithms applied to the genomic data that PATO processes.
+
+To compare our results we have analyzed the same dataset with the software: 
+[_PopPPunk_](https://genome.cshlp.org/content/29/2/304), [_Snapclust_](https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/2041-210X.12968) and [_FastBaps_](https://academic.oup.com/nar/article/47/11/5539/5488018) and we have also added the classification by phylogroups established by the [_Clermont_](https://www.microbiologyresearch.org/content/journal/mgen/10.1099/mgen.0.000192) scheme.
+
+```{r eval=FALSE, include=T}
+library(fastbaps)
+library(ggsci)
+library(adegenet)
+library(mclust)
+
+clustering_files <- dir("nr_list/fna/",pattern = "fna", full.names = T) %>% as.data.frame()
+pop_mash <- mash(clustering_files,n_cores = 24,type = "nucl")
+umap_mash <- umap_plot(pop_mash)
 
 
+poppunk <- read.csv("nr_list/fna/pop_cl/pop_cl_clusters.csv")
+
+## Limit clusters classification to those higher than 5 members.
+poppunk <- poppunk %>% 
+  group_by(Cluster) %>% 
+  mutate(N = n()) %>% 
+  ungroup() %>% 
+  mutate(Cluster = ifelse(N<5,"Unk",Cluster)) 
+
+### PATO Clustering based on MASH distances.
+mclust_rd = clustering(pop_mash,method = "mclust", d_reduction = T)
+mclust = clustering(pop_mash,method = "mclust", d_reduction = F)
+ward = clustering(pop_mash,method = "ward.D2", d_reduction = F, n_clust = 18)
+hdbscan = clustering(pop_mash,method = "hdbscan", d_reduction = T)
+
+### PATO clustering based on K-NNN.
+knnn_pop <- knnn(pop_mash,n_neigh = 10,repeats = F)
+knnn_cl <- clustering(knnn_pop,"louvain")
+
+
+### FastBaps
+
+core_cl <- core_snp_genome(clustering_files,n_cores = 24)
+export_core_to_fasta(core_cl,"core_cl.aln")
+fb_sparse <- import_fasta_sparse_nt("core_cl.aln")
+fb_hc <- fast_baps(fb_sparse)
+fb_cl <- best_baps_partition(fb_sparse,ape::as.phylo(fb_hc))
+
+fb_cl2 <- fb_cl %>% as.data.frame() %>% rownames_to_column("Source") %>%
+  rename(Cluster = 2)
+
+fb_cl2 <- fb_cl2 %>% inner_join(fb_cl2 %>% group_by(Cluster) %>%
+                        summarise(N =n())%>%
+                        arrange(desc(N)) %>%
+                        mutate(Rank = row_number())) %>%
+  select(-N,-Cluster) %>% mutate(Source = gsub(".fna","",Source)) %>%
+  rename(FastBaps = Rank)
+
+### Clermont Typing.
+phylogroups <- read_tsv("/storage/paperPATO/nr_list/fna/analysis_2021-07-06_164556/analysis_2021-07-06_164556_phylogroups.txt", col_names = F)
+phylogroups <- phylogroups %>% select(Source = 1, Cluster =5) %>%
+  mutate(Source = gsub(".fna","",Source))
+phylogroups <- phylogroups %>% inner_join(phylogroups %>%
+               group_by(Cluster) %>%
+               summarise(N =n())%>%
+               arrange(desc(N)) %>%
+               mutate(Rank = row_number())) %>%
+  select(-N,-Cluster) %>%
+  rename(Clermont_Phylogroup = Rank)
+
+
+### Snapclust
+
+f <- fasta2DNAbin("core_cl.aln") #The same core genome used for FastBaps
+g <- DNAbin2genind(f)
+s <- snapclust(g,10)  #The same amount of groups than phylogroups.
+
+snap_cl <- s$group %>%
+  as.data.frame() %>%
+  rownames_to_column("Source") %>%
+  mutate() %>%
+  mutate(Source = gsub(".fna","",Source)) %>%
+  rename(Cluster = 2)
+
+snap_cl <- snap_cl %>% inner_join(snap_cl %>%
+                         group_by(Cluster) %>%
+                         summarise(N =n())%>%
+                         arrange(desc(N)) %>%
+                         mutate(Rank = row_number())) %>%
+  select(-N,-Cluster) %>%
+  rename(SnapCluster = Rank)
+
+
+### Join Results.
+clusters_table <- poppunk %>% inner_join(poppunk %>%
+                                           group_by(Cluster) %>%
+                                           summarise(N =n())%>%
+                                           arrange(desc(N)) %>%
+                                           mutate(Rank = row_number())) %>%
+  rename(Source = Taxon, PopPunk = Rank) %>%
+  select(-N,-Cluster) %>%
+  mutate(Source = gsub(".fna","",Source)) %>%
+  inner_join(mclust_rd %>%
+               mutate(Source = gsub(".fna","",Source)) %>%
+               inner_join(mclust_rd %>%
+                            group_by(Cluster) %>%
+                            summarise(N =n())%>%
+                            arrange(desc(N)) %>%
+                            mutate(Rank = row_number())) %>%
+               select(-N,-Cluster) %>%
+               rename(Mclust_RD = Rank), by=c("Source")) %>%
+
+  inner_join(mclust %>%
+               mutate(Source = gsub(".fna","",Source)) %>%
+               inner_join(mclust %>%
+                            group_by(Cluster) %>%
+                            summarise(N =n())%>%
+                            arrange(desc(N)) %>%
+                            mutate(Rank = row_number())) %>%
+               select(-N,-Cluster) %>%
+               rename(Mclust = Rank), by=c("Source")) %>%
+
+  inner_join(ward %>%
+               mutate(Source = gsub(".fna","",Source)) %>%
+               inner_join(ward %>%
+                            group_by(Cluster) %>%
+                            summarise(N =n())%>%
+                            arrange(desc(N)) %>%
+                            mutate(Rank = row_number())) %>%
+               select(-N,-Cluster) %>%
+               rename(Ward_D2 = Rank), by=c("Source")) %>%
+
+  inner_join(hdbscan %>%
+               mutate(Source = gsub(".fna","",Source)) %>%
+               inner_join(hdbscan %>%
+                            group_by(Cluster) %>%
+                            summarise(N =n())%>%
+                            arrange(desc(N)) %>%
+                            mutate(Rank = row_number())) %>%
+               select(-N,-Cluster) %>%
+               rename(Hdbscan = Rank), by = ("Source")) %>%
+  inner_join(knnn_cl %>%
+               mutate(Source = gsub(".fna","",Source)) %>%
+               inner_join(knnn_cl %>%
+                            group_by(Cluster) %>%
+                            summarise(N =n())%>%
+                            arrange(desc(N)) %>%
+                            mutate(Rank = row_number())) %>%
+               select(-N,-Cluster) %>%
+               rename(Louvain = Rank), by=c("Source")) %>%
+  inner_join(phylogroups) %>% inner_join(snap_cl) %>%
+  inner_join(fb_cl2)
+
+umap_mash %>%
+  mutate(Source = gsub(".fna","",Source)) %>%
+  inner_join(clusters_table) %>% gather(Method,Cluster,PopPunk:FastBaps) %>%
+  ggplot(aes(x=X,y=Y, color = as.factor(Cluster)))+
+  geom_jitter(width = 1,height = 1) +
+  facet_wrap(.~Method) +
+  scale_color_manual(values = distinctColorPalette(24)) + theme_light()
+
+
+```
+
+
+![](./clustering_bench_umap.png)
+
+```{r eval=FALSE, include=T}
+
+clusters_matrix <- clusters_table %>% column_to_rownames("Source") %>% as.matrix()
+
+results = data.frame()
+for(i in 1:ncol(clusters_matrix))
+{
+  for (j in 1:ncol(clusters_matrix))
+  {
+    results <- data.frame(Source = colnames(clusters_matrix)[i],
+               Target = colnames(clusters_matrix)[j],
+               value = adjustedRandIndex(clusters_matrix[,i],clusters_matrix[,j])) %>% bind_rows(results)
+  }
+}
+results %>% spread(Target,value) %>% column_to_rownames("Source") %>% as.matrix() %>% pheatmap::pheatmap(display_numbers = T)
+
+```
+
+![](./benchClustering.png)
+
+## Gene Assotiation Test
+
+![](./CoincidentsComp.png)
+![](./CoincidentsHeatmap.png)
 ## Session Info
 
 ```{r eval=F, include=T, tidy=T}
