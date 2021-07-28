@@ -2053,6 +2053,9 @@ algorithms applied to the genomic data that PATO processes.
 To compare our results we have analyzed the same dataset with the software: 
 [_PopPPunk_](https://genome.cshlp.org/content/29/2/304), [_Snapclust_](https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/2041-210X.12968) and [_FastBaps_](https://academic.oup.com/nar/article/47/11/5539/5488018) and we have also added the classification by phylogroups established by the [_Clermont_](https://www.microbiologyresearch.org/content/journal/mgen/10.1099/mgen.0.000192) scheme.
 
+In order tu re-use the population structure database of PopPunk, we have used the version v1.2.2 (latest version 2.4.0).
+From PATO we have used the methods: MClust, MClust + Dimensional Reduction, HDBscan, Ward.D2, Louvain (based on k-nnn)
+
 ```{r eval=FALSE, include=T}
 library(fastbaps)
 library(ggsci)
@@ -2074,7 +2077,7 @@ poppunk <- poppunk %>%
   mutate(Cluster = ifelse(N<5,"Unk",Cluster)) 
 
 ### PATO Clustering based on MASH distances.
-mclust_rd = clustering(pop_mash,method = "mclust", d_reduction = T)
+mclust_rd = clustering(pop_mash,method = "mclust", d_reduction = T)  ##MClust with dimensional reduction
 mclust = clustering(pop_mash,method = "mclust", d_reduction = F)
 ward = clustering(pop_mash,method = "ward.D2", d_reduction = F, n_clust = 18)
 hdbscan = clustering(pop_mash,method = "hdbscan", d_reduction = T)
@@ -2208,8 +2211,11 @@ umap_mash %>%
 
 ```
 
+To compare the results we represent the population based on the MASH distance with the function _umap_plot()_ and color the strains using the cluster. To unified the results, we arrange the cluster number by the size of the cluste, thats mean that the cluster number one is the biggest cluster.
 
 ![](./clustering_bench_umap.png)
+
+We can evaluate the clustering result usin the _adjustedRandIndex()_ function implemented in MClust. in this way we can quantify the difference among the different methods of clustering/population structure.
 
 ```{r eval=FALSE, include=T}
 
@@ -2230,6 +2236,8 @@ results %>% spread(Target,value) %>% column_to_rownames("Source") %>% as.matrix(
 ```
 
 ![](./benchClustering.png)
+
+The results show that the methods implemented in PATO and SnapClust provide very similar results to the phylognetic groups proposed by Clermont.
 
 ## Gene Assotiation Test
 
