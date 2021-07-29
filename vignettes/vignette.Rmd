@@ -7,7 +7,6 @@ output:
     toc: yes
     toc_depth: 3
     fig_crop: no
-  github_document: null
   html_document:
     number_section: no
     theme: simplex
@@ -1876,19 +1875,23 @@ pheatmap::pheatmap(log2(sh+1),
 
 ## Performance.
 
-In order to compare PATO against the main pangenome analysis software we have analyzed
-a different sets of *E. coli* genomes (20, 50, 100, 200, 400, 800 and 1.600 genomes).
-We compared PATO against Panaroo v1.2.7 (), Peppan v1.0.5, PanX v1.5.1, 
-PIRATE v1.0.4 and Roary v3.12.0. All the software, including PATO, was executed 
-using default parameters. For the comparison we have used a workstation with 24 
-cores (Dual Xenon) and 48Gb of RAM memory
+In order to compare PATO against the main pangenome analysis software we have 
+analyzeda different sets of *E. coli* genomes (20, 50, 100, 200, 400).
+We compared PATO against PanACoTA v1.3.1, Panaroo v1.2.7 (), Peppan v1.0.5, 
+PanX v1.5.1,PIRATE v1.0.4 and Roary v3.12.0. All the software, including PATO, 
+was executed using default parameters. For the comparison we have used a 
+workstation with 24 cores (Dual Xenon) and 48Gb of RAM memory
 
-In the case of PATO, as it is a set of functions, we create a script as close as
+In the case of PATO_roary, as it is a set of functions, we create a script as close as
 possible to Roary's internal pipeline (loading of GFF files, orthologos 
 clustering, accessory genome definition, core-genome definition, core-genome 
-representation and accessory genome clustering).
+representation and accessory genome clustering). For its part, Pato_panacota 
+reproduces the PanACoTA pipeline for the creation of the pangenome(loading of 
+GFF files, orthologos clustering, accessory genome definition).
 
 ```{r, eval=FALSE, include=TRUE}
+
+## PATO_roary pipeline
 library(tidyverse)
 library(pato)
 setwd("~/paperPATO/revision/benchmark/")
@@ -1901,26 +1904,35 @@ core_p <- core_plots(mm,steps = 10,reps = 5,n_cores = 24)
 export_accnet_aln(file = "accesory_aln.fa",acc)
 system("fasttreeMP -nt accesory_aln.fa > accessory_aln.tree")
 
+##PATO_PanACoTA pipeline
+library(tidyverse)
+library(pato)
+setwd("~/paperPATO/revision/benchmark/")
+gff_files <- dir("./sub_200/",pattern = "gff",full.names = T)
+gffs <- load_gff_list(gff_files,n_cores = 24)
+mm <- mmseqs(gffs, type = "nucl",n_cores = 24)
+acc <- accnet(mm)
 ```
 
 
 
-![](./PATO_benchmarking.png)
+![](./PatoBenchmarking.png)
 
-PATO is clearly faster than any other software. 
+PATO is clearly faster than any other software. PanX and PanACoTA reached the 
+maximum available RAM (PanX 200 genomes and PanACoTA 400 genomes) and their 
+execution had to be stopped.
 
 
-
-Unlike the other software, 
-PATO does not implement any splitting paralog processing. This makes PATO much 
-faster than any of the other software. PATO was designed to analyze thousands 
-of genomes and therefore during its design it was decided to dispense with the 
-splitting paralogs proccess. These processes are time consuming and the results they 
-often offer do not justify the excess computational time invested.
+Unlike the other software, PATO and PanACoTA does not implement any paralogue splitting processing. This
+makes PATO and PanACoTA much faster than any of the other software. PATO was 
+designed to analyze hundreds or thousands of genomes and therefore during its 
+design it was decided to dispense with the splitting paralogs proccess. These 
+processes are time consuming and the results they often offer do not justify the
+excess computational time invested. 
 
 ![](./PATO_bench_pansize.png)
 
-PATO produces results very similar to Roary and PEPPAN in terms of pangenome size 
+PATO produces results very similar to PanACoTA, Roary and PEPPAN in terms of pangenome size 
 while its performance is clearly superior. The other more accurate pangenome 
 analysis software such as Panaroo or PanX produce clearly smaller pangenomes.
 Although the results of PATO are comparable with the state-of-art, if the user 

@@ -44,7 +44,7 @@ load_gff_list <- function(input_files, n_cores)
   #on.exit(file.remove(list.files(pattern = "gffTMP")))
   on.exit(stopCluster(cl), add = T)
 
-  input_files <- as_tibble(input_files) %>% rename(File = 1)
+  input_files <- input_files %>% as.data.frame() %>% rename(File = 1)
 
   folderName <- paste(getwd(),"/",md5(paste(input_files$File, sep = "",collapse = "")),"_gffList",sep = "",collapse = "")
 
