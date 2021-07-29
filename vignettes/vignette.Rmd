@@ -3,6 +3,11 @@ title: 'PATO: Pangenome Analysis Toolkit'
 author: "Miguel D. Fernández-de-Bobadilla & Val F. Lanza"
 date: "`r Sys.Date()`"
 output:
+  pdf_document:
+    toc: yes
+    toc_depth: 3
+    fig_crop: no
+  github_document: null
   html_document:
     number_section: no
     theme: simplex
@@ -10,11 +15,9 @@ output:
     toc_float:
       collapsed: yes
       smooth_scroll: no
-  github_document: null
-  pdf_document:
+  word_document:
     toc: yes
-    toc_depth: 3
-    fig_crop: false
+    toc_depth: '3'
 vignette: |
   %\VignetteIndexEntry{PATO: Pangenome Analysis Toolkit} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
 ---
@@ -925,9 +928,10 @@ ecoli_mash <- extract_non_redundant(ecoli_mash_all, nr_list)
 The function uses a "divide and conquer" approach. It divides the total set into _n_ partitions and groups them separately. Finally, it re-clusters the results for each of the partitions. This operation is repeated in each iteration until the required number of terms is reached.
 
 ## Population Structure / Pangenome Description
+
 In this example we continue with the *Escherichia coli and Shigella* high
 quality dataset. You can download a copy from
-https://doi.org/10.6084/m9.figshare.13049654). We continue after the QC
+(https://doi.org/10.6084/m9.figshare.13049654). We continue after the QC
 described above.
 
 ### Core Genome analysis
@@ -1902,20 +1906,39 @@ system("fasttreeMP -nt accesory_aln.fa > accessory_aln.tree")
 
 
 ![](./PATO_benchmarking.png)
+
 PATO is clearly faster than any other software. 
+
+
 
 Unlike the other software, 
 PATO does not implement any splitting paralog processing. This makes PATO much 
 faster than any of the other software. PATO was designed to analyze thousands 
 of genomes and therefore during its design it was decided to dispense with the 
 splitting paralogs proccess. These processes are time consuming and the results they 
-often offer do not justify the excess computational time invested. The main 
+often offer do not justify the excess computational time invested.
+
+![](./PATO_bench_pansize.png)
+
+PATO produces results very similar to Roary and PEPPAN in terms of pangenome size 
+while its performance is clearly superior. The other more accurate pangenome 
+analysis software such as Panaroo or PanX produce clearly smaller pangenomes.
+Although the results of PATO are comparable with the state-of-art, if the user 
+wishes, he can import the results of more exhaustive software such as Panaroo 
+and use most of the tools designed for analysis and visualization.The main 
 incentive for the paralogo processing is to obtain a core-genome as accurate as 
 possible. However, we have opted for a more conservative approach. PATO removes 
 from the core-genome any gene that has a paralog in any genome. It is true that 
 this makes the core-genomes somewhat smaller, but it ensures that the genes 
 present in the core-genome are authentic and minimizes the effect of horizontal 
-transfers.
+transfers. On the other hand, the biggest bias that occurs in pangenome analyzes 
+is the amount of single-genes that are found. Single-genes are those genes that 
+only appear in one genome and are not present in any other genome in the dataset.
+This error usually comes from both the assembly and the prediction of the ORFs.
+For this reason, our accessory genome analysis tools offer the possibility of 
+eliminating genes with frequencies of appearance lower than a threshold that the 
+user establishes at will.
+
 
 ## Phylogenetics
 
@@ -1925,7 +1948,7 @@ to the core-genome are determined, then each group of orthologs are aligned and
 finally all the genes are concatenated in a single alignment. This is the method
 used by most pangenome analysis programs (Roary, PIRATE, PanX ...). The second 
 pipeline consists of aligning all genomes against a reference genome and 
-obtaining all those mutations (SNPs) found in regions common to all genomes. 
+obtaining all those mutations (SNPs) found in regions common to all genomes i.e. the core SNP genome. 
 This method, for example, is what Snippy uses.
 
 We have compared the performance of both packages (PATO and Snippy) using the 
@@ -1989,7 +2012,15 @@ If we compare the results of core alignments Snippy creates a 4.680.136 bp
 alignment and PATO 4.392.982 bp. However Snippy finds 260.909 and PATO 155.300. 
 We think that difference can be caused by in _core_snps_genome()_ functions as 
 they do not count the multi-variant positions (changes of two or more 
-nucleotides in a row). We are working to fix it in future versions of PATO.
+nucleotides in a row). We are working to fix it in future versions of PATO. 
+Despite this, it should be remembered that PATO and Snippy, although they share 
+the same approach, the pipeline is totally different. Snippy, in general terms, produces an NGS 
+simulation (with default 10x coverage and 250bp single-end reads) which it then proceeds to align against the reference 
+using BWA and finally performs a variant calling using Freebayes. For its part, 
+PATO mainly uses the tools provided by Minimap2, both for alignment and variant 
+calling. Minimap2 is explicitly designed for the alignment of genomes as well as
+its variant caller is designed to process the results of the same. These 
+differences probably influence the difference in results between Snippy and PATO.
 
 We compare the phylogenetic tree obtained with the same software (Fasttree) on 
 four different alignments from different pipelines (PATO core_genome, PATO 
@@ -2036,15 +2067,17 @@ CompareAll(trees,RobinsonFoulds)%>%
 ![HeatMap of the Robinson Foulds distances](./TreeComparison.png)
 
 
-We compare the trees using [_TreeDist_](https://doi.org/10.1093/bioinformatics/btaa614)
+To compare the trees, we use [_TreeDist_](https://doi.org/10.1093/bioinformatics/btaa614)
 package. This package implements Robison-Foulds method to measure phylogenetic
 tree similarities.
 
 While Roary and Snippy obtain the same phylogenetic tree, PATO roary-like
 obtain a very similar tree and PATO snippy-like obtain an accurate tree but
-not exactly the same. In comparison to the MASH tree, the alignment of all these methods are quite similar among them. We also include a random tree as a reference to an unrelated tree.
+not exactly the same. In comparison to the MASH tree, the alignment of all these 
+methods are quite similar among them. We also include a random tree as a 
+reference to an unrelated tree.
 
-## Population Structure.
+## Population Structure
 
 PATO includes a series of tools to determine the population structure of a set 
 of genomes. These tools are basically the implementation of several clustering 
@@ -2062,7 +2095,8 @@ library(ggsci)
 library(adegenet)
 library(mclust)
 
-clustering_files <- dir("nr_list/fna/",pattern = "fna", full.names = T) %>% as.data.frame()
+clustering_files <- dir("nr_list/fna/",pattern = "fna", full.names = T) %>% 
+  as.data.frame()
 pop_mash <- mash(clustering_files,n_cores = 24,type = "nucl")
 umap_mash <- umap_plot(pop_mash)
 
@@ -2228,90 +2262,212 @@ for(i in 1:ncol(clusters_matrix))
   {
     results <- data.frame(Source = colnames(clusters_matrix)[i],
                Target = colnames(clusters_matrix)[j],
-               value = adjustedRandIndex(clusters_matrix[,i],clusters_matrix[,j])) %>% bind_rows(results)
+               value = adjustedRandIndex(clusters_matrix[,i],clusters_matrix[,j])) %>%
+      bind_rows(results)
   }
 }
-results %>% spread(Target,value) %>% column_to_rownames("Source") %>% as.matrix() %>% pheatmap::pheatmap(display_numbers = T)
+results %>% 
+  spread(Target,value) %>% 
+  column_to_rownames("Source") %>% 
+  as.matrix() %>% 
+  pheatmap::pheatmap(display_numbers = T)
 
 ```
 
 ![](./benchClustering.png)
 
-The results show that the methods implemented in PATO and SnapClust provide very similar results to the phylognetic groups proposed by Clermont.
+The results show that the methods HDbscan, Louvain and Mclust + DR, implemented in PATO, and SnapClust provide very similar results to the phylognetic groups proposed by Clermont.
 
 ## Gene Assotiation Test
 
-![](./CoincidentsComp.png)
-![](./CoincidentsHeatmap.png)
-## Session Info
+In particular, the associations between genes can be of a strict character, as 
+in the case of the search for twins (genes that appear in exactly the same sets 
+of genes) or of an associative character, that is, the clustering of genes based 
+on their presence and absence genomes. This method is similar to the one 
+implemented in Coinfinder (doi: https://doi.org/10.1099/mgen.0.000338). However,
+there are big differences between the two methods. On the one hand, Coinfinder 
+is based on the creation of an association network based on a statistical test 
+of association between genes. If two genes are statistically associated they are
+related in a network. It goes without saying that the statistical process is 
+corrected for multiple tests, since in this case all the statistical tests 
+between genes are performed one by one. Finally Coinfinder corrects the 
+statistical associations through the phylogenetic relationships of the genomes. 
+However, once the association network is obtained, the result is simply analyzed
+by the network components, that is, those sub-networks that are complete (not 
+connected to any other element of the network). To our knowledge, this last step
+can be improved using specific network clustering algorithms.
+For its part, PATO performs protein clustering based on the distance between 
+genes using their presence-absence in the genomes. To do this, a 2D projection 
+of the data is calculated using UMAP. Subsequently, a clustering of genes / 
+proteins is carried out using the HDbscan algorithm. Unlike Coinfinder, the PATO 
+method does not correct the association of genes by the phylogeny of the 
+genomes, so the groups of genes may be conditioned by the similarity between the
+genomes analyzed. This can be corrected, if desired, by building non-redundant 
+datasets. In any case, the user must be aware of the limitations of the method.
 
-```{r eval=F, include=T, tidy=T}
+To compare the results between Coinfinder and _coincidents () _ we have analyzed 
+900 non-redundant genomes. To improve the results of Coinfinder we have carried 
+out several clustering of the association network.
 
-> sessionInfo()
-R version 3.6.3 (2020-02-29)
-Platform: x86_64-pc-linux-gnu (64-bit)
-Running under: Debian GNU/Linux 10 (buster)
+```{r eval=F, include=T}
+## coinfinder
 
-Matrix products: default
-BLAS:   /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.8.0
-LAPACK: /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.8.0
+faa <- dir(pattern = "faa",full.names = T) %>% as.data.frame()
 
-locale:
- [1] LC_CTYPE=es_ES.UTF-8       LC_NUMERIC=C               LC_TIME=es_ES.UTF-8        
-LC_COLLATE=es_ES.UTF-8     LC_MONETARY=es_ES.UTF-8   
- [6] LC_MESSAGES=es_ES.UTF-8    LC_PAPER=es_ES.UTF-8       LC_NAME=C                  
-LC_ADDRESS=C               LC_TELEPHONE=C            
-[11] LC_MEASUREMENT=es_ES.UTF-8 LC_IDENTIFICATION=C       
+mash_faa <- mash(faa,n_cores = 20,type = "prot")
+out_faa <- outliers(mash_faa,threshold = 0.05,plot = T)
+clean_faa <- remove_outliers(mash_faa,outliers = out_faa)
+nr_faa <- non_redundant(clean_faa,900)
+nr_mash_faa <- extract_non_redundant(clean_faa, nr_faa)
 
-attached base packages:
-[1] stats     graphics  grDevices utils     datasets  methods   base     
 
-other attached packages:
- [1] pheatmap_1.0.12      stringdist_0.9.6.3   microseq_2.1.2       rlang_0.4.8 
-data.table_1.13.2    TreeDist_1.2.1      
- [7] microbenchmark_1.4-7 phangorn_2.5.5       ape_5.4-1            ggtree_2.0.4
-pato_1.0.1           forcats_0.5.0       
-[13] stringr_1.4.0        dplyr_1.0.2          purrr_0.3.4          readr_1.3.1
-tidyr_1.1.2          tibble_3.0.4        
-[19] ggplot2_3.3.2        tidyverse_1.3.0     
+mm_nr_faa <- nr_mash_faa$table %>% 
+  select(Source) %>% 
+  distinct() %>% 
+  mmseqs(n_cores = 20)
+core_nr_faa <- core_genome(mm_nr_faa,n_cores = 20,type = "prot",method = "accurate")
+export_core_to_fasta(core_nr_faa, "core_coinfinder.aln")
 
-loaded via a namespace (and not attached):
-  [1] Rtsne_0.15              colorspace_1.4-1        ellipsis_0.3.1          
-mclust_5.4.6            XVector_0.26.0          base64enc_0.1-3        
-  [7] fs_1.5.0                rstudioapi_0.11         farver_2.0.3            
-bit64_4.0.5             fansi_0.4.1             lubridate_1.7.9        
- [13] xml2_1.3.2              codetools_0.2-16        R.methodsS3_1.8.1       
-doParallel_1.0.16       jsonlite_1.7.1          broom_0.7.0            
- [19] cluster_2.1.0           dbplyr_1.4.4            R.oo_1.24.0             
-uwot_0.1.8              shiny_1.5.0             BiocManager_1.30.10    
- [25] compiler_3.6.3          httr_1.4.2              rvcheck_0.1.8           
-backports_1.1.10        lazyeval_0.2.2          assertthat_0.2.1       
- [31] Matrix_1.2-18           fastmap_1.0.1           cli_2.1.0               
-later_1.1.0.1           htmltools_0.5.0         tools_3.6.3            
- [37] igraph_1.2.6            gtable_0.3.0            glue_1.4.2              
-V8_3.2.0                fastmatch_1.1-0         Rcpp_1.0.5             
- [43] cellranger_1.1.0        vctrs_0.3.4             Biostrings_2.54.0       
-nlme_3.1-144            crosstalk_1.1.0.1       iterators_1.0.13       
- [49] gbRd_0.4-11             rbibutils_2.0           openxlsx_4.2.2          
-rvest_0.3.6             mime_0.9                miniUI_0.1.1.1         
- [55] lifecycle_0.2.0         zlibbioc_1.32.0         scales_1.1.1            
-hms_0.5.3               promises_1.1.1          parallel_3.6.3         
- [61] RColorBrewer_1.1-2      curl_4.3                memoise_1.1.0           
-dtplyr_1.0.1            stringi_1.5.3           randomcoloR_1.1.0.1    
- [67] S4Vectors_0.24.4        foreach_1.5.1           tidytree_0.3.3          
-BiocGenerics_0.32.0     zip_2.1.1               manipulateWidget_0.10.1
- [73] Rdpack_2.1              pkgconfig_2.0.3         parallelDist_0.2.4      
-lattice_0.20-40         labeling_0.4.2          treeio_1.10.0          
- [79] htmlwidgets_1.5.2       bit_4.0.4               tidyselect_1.1.0        
-magrittr_1.5            R6_2.4.1                IRanges_2.20.2         
- [85] generics_0.0.2          DBI_1.1.0               pillar_1.4.6            
-haven_2.3.1             withr_2.3.0             modelr_0.1.8           
- [91] crayon_1.3.4            utf8_1.1.4              grid_3.6.3              
-readxl_1.3.1            blob_1.2.1              threejs_0.3.3          
- [97] reprex_0.3.0            digest_0.6.26           webshot_0.5.2           
-xtable_1.8-4            R.cache_0.14.0          httpuv_1.5.4           
-[103] dbscan_1.1-5            R.utils_2.10.1          TreeTools_1.4.1         
-openssl_1.4.3           RcppParallel_5.0.2      stats4_3.6.3           
-[109] munsell_0.5.0           askpass_1.1             quadprog_1.5-8         
+#> fasttreeMP -gtr core_coinfinder.aln > core_coinfinder.tree
+
+
+library(phangorn)
+library(igraph)
+tree <- read.tree("core_coinfinder.tree")
+
+tree.midpoint <- midpoint(tree)
+write.tree(tree.midpoint, "core_coinfinder.midpoint.tree")
+
+acc_nr_faa <- accnet(mm_nr_faa)
+
+coin <- coincidents(acc_nr_faa)
+
+coin <- coin %>% rename(Source = Target, PATO = Cluster)
+
+acc_nr_faa$list %>% 
+  select(Target,Source) %>% 
+  write_tsv("to_coinfinder.tsv",col_names = F)
+
+coinfinder <- read_tsv("coinfinder_edges.tsv")
+gr <- graph_from_data_frame(coinfinder, directed = F)
+
+cl_gr_l <- cluster_louvain(gr)
+coin_louvain <- data.frame(Source = cl_gr_l$names, Louvain = cl_gr_l$membership)
+
+cl_gr_g <- cluster_fast_greedy(gr)
+coin_greedy <- data.frame(Source = cl_gr_g$names, Greedy = cl_gr_g$membership)
+
+cl_gr_w <- cluster_walktrap(gr)
+coin_walktrap <- data.frame(Source = cl_gr_w$names, Walktrap = cl_gr_w$membership)
+
+cl_gr_i <- cluster_infomap(gr)
+coin_info <- data.frame(Source = cl_gr_i$names, Isomap = cl_gr_i$membership)
+
+cl_gr_c <- components(gr)
+coin_comp <- cl_gr_c$membership %>% 
+  as.data.frame() %>% 
+  rownames_to_column("Source") %>% 
+  rename(Components = 2)
+
+table <- coin %>%
+  full_join(coin_louvain) %>%
+  full_join(coin_greedy) %>%
+  full_join(coin_walktrap) %>%
+  full_join(coin_info) %>%
+  full_join(coin_comp)
+
+library(ggsci)
+
+gridExtra::grid.arrange(
+  table %>%
+    gather(Method,Cluster, -Source) %>%
+    filter(!is.na(Cluster)) %>%
+    filter(Cluster >0) %>%
+    select(Method) %>%
+    group_by(Method) %>%
+    summarise(N = n()) %>%
+    ggplot(aes(x = Method, y = N, fill = Method)) +
+    geom_col() +
+    geom_text(aes(label = N), vjust = 1.5) +
+    scale_fill_d3() +
+    theme_light() + 
+    labs(title= "Number of clustered genes", x="", y="Number of genes")+
+    theme(legend.position="none"),
+  
+  table %>%
+  gather(Method,Cluster, -Source) %>%
+  select(Method,Cluster) %>%
+  distinct() %>%
+  group_by(Method) %>%
+  summarise(N = n()) %>%
+  ggplot(aes(x = Method, y = N, fill = Method)) +
+  geom_col() +
+  geom_text(aes(label = N), vjust = 0) +
+  scale_fill_d3() +
+  theme_light()+ 
+    labs(title = "Number of associated gene clusters", x ="", y="Number of Clusters") +
+    theme(legend.position="none"),
+
+
+table %>% 
+  gather(Method,Cluster, -Source) %>%
+  filter(!is.na(Cluster)) %>%
+  group_by(Method,Cluster) %>% 
+  summarise(ClusterSize = n()) %>% 
+  ggplot(aes(x= Method, y = ClusterSize, fill = Method)) +
+  geom_boxplot() +
+  scale_fill_d3() +
+  theme_light() + 
+  labs(title= "Cluster Size Distribution", x="", y="Cluster Size") + 
+  scale_y_log10() + 
+  theme(legend.position="botton")
+  
+)
+
 ```
+
+
+![](./CoincidentsComp.png)
+
+
+PATO groups 13,819 genes while Coinfinder found a positive association in 4,058 
+genes. Originally Coinfinder found 28 different groups while PATO found 1,380 
+with at least 4 members and that are represented in at least 5 genomes. However, 
+the average size of the groups is similar. The network clustering methods refine 
+the original Coinfinder result and increase the number of groups. More advanced 
+methods like Louvain or Fast Greedy double the number of clusters.
+The user must always remember that the PATO results are not corrected for the 
+phylogeny of the genomes and therefore there may be biases in the results due to
+the over-representation of some groups of genomes that are closely related.
+
+```{r eval=F, include=T}
+library(mclust)
+
+clusters_matrix <- table %>% column_to_rownames("Source") %>% as.matrix()
+
+results = data.frame()
+for(i in 1:ncol(clusters_matrix))
+{
+  for (j in 1:ncol(clusters_matrix))
+  {
+    results <- data.frame(Source = colnames(clusters_matrix)[i],
+                          Target = colnames(clusters_matrix)[j],
+                          value = adjustedRandIndex(clusters_matrix[,i],clusters_matrix[,j])) %>%
+      bind_rows(results)
+  }
+}
+
+results %>% spread(Target,value) %>%
+  column_to_rownames("Source") %>% 
+  as.matrix() %>% 
+  pheatmap::pheatmap(display_numbers = T, main = "AdjustRandIndex score")
+
+```
+
+In an attempt to quantify the differences between PATO and Coinfinder we have 
+measured the similarity of the results of each of the methods used. For this we 
+have used the Adjust Rand Index method
+![](./CoincidentsHeatmap.png)
+However, it is clear that in such diverse results this index of similarity does 
+not work properly.
 
