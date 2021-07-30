@@ -29,7 +29,7 @@ To install PATO package you need to install [devtools](https://github.com/r-lib/
 ```
 install.packages("devtools")
 ```
-You need to activate Bioconductor reposiroty.
+You need to activate Bioconductor repository.
 ```
 setRepositories()
 ##Then select 1 and 2.
