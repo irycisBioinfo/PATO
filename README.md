@@ -2,9 +2,6 @@
 
 <img src="https://github.com/irycisBioinfo/PATO/blob/master/vignettes/logo.png" width="50%" align = "right">
 
->**IN DEVELOPING.**  
->**USE UNDER YOUR RESPONSIBILITY**
-
 
 PATO is a R package designed to analyze pangenomes (set of genomes)
 intra or inter species. It allows to analyze the core-genome, accessory 
@@ -26,13 +23,19 @@ the core-, accessory- and pan-genome size (and dynamic).
 
 ## Installation
 
+PATO requires R 3.6 or newer. 
 To install PATO package you need to install [devtools](https://github.com/r-lib/devtools) package
 
 ```
 install.packages("devtools")
 ```
+You need to activate Bioconductor reposiroty.
+```
+setRepositories()
+##Then select 1 and 2.
+```
 
-Once you have installed *devtools* package, type:
+Once you have installed *devtools* package and activate Bioconductor repository, type:
 
 ```
 devtools::install_github("https://github.com/irycisBioinfo/PATO", build_vignettes = T)
