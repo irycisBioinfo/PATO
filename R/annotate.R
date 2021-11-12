@@ -18,6 +18,7 @@
 #' \item \emph{AbR}: Antibiotic resistance database (ResFinder)
 #' \item \emph{VF_A} VFDB core dataset (genes associated with experimentally verified VFs only)
 #' \item \emph{VF_B} VFDB full dataset (all genes related to known and predicted VFs)
+#' \item \emph{bacmet} BacMet dataset (genes associated with Biocide and Metal resistance)
 #' }
 #' @param query "all" or "accessory". It perform the annotation from whole
 #' protein dataset or just from the accessory
@@ -37,7 +38,7 @@
 #'  \item \emph{tend}:  target end alingment
 #'  \item \emph{evalue}: evalue
 #'  \item \emph{bits}: Bitscore
-#'  \item \emph{DataBase}: Database (AbR, VF_A or VF_B)
+#'  \item \emph{DataBase}: Database (AbR, VF_A or VF_B, bacmet)
 #'  \item \emph{Gene}: Gene name
 #'  \item \emph{Description}: Functional annotation (VF) or category (AbR)
 #' }
@@ -94,12 +95,14 @@ annotate <- function(data, type = "nucl", database =c("AbR","VF_A","VF_B"), quer
     resfinder_path <- system.file("annotation/resfinder_prot", package = "pato")
     vf_A_path <- system.file("annotation/VFDB_setA_prot", package = "pato")
     vf_B_path <- system.file("annotation/VFDB_setB_prot", package = "pato")
+    bacmet <- system.file("annotation/bacmet", package = "pato")
     annot <- read.delim(system.file("annotation/annot.data", package = "pato"), stringsAsFactors = FALSE, header = TRUE, sep = "\t")
   }else if(type =="nucl")
   {
     resfinder_path <- system.file("annotation/resfinder_nucl", package = "pato")
     vf_A_path <- system.file("annotation/VFDB_setA_nucl", package = "pato")
     vf_B_path <- system.file("annotation/VFDB_setB_nucl", package = "pato")
+    bacmet <- system.file("annotation/bacmet", package = "pato")
     annot <- read.delim(system.file("annotation/annot.data", package = "pato"), stringsAsFactors = FALSE, header = TRUE, sep = "\t")
   }else{
     stop("Error in data type selection: please specify 'nucl' or 'prot'")
@@ -197,6 +200,30 @@ annotate <- function(data, type = "nucl", database =c("AbR","VF_A","VF_B"), quer
     print(paste(mmseqPath," convertalis ",rep," ",vf_B_path," vf_b.out vf_b.tsv", sep = "", collapse = "")) %>% system()
     Sys.sleep(1)
     tmp <- read.table("vf_b.tsv", header = FALSE, stringsAsFactors = FALSE,comment.char = "")
+    Sys.sleep(1)
+    colnames(tmp)<- c("query","target","pident","alnlen","mismatch","gapopen","qstart","qend","tstart","tend","evalue","bits")
+    Sys.sleep(1)
+    results <- bind_rows(results,tmp)
+  }
+  if("bacmet" %in% database)
+  {
+    if(file.exists("bacmet.out.1"))
+    {
+      system("rm bacmet.out*")
+    }
+    if(type =="nucl")
+    {
+      print(paste(mmseqPath," search ",rep," ",bacmet," bacmet.out tmpDir --search-type 3 ", sep = "", collapse = "")) %>% system()
+      Sys.sleep(1)
+    }else{
+      print(paste(mmseqPath," map ",rep," ",bacmet," bacmet.out tmpDir", sep = "", collapse = "")) %>% system()
+      Sys.sleep(1)
+    }
+
+
+    print(paste(mmseqPath," convertalis ",rep," ",bacmet," bacmet.out bacmet.tsv", sep = "", collapse = "")) %>% system()
+    Sys.sleep(1)
+    tmp <- read.table("bacmet.tsv", header = FALSE, stringsAsFactors = FALSE,comment.char = "")
     Sys.sleep(1)
     colnames(tmp)<- c("query","target","pident","alnlen","mismatch","gapopen","qstart","qend","tstart","tend","evalue","bits")
     Sys.sleep(1)

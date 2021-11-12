@@ -21,6 +21,7 @@ annotate(
 \item \emph{AbR}: Antibiotic resistance database (ResFinder)
 \item \emph{VF_A} VFDB core dataset (genes associated with experimentally verified VFs only)
 \item \emph{VF_B} VFDB full dataset (all genes related to known and predicted VFs)
+\item \emph{bacmet} BacMet dataset (genes associated with Biocide and Metal resistance)
 }}
 
 \item{query}{"all" or "accessory". It perform the annotation from whole
@@ -42,7 +43,7 @@ A \code{data.frame} with the annotation information\cr
 \item \emph{tend}:  target end alingment
 \item \emph{evalue}: evalue
 \item \emph{bits}: Bitscore
-\item \emph{DataBase}: Database (AbR, VF_A or VF_B)
+\item \emph{DataBase}: Database (AbR, VF_A or VF_B, bacmet)
 \item \emph{Gene}: Gene name
 \item \emph{Description}: Functional annotation (VF) or category (AbR)
 }

@@ -60,6 +60,31 @@ foreach $l (@tmp)
 	print OUT "$2\t$1\t$3\t$4\n";
 		
 }
+
+
+system("wget http://bacmet.biomedicine.gu.se/download/BacMet2_EXP_database.fasta");
+system("mmseqs createdb BacMet2_EXP_database.fasta bacmet");
+system("grep '>' BacMet2_EXP_database.fasta | sed 's/>//' | sed 's/^//' > headersBACMET.txt");
+
+open(A,"headersBACMET.txt");
+@bacmet = <A>;
+close A;
+
+foreach $l (@bacmet)
+{
+	@c = split(/\s/,$l);
+	#print "$c[0]\n";
+	$Description = join(" ",@c[1 .. scalar(@c)]);
+	$id = $c[0];
+	@c2 = split(/\|/,$id);
+	$gene = $c2[1];
+	$database = "bacmet";
+    
+    print OUT "$id\t$database\t$gene\t$Description\n";
+}
+
+
+
 close OUT;
 
-system("rm -f -r *.fas *.faa *.fsa resfinder_db tmp*");
+system("rm -f -r *.fas *.faa *.fsa resfinder_db tmp* Bac*");
