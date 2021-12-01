@@ -93,13 +93,7 @@ mmseqs <- function(file_list, coverage = 0.8, identity = 0.8, evalue = 1e-6, n_c
     }
   }else if(grepl('apple',Sys.getenv("R_PLATFORM"))){ ##MacOS
 
-
-    if(grepl("AVX2",system("sysctl -a | grep machdep.cpu.leaf7_features", intern = T)))
-    {
-      mmseqPath = system.file("mmseqs.macos.avx2", package = "pato")
-    }else{
-      mmseqPath = system.file("mmseqs.macos.sse41", package = "pato")
-    }
+      mmseqPath = system.file("mmseqs.macos", package = "pato")
   }else{
     stop("Error, OS not supported.")
   }
