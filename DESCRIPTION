@@ -61,5 +61,5 @@ BinaryFiles:
  k8
 Roxygen:
     list(markdown = TRUE)
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 VignetteBuilder: knitr

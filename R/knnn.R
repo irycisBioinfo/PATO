@@ -13,11 +13,12 @@
 #' @param data An Accnet or Mash object
 #' @param n_neigh The number of best K-Neighbours
 #' @param repeats \emph{Boolean} Include repetitions?
+#' @param threshold Minimum value to create an edge.
 #'
 #' @return Returns an \emph{igraph} object.
 #' @export
 #'
-#' 
+#'
 #' @import dplyr
 #' @import tidyr
 #' @import tibble
@@ -26,7 +27,7 @@
 #' @import igraph
 #' @import parallelDist
 
-knnn <- function(data, n_neigh, repeats = TRUE)
+knnn <- function(data, n_neigh, repeats = TRUE, threshold = 1)
 {
   if(is(data,"accnet"))
   {
@@ -54,9 +55,9 @@ knnn <- function(data, n_neigh, repeats = TRUE)
   if(repeats)
   {
     gr <- igraph::graph_from_data_frame(List %>%
+                                          filter(Dist < threshold) %>%
                                   group_by(Source) %>%
-                                  #top_n(-n_neigh,Dist) %>%
-                                    slice_min(Dist, n= n_neigh,with_ties =F) %>%
+                                  slice_min(Dist, n= n_neigh,with_ties =F) %>%
                                   mutate(weight = 2-Dist) %>%
                                   select(-Dist))
     gr <- igraph::as.undirected(gr)
@@ -74,9 +75,9 @@ knnn <- function(data, n_neigh, repeats = TRUE)
       filter(Dist >0)
 
     gr <- igraph::graph_from_data_frame(List.U %>%
+                                  filter(Dist < threshold) %>%
                                   group_by(Source) %>%
-                                  #top_n(-n_neigh,Dist)%>%
-                                    slice_min(Dist, n= n_neigh,with_ties =F) %>%
+                                  slice_min(Dist, n= n_neigh,with_ties =F) %>%
                                   mutate(weight = 2-Dist) %>%
                                   select(-Dist), directed = FALSE)
     gr <- igraph::simplify(gr,remove.multiple = TRUE,remove.loops = TRUE)

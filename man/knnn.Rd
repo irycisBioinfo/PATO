@@ -4,7 +4,7 @@
 \alias{knnn}
 \title{K-Nearest Neighbour Network}
 \usage{
-knnn(data, n_neigh, repeats = TRUE)
+knnn(data, n_neigh, repeats = TRUE, threshold = 1)
 }
 \arguments{
 \item{data}{An Accnet or Mash object}
@@ -12,6 +12,8 @@ knnn(data, n_neigh, repeats = TRUE)
 \item{n_neigh}{The number of best K-Neighbours}
 
 \item{repeats}{\emph{Boolean} Include repetitions?}
+
+\item{threshold}{Minimum value to create an edge.}
 }
 \value{
 Returns an \emph{igraph} object.
