@@ -39,8 +39,7 @@ knnn <- function(data, n_neigh, repeats = TRUE, threshold = 1)
       as.data.frame()
     List <- matrix %>%
       rownames_to_column("Source") %>%
-      gather(Target,Dist, -Source) %>%
-      filter(Dist >0)
+      gather(Target,Dist, -Source)
 
   }else if(is(data,"mash"))
   {
@@ -57,30 +56,31 @@ knnn <- function(data, n_neigh, repeats = TRUE, threshold = 1)
     gr <- igraph::graph_from_data_frame(List %>%
                                           filter(Dist < threshold) %>%
                                   group_by(Source) %>%
-                                  slice_min(Dist, n= n_neigh,with_ties =F) %>%
+                                  slice_min(Dist, n= n_neigh+1,with_ties =F) %>%
                                   mutate(weight = 2-Dist) %>%
                                   select(-Dist))
+
     gr <- igraph::as.undirected(gr)
-    gr <- igraph::simplify(gr,remove.multiple = TRUE,remove.loops = TRUE)
+    gr <- igraph::simplify(gr,remove.multiple = TRUE,remove.loops = F)
 
   }else
   {
     matrix <- matrix %>%
       as.matrix()
-    matrix[lower.tri(matrix)] <- 0
+    matrix[lower.tri(matrix, diag = F)] <- NA
     matrix <- as.data.frame(matrix) %>% rownames_to_column("Source")
 
     List.U<- matrix %>%
-      gather(Target,Dist, -Source) %>%
-      filter(Dist >0)
+      pivot_longer(names_to = "Target",values_to = "Dist", -Source) %>%
+      filter(!is.na(Dist)) ## remove the lower.tri
 
     gr <- igraph::graph_from_data_frame(List.U %>%
                                   filter(Dist < threshold) %>%
                                   group_by(Source) %>%
-                                  slice_min(Dist, n= n_neigh,with_ties =F) %>%
+                                  slice_min(Dist, n= n_neigh+1,with_ties =F) %>%
                                   mutate(weight = 2-Dist) %>%
                                   select(-Dist), directed = FALSE)
-    gr <- igraph::simplify(gr,remove.multiple = TRUE,remove.loops = TRUE)
+    gr <- igraph::simplify(gr,remove.multiple = TRUE,remove.loops = F)
   }
   return(gr)
 }
