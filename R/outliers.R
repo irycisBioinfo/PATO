@@ -41,15 +41,28 @@ outliers <- function(data, threshold, n_sd, plot = TRUE)
       summarise(mean = mean(Dist))
   } else if (is(data,"accnet"))
   {
-    m.list <- data$matrix %>%
-      column_to_rownames("Source") %>% as.matrix() %>%
-      parallelDist(., method = "binary") %>%
-      as.matrix() %>% as.data.frame() %>%
-      rownames_to_column("Source") %>%
-      as.data.table() %>%
-      gather(Target, Dist,-Source) %>%
-      group_by(Source) %>%
-      summarise(mean = mean(Dist))
+    if(is.null(data$dist))
+    {
+      m.list <- data$matrix %>%
+        column_to_rownames("Source") %>%
+        as.matrix() %>%
+        parallelDist(., method = "binary") %>%
+        as.matrix() %>%
+        as.data.frame() %>%
+        rownames_to_column("Source") %>%
+        as.data.table() %>%
+        gather(Target, Dist,-Source) %>%
+        group_by(Source) %>%
+        summarise(mean = mean(Dist))
+    }else{
+      m.list <- data$dist %>%
+        as.data.frame() %>%
+        rownames_to_column("Source") %>%
+        as.data.table() %>%
+        gather(Target, Dist,-Source) %>%
+        group_by(Source) %>%
+        summarise(mean = mean(Dist))
+    }
   } else{
     stop("Error: object mash or accnet must be provided")
 

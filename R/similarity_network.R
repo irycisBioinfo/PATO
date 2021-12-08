@@ -17,7 +17,7 @@
 #' @import igraph
 #' @import parallelDist
 #'
-#' 
+#'
 similarity_network <- function(data, threshold)
 {
   if(is(data,"mash"))
@@ -31,7 +31,16 @@ similarity_network <- function(data, threshold)
 
   }else if (is(data,"accnet"))
   {
-    gr <- data$matrix %>% column_to_rownames("Source") %>% as.matrix() %>% parallelDist(method ="binary") %>% as.matrix()
+    if(is.null(data$dist))
+    {
+      gr <- data$matrix %>%
+        column_to_rownames("Source") %>%
+        as.matrix() %>%
+        parallelDist(method ="binary") %>%
+        as.matrix()
+    }else{
+      gr <- data$dist
+    }
     gr = gr < threshold
     gr = graph_from_adjacency_matrix(gr, mode ="upper")
   }

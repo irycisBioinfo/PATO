@@ -13,6 +13,7 @@
 #' @param mmseqs An object od class \emph{mmseq}
 #' @param threshold Remove proteins with a frequency higher than threshold (soft-coregenome).
 #' @param singles keep proteins presence in just one sample?
+#' @param dist pre calculate the distance matrix for further usage.
 #'
 #' @return An accnet object.\cr
 #'   \emph{accnet} object contains\cr
@@ -31,9 +32,9 @@
 #' @import dplyr
 #' @import tidyr
 #' @import dtplyr
+#' @import parallelDist
 #'
-#'
-accnet <- function(mmseqs,threshold = 0.8, singles = TRUE)
+accnet <- function(mmseqs,threshold = 0.8, singles = TRUE, dist = FALSE)
 {
 
 
@@ -72,6 +73,14 @@ accnet <- function(mmseqs,threshold = 0.8, singles = TRUE)
                          summarise(Annot = first(Annot)) %>%
                          ungroup()
                  )
+  if(dist)
+  {
+    results$dist <- accnet.matrix %>%
+      column_to_rownames("Source")%>%
+      as.matrix() %>%
+      parallelDist(., method = "binary") %>%
+      as.matrix()
+  }
   class(results) <- append(class(results),"accnet")
   return(results)
 }

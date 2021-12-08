@@ -4,7 +4,7 @@
 \alias{accnet}
 \title{Build accessory genome network (AccNET)}
 \usage{
-accnet(mmseqs, threshold = 0.8, singles = TRUE)
+accnet(mmseqs, threshold = 0.8, singles = TRUE, dist = FALSE)
 }
 \arguments{
 \item{mmseqs}{An object od class \emph{mmseq}}
@@ -12,6 +12,8 @@ accnet(mmseqs, threshold = 0.8, singles = TRUE)
 \item{threshold}{Remove proteins with a frequency higher than threshold (soft-coregenome).}
 
 \item{singles}{keep proteins presence in just one sample?}
+
+\item{dist}{pre calculate the distance matrix for further usage.}
 }
 \value{
 An accnet object.\cr

@@ -24,7 +24,7 @@
 #'
 #' @seealso \code{\link{extract_non_redundant}}
 #'
-#' 
+#'
 #' @import dplyr
 #' @import tidyr
 #' @import tibble
@@ -37,12 +37,18 @@ non_redundant_hier <- function(data, number, fraction, distance, tolerance = 0.0
 {
   if(is(data,"accnet"))
   {
-    m.matrix <-  data$matrix %>%
-      as_tibble() %>%
-      column_to_rownames("Source") %>%
-      as.matrix() %>%
-      parallelDist(., method = "binary") %>%
-      as.matrix()
+    if(is.null(data$dist))
+    {
+      m.matrix <-  data$matrix %>%
+        as_tibble() %>%
+        column_to_rownames("Source") %>%
+        as.matrix() %>%
+        parallelDist(., method = "binary") %>%
+        as.matrix()
+    }else{
+      m.matrix = data$dist %>% as.data.frame()
+    }
+
     m.list <- m.matrix %>%
       rownames_to_column("Source") %>%
       spread(Target,Dist,-Source)

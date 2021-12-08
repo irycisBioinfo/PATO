@@ -21,7 +21,7 @@
 #'
 #' @seealso \code{\link{extract_non_redundant}}
 #'
-#' 
+#'
 #' @import dplyr
 #' @import tidyr
 #' @import tibble
@@ -35,12 +35,18 @@ non_redundant <- function(data, number, fraction, distance, tolerance = 0.05, ma
 
  if(is(data,"accnet"))
  {
-   m.list = data$matrix %>%
-     as_tibble() %>%
-     column_to_rownames("Source") %>%
-     as.matrix() %>%
-     parallelDist(., method = "binary") %>%
-     as.matrix() %>%
+   if(is.null(data$dist)){
+
+      m.list <- data$matrix %>%
+        as_tibble() %>%
+        column_to_rownames("Source") %>%
+        as.matrix() %>%
+        parallelDist(., method = "binary") %>%
+        as.matrix()
+   }else{
+     m.list <- data$dist
+   }
+   m.list <- m.list%>%
      as.data.frame() %>%
      rownames_to_column("Source") %>%
      gather(Target,Dist, -Source)

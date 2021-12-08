@@ -20,9 +20,16 @@
 #'
 cluster_accnet <- function(data, method, n_cluster, d_reduction, ...)
 {
+
+  if(is.null(data$dist))
+  {
   Dist <-
     parallelDist(data$matrix %>% tibble::column_to_rownames("Source") %>% as.matrix(),
          method = "binary")
+  }else{
+    Dist <- data$dist
+  }
+
   if (method == "mclust")
   {
     if(!d_reduction)

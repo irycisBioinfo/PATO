@@ -32,11 +32,16 @@ knnn <- function(data, n_neigh, repeats = TRUE, threshold = 1)
   if(is(data,"accnet"))
   {
 
-    matrix <- data$matrix %>%
-      column_to_rownames("Source")%>% as.matrix() %>%
-      parallelDist(., method = "binary") %>%
-      as.matrix() %>%
-      as.data.frame()
+    if(is.null(data$dist))
+    {
+      matrix <- data$matrix %>%
+        column_to_rownames("Source")%>% as.matrix() %>%
+        parallelDist(., method = "binary") %>%
+        as.matrix() %>%
+        as.data.frame()
+    }else{
+      matrix = data$dist %>% as.data.frame()
+    }
     List <- matrix %>%
       rownames_to_column("Source") %>%
       gather(Target,Dist, -Source)

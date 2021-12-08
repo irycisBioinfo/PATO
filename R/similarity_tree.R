@@ -21,7 +21,7 @@
 #' @return An object of class \emph{phylo}
 #' @export
 #'
-#' 
+#'
 #' @import dplyr
 #' @import tidyr
 #' @import tibble
@@ -35,7 +35,15 @@ similarity_tree <- function(data, method ="NJ")
 
   if(is(data,"accnet"))
   {
-    dist = data$matrix %>% column_to_rownames("Source") %>% as.matrix()%>%  parallelDist(., method = "binary")
+    if(is.null(data.dist))
+    {
+      dist <- data$matrix %>%
+        column_to_rownames("Source") %>%
+        as.matrix()%>%
+        parallelDist(., method = "binary")
+    }else{
+      dist <- data$dist %>% as.dist()
+    }
 
 
   }else if (is(data,"mash"))
