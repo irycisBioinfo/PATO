@@ -78,13 +78,7 @@ core_genome <- function(data, type, n_cores, method = "fast")
     }
   }else if(grepl('apple',Sys.getenv("R_PLATFORM"))){ ##MacOS
 
-
-    if(grepl("AVX2",system("sysctl -a | grep 'AVX2'", intern = T)))
-    {
-      mmseqPath = system.file("mmseqs.macos.avx2", package = "pato")
-    }else{
-      mmseqPath = system.file("mmseqs.macos.sse41", package = "pato")
-    }
+    mmseqPath = system.file("mmseqs.macos", package = "pato")
   }else{
     stop("Error, OS not supported.")
   }
