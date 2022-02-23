@@ -25,6 +25,7 @@
 #' @param x minimap preset (see details)
 #' @param min_call_length min alignment length to call variants and compute coverage (expert parameters)
 #' @param min_call_qual min mapping quality (expert parameters)
+#' @param asm Minimap2 preseting options (see details)
 #'
 #'
 #' @details
@@ -47,7 +48,7 @@
 #' @export
 #'
 #'
-core_snp_genome <- function(file_list, n_cores, ref, type, x,min_call_length, min_call_qual)
+core_snp_genome <- function(file_list, n_cores, ref, type, x,min_call_length, min_call_qual, asm)
 {
   if(grepl('linux',Sys.getenv("R_PLATFORM"))) ## Linux
   {

@@ -46,10 +46,10 @@ classifier <- function(file_list, n_cores, type ="nucl", max_dist = 0.06)
 
   if(type == "prot")
   {
-    reference <- system.file("classifier/ReferenceProt.msh",package = "pato")
+    reference <- system.file("DB/ReferenceProt.msh",package = "pato")
   }else if(type == "nucl" | type == "wgs")
   {
-    reference <- system.file("classifier/ReferenceNucl.msh",package = "pato")
+    reference <- system.file("DB/ReferenceNucl.msh",package = "pato")
   }else{
     stop("Error in type options. Only prot or nucl options are allowed")
   }
@@ -94,7 +94,7 @@ classifier <- function(file_list, n_cores, type ="nucl", max_dist = 0.06)
   colnames(class.table) <- c("Source","Target","Dist","pvalue","sketch")
 
 
-  header <- data.table::fread(system.file("classifier/headers.tsv",package = "pato"), sep = "\t", header = T, stringsAsFactors = F)
+  header <- data.table::fread(system.file("DB/header_class.tsv",package = "pato"), sep = "\t", header = T, stringsAsFactors = F)
 
 
 
