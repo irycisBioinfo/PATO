@@ -11,7 +11,8 @@ core_snp_genome(
   type,
   x,
   min_call_length,
-  min_call_qual
+  min_call_qual,
+  asm
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ core_snp_genome(
 \item{min_call_length}{min alignment length to call variants and compute coverage (expert parameters)}
 
 \item{min_call_qual}{min mapping quality (expert parameters)}
+
+\item{asm}{Minimap2 preseting options (see details)}
 }
 \value{
 core_snp_genome object
