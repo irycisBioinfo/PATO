@@ -38,7 +38,11 @@ setRepositories()
 Once you have installed *devtools* package and activate Bioconductor repository, type:
 
 ```
-devtools::install_github("https://github.com/irycisBioinfo/PATO", build_vignettes = T)
+devtools::install_github("https://github.com/irycisBioinfo/PATO", 
+                         build_vignettes = T,
+                         dependencies = TRUE,
+                         repos = c("https://cloud.r-project.org/",
+                                   BiocManager::repositories()))
 ```
 
 Some times some dependencies require system packages as `libcurl`. `libssl` or `libxml2` (this example is for Ubuntu/Debian based systems):
