@@ -54,9 +54,9 @@ sudo apt install libcurl4-openssl-dev libssl-dev libxml2-dev libmagick++-dev lib
 Some users are experiencing problems using `devtools::install_github()`. If this is your case you can install the latest release from sources.
 
 ```
-wget https://github.com/irycisBioinfo/PATO/releases/download/1.0.4/pato_1.0.4.tar.gz
-R CMD INSTALL --no-multiarch --with-keep.source pato_1.0.4.tar.gz
-rm pato_1.0.4.tar.gz
+wget https://github.com/irycisBioinfo/PATO/releases/download/1.0.6/pato_1.0.6.tar.gz
+R CMD INSTALL --no-multiarch --with-keep.source pato_1.0.6.tar.gz
+rm pato_1.0.6.tar.gz
 ```
 
 It could take a while because PATO has the following dependencies:
