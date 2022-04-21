@@ -100,11 +100,12 @@ classifier <- function(file_list, n_cores, type ="nucl", max_dist = 0.06)
 
   class.table %>%
     mutate(Target = basename(Target)) %>%
+    separate(Source,c("kk","Source"), sep = "\\/(?!.*/)") %>%
     separate(Source,c("kk","acc1","acc2"), sep = "_") %>%
     unite(assembly_accession,kk,acc1,sep = "_") %>%
     mutate(Dist = 1-Dist) %>%
     left_join(header) %>%
-    select(Target,Similarity = Dist,organism_name,species_taxid,assembly_accession,refseq_category) %>%
+    select(Target,Similarity = Dist,organism_name,species_taxid,assembly_accession) %>%
     group_by(Target) %>% slice_max(order_by = Similarity,n = 1) %>% ungroup() %>%
     return()
 
