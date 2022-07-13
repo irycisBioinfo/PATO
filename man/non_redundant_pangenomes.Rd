@@ -26,9 +26,6 @@ non_redundant_pangenomes(
 
 \item{kmer}{kmer size (mash option)}
 }
-\value{
-
-}
 \description{
 Remove redundant sequences from a file list of sequences (nucleotide or protein).
 }

@@ -16,9 +16,6 @@ snps_pairwaise(file_list, type, n_cores, norm = T)
 \item{norm}{The output is normalized by the length of the alignment. If \emph{norm} is TRUE then the output in "SNPs per Megabase".
 If \emph{norm} is FALSE then thr output is the raw number of SNPs.}
 }
-\value{
-
-}
 \description{
 This function calculates All-vs-All SNPs number. At different of \emph{core_snps_matrix} this function
 calculates the raw number of SNPs among each pair of sequences avoiding the bias of the core genome size and/or

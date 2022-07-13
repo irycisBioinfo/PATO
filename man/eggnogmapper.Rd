@@ -9,9 +9,6 @@ eggnogmapper(data, n_cores)
 \arguments{
 \item{data}{}
 }
-\value{
-
-}
 \description{
 Title
 }

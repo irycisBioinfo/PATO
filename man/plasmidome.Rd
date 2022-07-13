@@ -12,9 +12,6 @@ plasmidome(gff_list, specie)
 \item{specie}{mlplasmid accept as species Enterococcus faecium, Escherichia coli
 or Klebsiella pneumoniae}
 }
-\value{
-
-}
 \description{
 This function uses \emph{mlplasmids} to find the contigs belong to plasmids.
 The package \emph{mlplasmids} must be installed in your computer (see datails).

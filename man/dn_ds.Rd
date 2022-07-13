@@ -22,9 +22,6 @@ dn_ds(mmseq, accnet, min_size = 5, n_cores, mode = "fast")
 
 \item{mode}{Alignment mode c("fast",accurate")}
 }
-\value{
-
-}
 \description{
 This function needs \emph{mafft} and/or \emph{blastn} intalled in you system
 and available in the PATH.

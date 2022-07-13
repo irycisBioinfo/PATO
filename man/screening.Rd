@@ -2,19 +2,20 @@
 % Please edit documentation in R/screening.R
 \name{screening}
 \alias{screening}
-\title{Screening}
+\title{Screening genes markers}
 \usage{
 screening(
   data,
   type = "nucl",
   database = c("AbR", "VF_A", "VF_B"),
-  query = "all"
+  query = "all",
+  n_cores
 )
 }
 \arguments{
 \item{data}{A \code{mmseq} object}
 
-\item{type}{user must be specified if the data set is nucleotide, wgs or protein.}
+\item{type}{user must be specified if the data set is nucleotide or protein.}
 
 \item{database}{A vector with the query databases:
 \itemize{
@@ -24,12 +25,51 @@ screening(
 \item \emph{bacmet} BacMet dataset (genes associated with Biocide and Metal resistance)
 }}
 
-\item{query}{"all" or "accessory". It perform the DB from whole
+\item{query}{"all" or "accessory". It perform the annotation from whole
 protein dataset or just from the accessory}
 }
 \value{
-
+A \code{data.frame} with the annotation information\cr
+\itemize{
+\item \emph{Genome}: Genome query
+\item \emph{Protein}: Proteins query
+\item \emph{target}: Protein subject (AbR o VF)
+\item \emph{pident}: Percentage of identical matches
+\item \emph{alnlen}: Alingment length
+\item \emph{mismatch}: number of mismatchs
+\item \emph{gapopen}: number of gaps
+\item \emph{qstart}: query start alingment
+\item \emph{qend}: query end alingment
+\item \emph{tstart}: target start alingment
+\item \emph{tend}:  target end alingment
+\item \emph{evalue}: evalue
+\item \emph{bits}: Bitscore
+\item \emph{DataBase}: Database (AbR, VF_A or VF_B, bacmet)
+\item \emph{Gene}: Gene name
+\item \emph{Description}: Functional annotation (VF) or category (AbR)
+}
 }
 \description{
-Screening
+This function annotate virulence factors, antibiotic resitance genes and/or biocide and metals
+of the genomes (\code{files}). The annotation is performed using
+\strong{mmseqs2} software for protein sequences (\link{https://github.com/soedinglab/MMseqs2})
+or \strong{Minimap2} (\link{https://github.com/lh3/minimap2}) for nucleotide (wgs or nucl).
+}
+\details{
+Databases
+\itemize{
+\item \strong{Virulence Factor DataBase (Set_A and Set_B)} (\link{http://www.mgc.ac.cn/cgi-bin/VFs/v5/main.cgi})
+\item \strong{ResFinder} (\link{https://cge.cbs.dtu.dk/services/ResFinder/}).
+\item \strong{BacMet} (\link{http://bacmet.biomedicine.gu.se/}).
+}
+
+The function can re-use the
+previous computational steps of \code{mmseqs} or create a new index database from
+the files. Re-use option shorten the computational time. This method use the algorithm
+\strong{search} of \strong{mmseqs2} so it olny return high identity matchs.
+}
+\note{
+Keep in mind that the results from \emph{accesory} are based on the
+annotation of the representative protein of the homologous cluster and therefore
+does not mean that all the genomes have the same allele of the gene.
 }
