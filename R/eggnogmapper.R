@@ -1,6 +1,6 @@
 #' EggNogg Mapper
 #'
-#' this a wraper function to external software EggnoggMapper
+#' this is a wraper function to external software EggnoggMapper
 #'
 #' @param data
 #'

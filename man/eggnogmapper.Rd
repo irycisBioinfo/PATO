@@ -2,13 +2,13 @@
 % Please edit documentation in R/eggnogmapper.R
 \name{eggnogmapper}
 \alias{eggnogmapper}
-\title{Title}
+\title{EggNogg Mapper}
 \usage{
-eggnogmapper(data, n_cores)
+eggnogmapper(data, n_cores, executable_path = "emapper.py")
 }
 \arguments{
 \item{data}{}
 }
 \description{
-Title
+this is a wraper function to external software EggnoggMapper
 }

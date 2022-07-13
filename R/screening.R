@@ -119,6 +119,13 @@ screening <- function(data, type = "nucl", database =c("AbR","VF_A","VF_B"), que
     n_cores = detectCores()
   }
 
+
+  if(system.file("DB/resfinder_prot", package = "pato")== "")
+  {
+    stop("Error. Databases not installed. Please execute install_db to install the screening databases")
+  }
+
+
   if(type == "prot")
   {
     resfinder_path <- system.file("DB/resfinder_prot", package = "pato")
