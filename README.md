@@ -91,6 +91,13 @@ It could take a while because PATO has the following dependencies:
  Biostrings (>= 2.52.0),
  microseq (>= 2.1.2)
 ```
+To download the necessary databases:
+```
+library(pato)
+install_db()
+
+```
+
 
 # Documentation
 You can find the documentation in the [wiki](https://github.com/irycisBioinfo/PATO/wiki) area
