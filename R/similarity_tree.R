@@ -35,7 +35,7 @@ similarity_tree <- function(data, method ="NJ")
 
   if(is(data,"accnet"))
   {
-    if(is.null(data.dist))
+    if(is.null(data$dist))
     {
       dist <- data$matrix %>%
         column_to_rownames("Source") %>%
