@@ -92,18 +92,18 @@ annotate <- function(data, type = "nucl", database =c("AbR","VF_A","VF_B"), quer
 
   if(type == "prot")
   {
-    resfinder_path <- system.file("annotation/resfinder_prot", package = "pato")
-    vf_A_path <- system.file("annotation/VFDB_setA_prot", package = "pato")
-    vf_B_path <- system.file("annotation/VFDB_setB_prot", package = "pato")
-    bacmet <- system.file("annotation/bacmet", package = "pato")
-    annot <- read.delim(system.file("annotation/annot.data", package = "pato"), stringsAsFactors = FALSE, header = TRUE, sep = "\t")
+    resfinder_path <- system.file("DB/resfinder_prot", package = "pato")
+    vf_A_path <- system.file("DB/VFDB_setA_prot", package = "pato")
+    vf_B_path <- system.file("DB/VFDB_setB_prot", package = "pato")
+    bacmet <- system.file("DB/bacmet", package = "pato")
+    annot <- read.delim(system.file("DB/annot.data", package = "pato"), stringsAsFactors = FALSE, header = TRUE, sep = "\t")
   }else if(type =="nucl")
   {
-    resfinder_path <- system.file("annotation/resfinder_nucl", package = "pato")
-    vf_A_path <- system.file("annotation/VFDB_setA_nucl", package = "pato")
-    vf_B_path <- system.file("annotation/VFDB_setB_nucl", package = "pato")
-    bacmet <- system.file("annotation/bacmet", package = "pato")
-    annot <- read.delim(system.file("annotation/annot.data", package = "pato"), stringsAsFactors = FALSE, header = TRUE, sep = "\t")
+    resfinder_path <- system.file("DB/resfinder_nucl", package = "pato")
+    vf_A_path <- system.file("DB/VFDB_setA_nucl", package = "pato")
+    vf_B_path <- system.file("DB/VFDB_setB_nucl", package = "pato")
+    bacmet <- system.file("DB/bacmet", package = "pato")
+    annot <- read.delim(system.file("DB/annot.data", package = "pato"), stringsAsFactors = FALSE, header = TRUE, sep = "\t")
   }else{
     stop("Error in data type selection: please specify 'nucl' or 'prot'")
   }
