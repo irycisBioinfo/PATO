@@ -129,7 +129,7 @@ non_redundant_hier <- function(data, number, fraction, distance, tolerance = 0.0
   }
   else if (!missing(fraction))
   {
-    number <-  m.list %>% select(Source) %>% distinct() %>% count()
+    number <-  m.list %>% select(Source) %>% distinct() %>% dplyr::count()
     number <- number[1] * fraction
     min <- min(m.list$Dist)
     max <- max(m.list$Dist)
