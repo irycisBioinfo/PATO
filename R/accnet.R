@@ -45,7 +45,7 @@ accnet <- function(mmseqs,threshold = 0.8, singles = TRUE, dist = FALSE)
 
   accnet <- mmseqs$table %>% as_tibble()
   accnet <- accnet %>% select(Prot_prot,Genome_genome) %>% distinct()
-  n_genomes <- accnet %>% distinct(Genome_genome) %>% count() %>% as_tibble()
+  n_genomes <- accnet %>% distinct(Genome_genome) %>% dplyr::count() %>% as_tibble()
 
   n_genomes <- n_genomes$n
 
