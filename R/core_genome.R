@@ -92,7 +92,7 @@ core_genome <- function(data, type, n_cores, method = "fast")
 
   table = data$table %>% as_tibble()
 
-  nGenomes  <-  table  %>% distinct(Genome_genome) %>% count() %>% as_tibble()
+  nGenomes  <-  table  %>% distinct(Genome_genome) %>% dplyr::count() %>% as_tibble()
 
   table <-  table %>%
     distinct() %>%
