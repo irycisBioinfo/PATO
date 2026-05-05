@@ -58,10 +58,10 @@ accnet_enrichment_analysis <- function(data,cluster, padj_method = "BY")
 
 
 
-  tmp = accnet %>% select(Source) %>% distinct() %>% count()
+  tmp = accnet %>% select(Source) %>% distinct() %>% dplyr::count()
   accnet$AccnetGenomeSize = tmp$n
 
-  tmp = accnet %>% ungroup() %>% select(Target) %>% distinct() %>% count()
+  tmp = accnet %>% ungroup() %>% select(Target) %>% distinct() %>% dplyr::count()
   accnet$AccnetProteinSize = tmp$n
 
 
